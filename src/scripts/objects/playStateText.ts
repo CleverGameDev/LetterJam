@@ -7,10 +7,14 @@ export default class PlayStateText extends Phaser.GameObjects.Text {
       scene.add.existing(this)
       this.setOrigin(0)
     }
-  
-    public update(state: integer) {
+
+    public update(state: string) {
       this.setText(`State: ${state}`);
       switch(state) {
+          case PLAY_STATE.DISCUSS: {
+              this.setColor('green');
+              break;
+          }
           case PLAY_STATE.PROVIDE_HINT: {
               this.setColor('red');
               break;
@@ -19,10 +23,13 @@ export default class PlayStateText extends Phaser.GameObjects.Text {
               this.setColor('blue');
               break;
           }
+          case PLAY_STATE.CHECK_END_CONDITION: {
+              this.setColor('orange');
+              break;
+          }
           default: {
               this.setColor('black');
           }
       }
-    } 
+    }
   }
-  
