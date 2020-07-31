@@ -7,8 +7,5 @@ export default class PhaserLogo extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true)
       .setBounce(0.6)
       .setInteractive()
-      .on('pointerdown', () => {
-        this.setVelocityY(-400)
-      })
   }
 }

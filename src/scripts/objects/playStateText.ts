@@ -1,9 +1,8 @@
-import { PLAY_STATE } from "../scenes/mainScene"
-
+import { PLAY_STATE } from "../scenes/gameScene";
 
 export default class PlayStateText extends Phaser.GameObjects.Text {
     constructor(scene: Phaser.Scene) {
-      super(scene, 10, 10, '', { color: 'black', fontSize: '28px' })
+      super(scene, 0, 100, '', { color: 'black', fontSize: '28px' })
       scene.add.existing(this)
       this.setOrigin(0)
     }

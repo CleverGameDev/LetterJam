@@ -1,6 +1,8 @@
 import PhaserLogo from '../objects/phaserLogo'
 import PlayStateText from '../objects/playStateText'
 
+const key = 'GameScene';
+
 export enum PLAY_STATE {
   DISCUSS = 'discuss',
   PROVIDE_HINT = 'provide_hint',
@@ -10,21 +12,28 @@ export enum PLAY_STATE {
 
 const TOTAL_STATE_NUM = Object.keys(PLAY_STATE).length;
 
-export default class MainScene extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text
   playStateText: Phaser.GameObjects.Text
   playState: PLAY_STATE
 
   constructor() {
-    super({ key: 'MainScene' })
+    super({ key })
   }
 
   preload () {
-    this.load.image('phaser-logo', 'assets/img/phaser-logo.png')
   }
 
   create() {
-    new PhaserLogo(this, this.cameras.main.width / 2, 0)
+    const logo1 = new PhaserLogo(this, this.cameras.main.width / 2 - 100, 0);
+    const logo2 = new PhaserLogo(this, this.cameras.main.width / 2 + 100, 400);
+
+    this.add.text(0, 0, `${key}`, {
+      color: '#000000',
+      fontSize: 36
+    });
+
+
     this.playStateText = new PlayStateText(this)
     this.playState = PLAY_STATE.DISCUSS
 
@@ -35,7 +44,8 @@ export default class MainScene extends Phaser.Scene {
         fontSize: 24
       })
       .setOrigin(1, 0)
-    this.input.on('pointerdown',this.iteratePlayState, this);
+    logo1.on('pointerdown',this.iteratePlayState, this);
+    logo2.on('pointerdown', () => this.scene.start('EndScene'));
   }
 
   iteratePlayState(pointer) {
