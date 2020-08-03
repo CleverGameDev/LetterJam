@@ -1,5 +1,6 @@
 import PhaserLogo from '../objects/phaserLogo'
 import PlayStateText from '../objects/playStateText'
+import Flower from '../objects/flower';
 
 const key = 'GameScene';
 
@@ -16,6 +17,7 @@ export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text
   playStateText: Phaser.GameObjects.Text
   playState: PLAY_STATE
+  flower: Flower
 
   constructor() {
     super({ key })
@@ -36,6 +38,8 @@ export default class GameScene extends Phaser.Scene {
 
     this.playStateText = new PlayStateText(this)
     this.playState = PLAY_STATE.DISCUSS
+    // TODO: add the number of players here
+    this.flower = new Flower(this, 4)
 
     // display the Phaser.VERSION
     this.add
@@ -57,6 +61,7 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     this.playStateText.update(this.playState)
+    this.flower.update();
 
     switch (this.playState) {
       case PLAY_STATE.DISCUSS:
