@@ -4,7 +4,7 @@ export default class PreloadScene extends Phaser.Scene {
   constructor() {
     super({ key: 'PreloadScene' })
     
-    const channel:any = geckos({ port: 3000 })
+    const channel:any = geckos({ port: parseInt((window.location.port || "3000"), 10)})
 
     channel.onConnect(error => {
       if (error) {
