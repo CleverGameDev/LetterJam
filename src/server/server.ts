@@ -20,6 +20,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../dist/index.html'))
 })
 
+app.get('/port', (req, res) => {
+  res.send({port})
+})
+
 io.addServer(server);
 
 let scenes = [
