@@ -4,6 +4,7 @@ import PreloadScene from './scenes/preloadScene'
 import LobbyScene from './scenes/lobbyScene'
 import EndScene from './scenes/endScene'
 import SetupScene from './scenes/setupScene'
+import geckos from '@geckos.io/client'
 
 const DEFAULT_WIDTH = 1280
 const DEFAULT_HEIGHT = 720
