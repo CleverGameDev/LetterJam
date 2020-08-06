@@ -1,25 +1,15 @@
-import geckos from "@geckos.io/client";
+import io from "socket.io-client";
 
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
     super({ key: "PreloadScene" });
-    fetch(`${location.origin}/port`)
-      .then((resp) => resp.json())
-      .then((data: any) => {
-        const channel: any = geckos({ port: data.port });
 
-        channel.onConnect((error) => {
-          if (error) {
-            console.error(error.message);
-            return;
-          }
+    const socket = io();
 
-          channel.on("ready", (data) => {
-            const { id, scene, players } = data;
-            this.scene.start(scene, { channel, id, players });
-          });
-        });
-      });
+    socket.on("ready", (data) => {
+      const { id, scene, players } = data;
+      this.scene.start(scene, { socket, id, players });
+    });
   }
 
   preload() {

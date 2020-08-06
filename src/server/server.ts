@@ -2,7 +2,7 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
-const geckos = require("@geckos.io/server").default;
+const socketIO = require("socket.io");
 /* eslint-enable */
 
 const app = express();
@@ -10,10 +10,10 @@ const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
 
-const io = geckos();
+const io = socketIO(server);
 
 const players = [];
-let playerId = 0;
+const playerId = 0;
 
 // Web logic
 app.use("/", express.static(path.join(__dirname, "../../dist")));
@@ -34,41 +34,38 @@ app.get("/port", (req, res) => {
   res.send({ port });
 });
 
-io.addServer(server);
-
 const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
 
 let sceneIndex = 0;
+const roomName = "someRoom";
 
-io.onConnection((channel) => {
-  channel.join("sampleRoom");
-  playerId += 1;
-  channel.playerId = playerId;
-  players.push(channel.playerId);
+io.on("connection", (client) => {
+  client.join(roomName);
+  players.push(client.id);
 
-  channel.onDisconnect(() => {
-    players.splice(players.indexOf(channel.playerId), 1);
-    channel.room.emit("playerLeft", {
-      playerId: channel.playerId,
+  client.on("disconnect", () => {
+    players.splice(players.indexOf(client.id), 1);
+    io.to(roomName).emit("playerLeft", {
+      playerId: client.playerId,
     });
   });
 
-  channel.on("nextScene", () => {
+  client.on("nextScene", () => {
     sceneIndex++;
     sceneIndex %= scenes.length;
 
-    channel.room.emit("update", {
+    io.to(roomName).emit("update", {
       scene: scenes[sceneIndex],
     });
   });
 
-  channel.emit("ready", {
+  io.emit("ready", {
     id: playerId,
     scene: scenes[sceneIndex],
     players,
   });
 
-  channel.room.emit("playerJoined", {
+  io.to(roomName).emit("playerJoined", {
     playerId,
   });
 });
