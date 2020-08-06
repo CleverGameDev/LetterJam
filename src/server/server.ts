@@ -1,80 +1,78 @@
-const express = require('express')
-const http = require('http')
-const path = require('path')
-const geckos = require('@geckos.io/server').default
+/* eslint-disable */
+const express = require("express");
+const http = require("http");
+const path = require("path");
+const geckos = require("@geckos.io/server").default;
+/* eslint-enable */
 
-const app = express()
-const server = http.createServer(app)
+const app = express();
+const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
 
 const io = geckos();
 
-let players = [];
+const players = [];
 let playerId = 0;
 
 // Web logic
-app.use('/', express.static(path.join(__dirname, '../../dist')))
+app.use("/", express.static(path.join(__dirname, "../../dist")));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../dist/index.html'))
-})
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../dist/index.html"));
+});
 
-app.get('/port', (req, res) => {
+app.get("/port", (req, res) => {
   // 443 in prod, 3000 in localhost
   if (process.env.IS_HEROKU) {
     res.send({
-		internal_port: port,
-		port: 443
-    })
+      internal_port: port,
+      port: 443,
+    });
+    return;
   }
-  res.send({port})
-})
+  res.send({ port });
+});
 
 io.addServer(server);
 
-let scenes = [
-	'LobbyScene',
-	'SetupScene',
-	'GameScene',
-	'EndScene',
-];
+const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
 
 let sceneIndex = 0;
 
 io.onConnection((channel) => {
-	channel.join('sampleRoom')
-	playerId += 1;
-	channel.playerId = playerId;
-	players.push(channel.playerId);
+  channel.join("sampleRoom");
+  playerId += 1;
+  channel.playerId = playerId;
+  players.push(channel.playerId);
 
   channel.onDisconnect(() => {
-		players.splice(players.indexOf(channel.playerId), 1);
-	  channel.room.emit('playerLeft', {
-	  	playerId: channel.playerId,
-	  });
-  })
-
-  channel.on('nextScene', () => {
-  	sceneIndex++;
-  	sceneIndex %= scenes.length;
-
-    channel.room.emit('update', {
-    	scene: scenes[sceneIndex],
+    players.splice(players.indexOf(channel.playerId), 1);
+    channel.room.emit("playerLeft", {
+      playerId: channel.playerId,
     });
   });
 
-  channel.emit('ready', {
-  	id: playerId,
-  	scene: scenes[sceneIndex],
-  	players,
+  channel.on("nextScene", () => {
+    sceneIndex++;
+    sceneIndex %= scenes.length;
+
+    channel.room.emit("update", {
+      scene: scenes[sceneIndex],
+    });
   });
 
-  channel.room.emit('playerJoined', {
-  	playerId,
+  channel.emit("ready", {
+    id: playerId,
+    scene: scenes[sceneIndex],
+    players,
   });
-})
+
+  channel.room.emit("playerJoined", {
+    playerId,
+  });
+});
 
 server.listen(port, () => {
-  console.log('Express is listening on http://localhost:' + port)
-})
+  console.log("Express is listening on http://localhost:" + port);
+});
