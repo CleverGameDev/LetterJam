@@ -1,0 +1,14 @@
+# JS files used in automation
+.eslintrc.js
+webpack
+
+# HTML
+index.html
+
+# build output
+dist
+
+# installed packages
+node_modules
+
+
