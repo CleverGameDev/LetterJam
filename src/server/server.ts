@@ -21,6 +21,10 @@ app.get('/', (req, res) => {
 })
 
 app.get('/port', (req, res) => {
+  // 443 in prod, 3000 in localhost
+  if (process.env.IS_HEROKU) {
+    res.send({port: 443})
+  }
   res.send({port})
 })
 
