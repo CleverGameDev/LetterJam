@@ -1,7 +1,7 @@
 import PhaserLogo from "../objects/phaserLogo";
 
 export default class EndScene extends Phaser.Scene {
-  channel;
+  socket;
   id: number;
   players: string[];
 
@@ -9,8 +9,8 @@ export default class EndScene extends Phaser.Scene {
     super({ key: "EndScene" });
   }
 
-  init({ channel, id, players }) {
-    this.channel = channel;
+  init({ socket, id, players }) {
+    this.socket = socket;
     this.id = id;
     this.players = players;
   }
@@ -21,10 +21,10 @@ export default class EndScene extends Phaser.Scene {
       fontSize: 36,
     });
     const logo = new PhaserLogo(this, this.cameras.main.width / 2 - 100, 0);
-    logo.on("pointerdown", () => this.channel.emit("nextScene"));
-    this.channel.on("update", (data) => {
+    logo.on("pointerdown", () => this.socket.emit("nextScene"));
+    this.socket.on("update", (data) => {
       this.scene.start(data.scene, {
-        channel: this.channel,
+        socket: this.socket,
         id: this.id,
         players: this.players,
       });

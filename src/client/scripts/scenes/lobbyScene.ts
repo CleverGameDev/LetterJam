@@ -2,7 +2,7 @@ import PhaserLogo from "../objects/phaserLogo";
 
 export default class LobbyScene extends Phaser.Scene {
   players: string[];
-  channel;
+  socket;
   id: number;
   playerTexts;
 
@@ -11,8 +11,8 @@ export default class LobbyScene extends Phaser.Scene {
     this.playerTexts = [];
   }
 
-  init({ channel, id, players }) {
-    this.channel = channel;
+  init({ socket, id, players }) {
+    this.socket = socket;
     this.id = id;
     this.players = players;
   }
@@ -38,7 +38,7 @@ export default class LobbyScene extends Phaser.Scene {
 
   create() {
     const logo = new PhaserLogo(this, this.cameras.main.width / 2, 0);
-    logo.on("pointerdown", () => this.channel.emit("nextScene"));
+    logo.on("pointerdown", () => this.socket.emit("nextScene"));
 
     this.add.text(0, 0, `LOBBY SCENE`, {
       color: "#000000",
@@ -47,21 +47,21 @@ export default class LobbyScene extends Phaser.Scene {
 
     this.drawPlayerTexts();
 
-    this.channel.on("update", (data) => {
+    this.socket.on("update", (data) => {
       this.scene.start(data.scene, {
-        channel: this.channel,
+        socket: this.socket,
         id: this.id,
         players: this.players,
       });
     });
 
-    this.channel.on("playerLeft", (data) => {
+    this.socket.on("playerLeft", (data) => {
       this.players.splice(this.players.indexOf(data.playerId), 1);
       this.clearPlayerTexts();
       this.drawPlayerTexts();
     });
 
-    this.channel.on("playerJoined", (data) => {
+    this.socket.on("playerJoined", (data) => {
       this.players.push(data.playerId);
       this.clearPlayerTexts();
       this.drawPlayerTexts();

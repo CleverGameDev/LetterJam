@@ -16,7 +16,7 @@ export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text;
   playStateText: Phaser.GameObjects.Text;
   playState: PLAY_STATE;
-  channel;
+  socket;
   id: number;
   players: string[];
 
@@ -24,8 +24,8 @@ export default class GameScene extends Phaser.Scene {
     super({ key });
   }
 
-  init({ channel, id, players }) {
-    this.channel = channel;
+  init({ socket, id, players }) {
+    this.socket = socket;
     this.id = id;
     this.players = players;
   }
@@ -50,10 +50,10 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
     logo1.on("pointerdown", this.iteratePlayState, this);
-    logo2.on("pointerdown", () => this.channel.emit("nextScene"));
-    this.channel.on("update", (data) => {
+    logo2.on("pointerdown", () => this.socket.emit("nextScene"));
+    this.socket.on("update", (data) => {
       this.scene.start(data.scene, {
-        channel: this.channel,
+        socket: this.socket,
         id: this.id,
         players: this.players,
       });
