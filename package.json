@@ -5,10 +5,9 @@
   "homepage": "https://github.com/yandeu/phaser-project-template#readme",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config webpack/webpack.dev.js",
     "build": "webpack --config webpack/webpack.prod.js",
     "bundle": "npm run build",
-    "serve": "serve dist",
+    "startDev": "webpack --config webpack/webpack.dev.js --watch & NODE_ENV=development node src/server/server.ts",
     "startProd": "NODE_ENV=production node src/server/server.ts",
     "lint": "eslint . --ext .ts"
   },
@@ -65,7 +64,6 @@
     "@types/socket.io": "^2.1.10",
     "express": "^4.17.1",
     "phaser": "^3.24.1",
-    "serve": "^11.3.2",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
   },
