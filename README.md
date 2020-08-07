@@ -12,13 +12,13 @@ To learn more about this repo's structure, review the README of the template pro
 # Install dependencies
 $ npm install
 
-# Start the local development server (on port 8080)
-$ npm start
+# Start the local development server
+$ npm run startDev
 
 # Ready for production?
 # Build the production ready code to the /dist folder
 $ npm run build
 
 # Play your production ready game in the browser
-$ npm run serve
+$ npm run startProd
 ```
