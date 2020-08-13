@@ -11,6 +11,9 @@ module.exports = {
     chunkFilename: "[name].chunk.js",
   },
   resolve: {
+    alias: {
+      src: path.resolve(__dirname, "../src/"),
+    },
     extensions: [".ts", ".tsx", ".js"],
   },
   module: {
