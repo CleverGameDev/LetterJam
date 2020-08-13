@@ -39,6 +39,14 @@ const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
 let sceneIndex = 0;
 const roomName = "someRoom";
 
+let clues = {};
+let votes = {};
+
+const resetState = () => {
+  clues = {};
+  votes = {};
+};
+
 io.on("connection", (client) => {
   client.join(roomName);
   players.push(client.id);
@@ -53,10 +61,29 @@ io.on("connection", (client) => {
   client.on("nextScene", () => {
     sceneIndex++;
     sceneIndex %= scenes.length;
+    resetState();
 
     io.to(roomName).emit("update", {
       scene: scenes[sceneIndex],
     });
+  });
+
+  /////////////////
+  // Discuss step
+  /////////////////
+  client.emit("clues", clues);
+
+  client.on("updateClue", (clue) => {
+    clues[clue.playerID] = {
+      ...clue,
+      playerID: undefined,
+    };
+  });
+
+  // This voting system is like Medium, you can vote as many times as you'd like
+  // We should actually track who voted for whom so we can actually change votes
+  client.on("vote", (data) => {
+    votes[data.votedID] ? votes[data.votedID]++ : (votes[data.votedID] = 1);
   });
 
   io.emit("ready", {
