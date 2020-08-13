@@ -1,5 +1,6 @@
 import PhaserLogo from "../objects/phaserLogo";
 import PlayStateText from "../objects/playStateText";
+import GuessingSheet from "../objects/guessingSheet";
 
 const key = "GameScene";
 
@@ -10,11 +11,11 @@ export enum PLAY_STATE {
   CHECK_END_CONDITION = "check_end_condition",
 }
 
-const TOTAL_STATE_NUM = Object.keys(PLAY_STATE).length;
-
 export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text;
   playStateText: Phaser.GameObjects.Text;
+  guessingSheet: GuessingSheet;
+
   playState: PLAY_STATE;
   socket;
   id: number;
@@ -31,14 +32,32 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const logo1 = new PhaserLogo(this, this.cameras.main.width / 2 - 100, 0);
-    const logo2 = new PhaserLogo(this, this.cameras.main.width / 2 + 100, 400);
-
+    // Scene title
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
       fontSize: 36,
     });
 
+    // interative game logos.. these are buttons that let us navigate around
+    const logo1 = new PhaserLogo(this, this.cameras.main.width / 2 - 100, 0);
+    const logo2 = new PhaserLogo(this, this.cameras.main.width / 2 + 100, 400);
+    logo1.on("pointerdown", this.iteratePlayState, this);
+    logo2.on("pointerdown", () => this.socket.emit("nextScene"));
+
+    // Guessing sheet, and a button to show/hide the guessing sheet
+    this.guessingSheet = new GuessingSheet(this);
+    const guessingSheetButton = new PhaserLogo(
+      this,
+      0,
+      this.cameras.main.height * 0.9
+    )
+      .setOrigin(0, 0)
+      .setScale(0.1, 0.1);
+    guessingSheetButton.on("pointerdown", () =>
+      this.guessingSheet.setVisible(!this.guessingSheet.visible)
+    );
+
+    // Game sub-state
     this.playStateText = new PlayStateText(this);
     this.playState = PLAY_STATE.DISCUSS;
 
@@ -49,8 +68,7 @@ export default class GameScene extends Phaser.Scene {
         fontSize: 24,
       })
       .setOrigin(1, 0);
-    logo1.on("pointerdown", this.iteratePlayState, this);
-    logo2.on("pointerdown", () => this.socket.emit("nextScene"));
+
     this.socket.on("update", (data) => {
       this.scene.start(data.scene, {
         socket: this.socket,
