@@ -19,7 +19,11 @@ const playerId = 0;
 app.use("/", express.static(path.join(__dirname, "../../dist")));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../dist/index.html"));
+  if (process.env.NODE_ENV == "production") {
+    res.sendFile(path.join(__dirname, "../../dist/index.html"));
+  } else {
+    res.sendFile(path.join(__dirname, "../index.html"));
+  }
 });
 
 app.get("/port", (req, res) => {
