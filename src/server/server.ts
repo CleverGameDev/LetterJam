@@ -39,8 +39,13 @@ const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
 let sceneIndex = 0;
 const roomName = "someRoom";
 
-const clues = {};
-const votes = {};
+let clues = {};
+let votes = {};
+
+const resetState = () => {
+  clues = {};
+  votes = {};
+};
 
 io.on("connection", (client) => {
   client.join(roomName);
@@ -56,6 +61,7 @@ io.on("connection", (client) => {
   client.on("nextScene", () => {
     sceneIndex++;
     sceneIndex %= scenes.length;
+    resetState();
 
     io.to(roomName).emit("update", {
       scene: scenes[sceneIndex],
