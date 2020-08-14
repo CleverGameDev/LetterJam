@@ -1,5 +1,6 @@
 import PhaserLogo from "../objects/phaserLogo";
 import PlayStateText from "../objects/playStateText";
+import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
 
 const key = "GameScene";
@@ -17,6 +18,7 @@ export default class GameScene extends Phaser.Scene {
   guessingSheet: GuessingSheet;
 
   playState: PLAY_STATE;
+  flower: Flower;
   socket;
   id: number;
   players: string[];
@@ -60,6 +62,7 @@ export default class GameScene extends Phaser.Scene {
     // Game sub-state
     this.playStateText = new PlayStateText(this);
     this.playState = PLAY_STATE.DISCUSS;
+    this.flower = new Flower(this, this.players.length);
 
     // display the Phaser.VERSION
     this.add
@@ -89,6 +92,7 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     this.playStateText.update(this.playState);
+    this.flower.update();
 
     switch (this.playState) {
       case PLAY_STATE.DISCUSS:
