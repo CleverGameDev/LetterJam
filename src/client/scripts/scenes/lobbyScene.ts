@@ -41,7 +41,11 @@ export default class LobbyScene extends Phaser.Scene {
   };
 
   create() {
-    const logo = new PhaserLogo(this, this.cameras.main.width / 2, 0);
+    const logo = new PhaserLogo(
+      this,
+      this.cameras.main.width / 2,
+      400
+    ).setScale(0.25, 0.25);
     logo.on("pointerdown", () => this.socket.emit("nextScene"));
 
     this.add.text(0, 0, `LOBBY SCENE`, {
