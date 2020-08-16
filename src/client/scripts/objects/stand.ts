@@ -15,8 +15,13 @@ export class Stand extends Phaser.GameObjects.GameObject {
 }
 
 export class StandView extends Phaser.GameObjects.Text {
-  constructor(scene: Phaser.Scene, currentLetter: string) {
-    super(scene, 0, 0, currentLetter, { color: "black", fontSize: "14px" });
+  constructor(
+    scene: Phaser.Scene,
+    currentLetter: string,
+    x: integer,
+    y: integer
+  ) {
+    super(scene, x, y, currentLetter, { color: "black", fontSize: "14px" });
     scene.add.existing(this);
   }
 
@@ -30,19 +35,25 @@ export class NPCStand extends Stand {
   hasGreenToken: boolean;
   cardsLeft: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, playerID: string, deck: string[]) {
+  constructor(
+    scene: Phaser.Scene,
+    playerID: string,
+    deck: string[],
+    x: integer,
+    y: integer
+  ) {
     super(scene, playerID, deck);
-    this.standView = new StandView(scene, this.deck.shift());
+    this.standView = new StandView(scene, this.deck.shift(), x, y);
     this.hasGreenToken = true;
     this.cardsLeft = new Phaser.GameObjects.Text(
       scene,
-      0,
-      0,
+      x + 10,
+      y,
       this.deck.length.toString(),
       { color: "black", fontSize: "14px" }
     );
 
-    scene.add.existing(this);
+    scene.add.existing(this.cardsLeft);
   }
 
   public next() {
@@ -67,17 +78,29 @@ export class PlayerStand extends Stand {
   standView: StandView;
   currentCardIndexText: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, playerID: string, deck: string[]) {
+  constructor(
+    scene: Phaser.Scene,
+    playerID: string,
+    deck: string[],
+    x: integer,
+    y: integer
+  ) {
     super(scene, playerID, deck);
     this.currentCardIndex = 0;
-    this.standView = new StandView(scene, this.deck[this.currentCardIndex]);
+    this.standView = new StandView(
+      scene,
+      this.deck[this.currentCardIndex],
+      x,
+      y
+    );
     this.currentCardIndexText = new Phaser.GameObjects.Text(
       scene,
-      0,
-      0,
+      x + 10,
+      y,
       "Card Number: 1",
       { color: "black", fontSize: "14px" }
     );
+    scene.add.existing(this.currentCardIndexText);
   }
 
   public next(): void {
@@ -105,17 +128,19 @@ export class SelfStand extends Stand {
     this.currentCardIndexText = new Phaser.GameObjects.Text(
       scene,
       0,
-      0,
-      "Card Number: 1",
+      scene.cameras.main.height * 0.85,
+      "Your Card Number: 1",
       { color: "black", fontSize: "14px" }
     );
+    scene.add.existing(this.currentCardIndexText);
+    console.log("doop");
   }
 
   public next(): void {
     this.currentCardIndex++;
     if (this.currentCardIndex < this.deck.length) {
       this.currentCardIndexText.setText(
-        `Card Index: ${this.currentCardIndex.toString()}`
+        `Your Card Index: ${this.currentCardIndex.toString()}`
       );
     } else {
       // Time to get a bonus card!
