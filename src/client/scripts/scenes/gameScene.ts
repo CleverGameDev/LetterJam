@@ -2,8 +2,8 @@ import PhaserLogo from "../objects/phaserLogo";
 import PlayStateText from "../objects/playStateText";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
-import ActiveClues from "../objects/ActiveClues";
-import Dialog from "../objects/Dialog";
+import ActiveClues from "../objects/activeClues";
+import Dialog from "../objects/dialog";
 import { giveClue } from "../lib/discuss";
 import { Clue, GameState, Letter, PlayerType } from "src/shared/models";
 
