@@ -61,3 +61,36 @@ export class NPCStand extends Stand {
     }
   }
 }
+
+export class PlayerStand extends Stand {
+  currentCardIndex: integer;
+  standView: StandView;
+  currentCardIndexText: Phaser.GameObjects.Text;
+
+  constructor(scene: Phaser.Scene, playerID: string, deck: string[]) {
+    super(scene, playerID, deck);
+    this.currentCardIndex = 0;
+    this.standView = new StandView(scene, this.deck[this.currentCardIndex]);
+    this.currentCardIndexText = new Phaser.GameObjects.Text(
+      scene,
+      0,
+      0,
+      "Card Number: 1",
+      { color: "black", fontSize: "14px" }
+    );
+  }
+
+  public next(): void {
+    this.currentCardIndex++;
+    if (this.currentCardIndex < this.deck.length) {
+      this.standView.setLetter(this.deck[this.currentCardIndex]);
+      this.currentCardIndexText.setText(
+        `Card Index: ${this.currentCardIndex.toString()}`
+      );
+    } else {
+      // Time to get a bonus card!
+      // TODO: draw from the deck for a bonus card
+      this.currentCardIndexText.setText("Bonus Card");
+    }
+  }
+}
