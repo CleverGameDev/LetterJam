@@ -2,6 +2,10 @@ import PhaserLogo from "../objects/phaserLogo";
 import PlayStateText from "../objects/playStateText";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
+import ActiveClues from "../objects/ActiveClues";
+import Dialog from "../objects/Dialog";
+import { giveClue } from "../lib/discuss";
+import { Clue, GameState, Letter, PlayerType } from "src/shared/models";
 
 const key = "GameScene";
 
@@ -22,9 +26,66 @@ export default class GameScene extends Phaser.Scene {
   socket;
   id: number;
   players: string[];
+  activeClues: ActiveClues;
+  dialog: Dialog;
+  clues: Clue[];
+  gameState: GameState;
+  board;
 
   constructor() {
     super({ key });
+    this.board = [];
+    this.gameState = {
+      visibleLetters: [
+        {
+          player: "1",
+          playerType: PlayerType.Player,
+          letter: Letter.A,
+        },
+        {
+          player: "2",
+          playerType: PlayerType.Player,
+          letter: Letter.B,
+        },
+        {
+          player: "3",
+          playerType: PlayerType.Player,
+          letter: Letter.S,
+        },
+        {
+          player: "4",
+          playerType: PlayerType.Player,
+          letter: Letter.I,
+        },
+        {
+          player: "5",
+          playerType: PlayerType.Player,
+          letter: Letter.N,
+        },
+      ],
+    };
+    this.dialog = new Dialog(
+      this,
+      "Enter clue here",
+      "What is your clue?",
+      null,
+      (content) => {
+        const validClue = giveClue(
+          this.socket,
+          this.id.toString(),
+          content,
+          this.gameState
+        );
+        if (!validClue) {
+          // Let user know and prompt for another clue
+        }
+      }
+    );
+  }
+
+  preload() {
+    this.load.image("phaser-logo", "assets/img/phaser-logo.png");
+    this.dialog.preload();
   }
 
   init({ socket, id, players }) {
@@ -32,6 +93,33 @@ export default class GameScene extends Phaser.Scene {
     this.id = id;
     this.players = players;
   }
+
+  _clearVisibleLetters = () => {
+    for (const text of this.board) {
+      text.destroy();
+    }
+    this.board = [];
+  };
+
+  _drawVisibleLetters = () => {
+    this.gameState.visibleLetters.forEach((stand, idx) => {
+      const label = this.add.text(
+        100 + 100 * idx,
+        200,
+        `${stand.playerType[0].toUpperCase()}${stand.player}`,
+        {
+          color: "#000000",
+          fontSize: 36,
+        }
+      );
+      const letter = this.add.text(100 + 100 * idx, 250, stand.letter, {
+        color: "#000000",
+        fontSize: 36,
+      });
+      this.board.push(label);
+      this.board.push(letter);
+    });
+  };
 
   create() {
     // Scene title
@@ -41,8 +129,16 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // interative game logos.. these are buttons that let us navigate around
-    const logo1 = new PhaserLogo(this, this.cameras.main.width / 2 - 100, 0);
-    const logo2 = new PhaserLogo(this, this.cameras.main.width / 2 + 100, 400);
+    const logo1 = new PhaserLogo(
+      this,
+      this.cameras.main.width / 2 - 100,
+      400
+    ).setScale(0.25, 0.25);
+    const logo2 = new PhaserLogo(
+      this,
+      this.cameras.main.width / 2 + 100,
+      400
+    ).setScale(0.25, 0.25);
     logo1.on("pointerdown", this.iteratePlayState, this);
     logo2.on("pointerdown", () => this.socket.emit("nextScene"));
 
@@ -51,10 +147,11 @@ export default class GameScene extends Phaser.Scene {
     const guessingSheetButton = new PhaserLogo(
       this,
       0,
-      this.cameras.main.height * 0.9
+      this.cameras.main.height * 0.95
     )
       .setOrigin(0, 0)
       .setScale(0.1, 0.1);
+    this.guessingSheet.setVisible(false);
     guessingSheetButton.on("pointerdown", () =>
       this.guessingSheet.setVisible(!this.guessingSheet.visible)
     );
@@ -72,6 +169,10 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
+    this.socket.on("clues", (data) => {
+      this.clues = data;
+    });
+
     this.socket.on("update", (data) => {
       this.scene.start(data.scene, {
         socket: this.socket,
@@ -79,6 +180,37 @@ export default class GameScene extends Phaser.Scene {
         players: this.players,
       });
     });
+
+    // Discuss UI elements
+    this.dialog.create();
+    const clueBtn = new PhaserLogo(
+      this,
+      this.cameras.main.width * 0.95,
+      this.cameras.main.height * 0.95
+    )
+      .setOrigin(0, 0)
+      .setScale(0.1, 0.1);
+    clueBtn.on("pointerdown", () => this.dialog.open());
+
+    this.activeClues = new ActiveClues(this);
+    this.activeClues.setVisible(false);
+    const activeCluesBtn = new PhaserLogo(
+      this,
+      this.cameras.main.width * 0.9,
+      this.cameras.main.height * 0.95
+    )
+      .setOrigin(0, 0)
+      .setScale(0.1, 0.1);
+    activeCluesBtn.on("pointerdown", () => {
+      if (!this.activeClues.visible) {
+        this._clearVisibleLetters();
+      } else {
+        this._drawVisibleLetters();
+      }
+      this.activeClues.setVisible(!this.activeClues.visible);
+    });
+
+    this._drawVisibleLetters();
   }
 
   iteratePlayState(pointer) {
@@ -98,6 +230,9 @@ export default class GameScene extends Phaser.Scene {
       case PLAY_STATE.DISCUSS:
         // Concluded when one player's hint is chosen.
         // Chosen via voting in game, and then clicking continue once there's agreement (could also have timer)
+        if (this.activeClues) {
+          this.activeClues.update();
+        }
         break;
       case PLAY_STATE.PROVIDE_HINT:
         // If player IS NOT the hint provider
