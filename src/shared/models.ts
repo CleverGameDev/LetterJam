@@ -5,35 +5,35 @@ export type Stand = {
 };
 
 // No J, Q, V, X, or Z
-export const Letter = {
-  A: "a",
-  B: "b",
-  C: "c",
-  D: "d",
-  E: "e",
-  F: "f",
-  G: "g",
-  H: "h",
-  I: "i",
-  K: "k",
-  L: "l",
-  M: "m",
-  N: "n",
-  O: "o",
-  P: "p",
-  R: "r",
-  S: "s",
-  T: "t",
-  U: "u",
-  W: "w",
-  Y: "y",
-};
+export enum Letter {
+  A = "a",
+  B = "b",
+  C = "c",
+  D = "d",
+  E = "e",
+  F = "f",
+  G = "g",
+  H = "h",
+  I = "i",
+  K = "k",
+  L = "l",
+  M = "m",
+  N = "n",
+  O = "o",
+  P = "p",
+  R = "r",
+  S = "s",
+  T = "t",
+  U = "u",
+  W = "w",
+  Y = "y",
+}
 
-export const PlayerType = {
-  Player: "player",
-  NPC: "npc",
-  Bonus: "bonus",
-};
+export enum PlayerType {
+  Player = "player",
+  NPC = "npc",
+  Bonus = "bonus",
+}
 
 export type GameState = {
   visibleLetters: Stand[];
