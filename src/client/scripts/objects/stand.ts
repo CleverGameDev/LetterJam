@@ -21,7 +21,7 @@ export class StandView extends Phaser.GameObjects.Text {
     x: integer,
     y: integer
   ) {
-    super(scene, x, y, currentLetter, { color: "black", fontSize: "14px" });
+    super(scene, x, y, currentLetter, { color: "black", fontSize: "20px" });
     scene.add.existing(this);
   }
 
@@ -45,21 +45,24 @@ export class NPCStand extends Stand {
     super(scene, playerID, deck);
     this.standView = new StandView(scene, this.deck.shift(), x, y);
     this.hasGreenToken = true;
+    scene.add.text(x, y - 15, `NPC ${playerID}`, {
+      color: "black",
+      fontSize: "20px",
+    });
     this.cardsLeft = new Phaser.GameObjects.Text(
       scene,
-      x + 10,
-      y,
-      this.deck.length.toString(),
-      { color: "black", fontSize: "14px" }
+      x,
+      y + 15,
+      `Cards Left: ${this.deck.length.toString()}`,
+      { color: "black", fontSize: "20px" }
     );
-
     scene.add.existing(this.cardsLeft);
   }
 
   public next() {
     if (this.deck.length > 0) {
       this.standView.setLetter(this.deck.shift());
-      this.cardsLeft.setText(this.deck.length.toString());
+      this.cardsLeft.setText(`Cards Left: ${this.deck.length.toString()}`);
     } else {
       // The deck is empty! Grab from the discard pile!
       // TODO: grab from the discard pile
@@ -93,12 +96,16 @@ export class PlayerStand extends Stand {
       x,
       y
     );
+    scene.add.text(x, y - 15, `Player ${playerID}`, {
+      color: "black",
+      fontSize: "20px",
+    });
     this.currentCardIndexText = new Phaser.GameObjects.Text(
       scene,
-      x + 10,
-      y,
+      x,
+      y + 15,
       "Card Number: 1",
-      { color: "black", fontSize: "14px" }
+      { color: "black", fontSize: "20px" }
     );
     scene.add.existing(this.currentCardIndexText);
   }
@@ -130,10 +137,9 @@ export class SelfStand extends Stand {
       0,
       scene.cameras.main.height * 0.85,
       "Your Card Number: 1",
-      { color: "black", fontSize: "14px" }
+      { color: "black", fontSize: "20px" }
     );
     scene.add.existing(this.currentCardIndexText);
-    console.log("doop");
   }
 
   public next(): void {
