@@ -12,9 +12,6 @@ const port = process.env.PORT || 3000;
 
 const io = socketIO(server);
 
-const players = [];
-const playerId = 0;
-
 // Web logic
 app.use("/", express.static(path.join(__dirname, "../../dist")));
 
@@ -38,6 +35,8 @@ const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
 
 let sceneIndex = 0;
 const roomName = "someRoom";
+const playerNames = {};
+const playerNameSet = new Set();
 
 let clues = {};
 let votes = {};
@@ -49,13 +48,14 @@ const resetState = () => {
 
 io.on("connection", (client) => {
   client.join(roomName);
-  players.push(client.id);
 
   client.on("disconnect", () => {
-    players.splice(players.indexOf(client.id), 1);
     io.to(roomName).emit("playerLeft", {
-      playerId: client.playerId,
+      playerId: client.id,
+      playerName: playerNames[client.id],
     });
+    playerNameSet.delete(playerNames[client.id]);
+    delete playerNames[client.id];
   });
 
   client.on("nextScene", () => {
@@ -78,6 +78,31 @@ io.on("connection", (client) => {
     client.emit("clues", clues);
   });
 
+  client.on("setPlayerName", (playerName) => {
+    // Don't let players take another player's name
+    if (playerNameSet.has(playerName)) {
+      return;
+    }
+    if (playerNames[client.id]) {
+      const oldName = playerNames[client.id];
+      playerNameSet.delete(oldName);
+      playerNames[client.id] = playerName;
+      playerNameSet.add(playerName);
+      io.to(roomName).emit("playerRenamed", {
+        playerId: client.id,
+        oldPlayerName: oldName,
+        newPlayerName: playerName,
+      });
+    } else {
+      playerNames[client.id] = playerName;
+      playerNameSet.add(playerName);
+      io.to(roomName).emit("playerJoined", {
+        playerId: client.id,
+        playerName,
+      });
+    }
+  });
+
   // This voting system is like Medium, you can vote as many times as you'd like
   // We should actually track who voted for whom so we can actually change votes
   client.on("vote", (data) => {
@@ -85,13 +110,9 @@ io.on("connection", (client) => {
   });
 
   io.emit("ready", {
-    id: playerId,
+    id: client.id,
     scene: scenes[sceneIndex],
-    players,
-  });
-
-  io.to(roomName).emit("playerJoined", {
-    playerId,
+    players: Array.from(playerNameSet),
   });
 });
 
