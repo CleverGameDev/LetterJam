@@ -29,11 +29,11 @@ export const Letter = {
   Y: "y",
 };
 
-export enum PlayerType {
-  Player,
-  NPC,
-  Bonus,
-}
+export const PlayerType = {
+  Player: "player",
+  NPC: "npc",
+  Bonus: "bonus",
+};
 
 export type GameState = {
   visibleLetters: Stand[];
