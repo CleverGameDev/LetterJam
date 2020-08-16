@@ -1,5 +1,5 @@
 export default class Dialog {
-  scene: Phaser.Scene;
+  scene: any;
   placeholderTxt: string;
   title: string;
   cancelFn: () => void;
