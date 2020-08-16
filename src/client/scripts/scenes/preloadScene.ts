@@ -11,8 +11,4 @@ export default class PreloadScene extends Phaser.Scene {
       this.scene.start(scene, { socket, id, players });
     });
   }
-
-  preload() {
-    this.load.image("phaser-logo", "assets/img/phaser-logo.png");
-  }
 }

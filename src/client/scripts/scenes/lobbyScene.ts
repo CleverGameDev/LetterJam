@@ -11,6 +11,10 @@ export default class LobbyScene extends Phaser.Scene {
     this.playerTexts = [];
   }
 
+  preload() {
+    this.load.image("phaser-logo", "assets/img/phaser-logo.png");
+  }
+
   init({ socket, id, players }) {
     this.socket = socket;
     this.id = id;

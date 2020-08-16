@@ -9,6 +9,10 @@ export default class EndScene extends Phaser.Scene {
     super({ key: "EndScene" });
   }
 
+  preload() {
+    this.load.image("phaser-logo", "assets/img/phaser-logo.png");
+  }
+
   init({ socket, id, players }) {
     this.socket = socket;
     this.id = id;
