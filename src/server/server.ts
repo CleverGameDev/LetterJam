@@ -71,13 +71,11 @@ io.on("connection", (client) => {
   /////////////////
   // Discuss step
   /////////////////
-  client.emit("clues", clues);
-
   client.on("updateClue", (clue) => {
     clues[clue.playerID] = {
       ...clue,
-      playerID: undefined,
     };
+    client.emit("clues", clues);
   });
 
   // This voting system is like Medium, you can vote as many times as you'd like
