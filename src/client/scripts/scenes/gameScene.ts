@@ -36,33 +36,7 @@ export default class GameScene extends Phaser.Scene {
     super({ key });
     this.board = [];
     this.gameState = {
-      visibleLetters: [
-        {
-          player: "1",
-          playerType: PlayerType.Player,
-          letter: Letter.A,
-        },
-        {
-          player: "2",
-          playerType: PlayerType.Player,
-          letter: Letter.B,
-        },
-        {
-          player: "3",
-          playerType: PlayerType.Player,
-          letter: Letter.S,
-        },
-        {
-          player: "4",
-          playerType: PlayerType.Player,
-          letter: Letter.I,
-        },
-        {
-          player: "5",
-          playerType: PlayerType.Player,
-          letter: Letter.N,
-        },
-      ],
+      visibleLetters: [],
     };
     this.dialog = new Dialog(
       this,
@@ -103,16 +77,11 @@ export default class GameScene extends Phaser.Scene {
 
   _drawVisibleLetters = () => {
     this.gameState.visibleLetters.forEach((stand, idx) => {
-      const label = this.add.text(
-        100 + 100 * idx,
-        200,
-        `${stand.playerType[0].toUpperCase()}${stand.player}`,
-        {
-          color: "#000000",
-          fontSize: 36,
-        }
-      );
-      const letter = this.add.text(100 + 100 * idx, 250, stand.letter, {
+      const label = this.add.text(100 + 200 * idx, 200, stand.player, {
+        color: "#000000",
+        fontSize: 36,
+      });
+      const letter = this.add.text(100 + 200 * idx, 250, stand.letter, {
         color: "#000000",
         fontSize: 36,
       });
@@ -181,6 +150,10 @@ export default class GameScene extends Phaser.Scene {
       });
     });
 
+    this.socket.on("visibleLetters", (visibleLetters) => {
+      this.gameState.visibleLetters = visibleLetters;
+    });
+
     // Discuss UI elements
     this.dialog.create();
     const clueBtn = new PhaserLogo(
@@ -211,6 +184,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this._drawVisibleLetters();
+    this.socket.emit("getVisibleLetters");
   }
 
   iteratePlayState(pointer) {
@@ -225,6 +199,8 @@ export default class GameScene extends Phaser.Scene {
   update() {
     this.playStateText.update(this.playState);
     this.flower.update();
+    this._clearVisibleLetters();
+    this._drawVisibleLetters();
 
     switch (this.playState) {
       case PLAY_STATE.DISCUSS:

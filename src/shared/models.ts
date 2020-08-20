@@ -47,3 +47,20 @@ export type Clue = {
   numBonus: number;
   useWildcard: boolean;
 };
+
+// I think we can combine letters and visibleIndex into one field
+// where the value is a tuple of the two but I couldn't think of
+// a good name for it
+export type ServerGameState = {
+  numPlayers: number;
+  numNPCs: number;
+  letters: {
+    [id: string]: Letter[];
+  };
+  visibleIndex: {
+    [id: string]: number;
+  };
+  deck: Letter[];
+  // redTokens,
+  // greenTokens
+};
