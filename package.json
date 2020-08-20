@@ -8,7 +8,7 @@
     "build": "webpack --config webpack/webpack.prod.js",
     "bundle": "npm run build",
     "startDev": "./run_local.sh",
-    "startProd": "NODE_ENV=production node src/server/server.ts",
+    "startProd": "NODE_ENV=production ./node_modules/.bin/ts-node src/server/server.ts",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [
@@ -67,7 +67,8 @@
     "phaser": "^3.24.1",
     "phaser3-rex-plugins": "^1.1.23",
     "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "ts-node": "^8.10.2"
   },
   "husky": {
     "hooks": {
