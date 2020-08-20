@@ -132,7 +132,7 @@ export default class GameScene extends Phaser.Scene {
     this.playState = PLAY_STATE.DISCUSS;
     this.flower = new Flower(this, this.players.length);
     // TODO: add playerID and deck for self
-    this.selfStand = new SelfStand(this, "playerID", ["a", "b"]);
+    this.selfStand = new SelfStand(this, "playerID", 2);
 
     // display the Phaser.VERSION
     this.add
