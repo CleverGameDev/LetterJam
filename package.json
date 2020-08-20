@@ -63,6 +63,7 @@
   "dependencies": {
     "@types/socket.io": "^2.1.10",
     "express": "^4.17.1",
+    "lodash": "^4.17.20",
     "phaser": "^3.24.1",
     "phaser3-rex-plugins": "^1.1.23",
     "socket.io": "^2.3.0",
