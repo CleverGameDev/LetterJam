@@ -8,7 +8,7 @@
     "build": "webpack --config webpack/webpack.prod.js",
     "bundle": "npm run build",
     "startDev": "./run_local.sh",
-    "startProd": "NODE_ENV=production node src/server/server.ts",
+    "startProd": "NODE_ENV=production ./node_modules/.bin/ts-node src/server/server.ts",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [
@@ -53,7 +53,6 @@
     "open-cli": "^6.0.1",
     "prettier": "2.0.5",
     "ts-loader": "^5.4.5",
-    "typescript": "^3.9.6",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
@@ -64,10 +63,13 @@
   "dependencies": {
     "@types/socket.io": "^2.1.10",
     "express": "^4.17.1",
+    "lodash": "^4.17.20",
     "phaser": "^3.24.1",
     "phaser3-rex-plugins": "^1.1.23",
     "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
   },
   "husky": {
     "hooks": {
