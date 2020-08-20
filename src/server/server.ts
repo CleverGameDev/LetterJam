@@ -1,15 +1,12 @@
-/* eslint-disable */
-const express = require("express");
-const http = require("http");
-const path = require("path");
-const socketIO = require("socket.io");
-/* eslint-enable */
+import express from "express";
+import http from "http";
+import path from "path";
+import socketIO from "socket.io";
 
 const app = express();
 const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
-
 const io = socketIO(server);
 
 // Web logic
