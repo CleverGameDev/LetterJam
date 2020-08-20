@@ -3,6 +3,11 @@ import http from "http";
 import path from "path";
 import socketIO from "socket.io";
 
+import { setupNewGame } from "./lib/setup";
+import { getVisibleLetters } from "./lib/gameUtils";
+import { MaxPlayers } from "../shared/constants";
+import { ServerGameState } from "../shared/models";
+
 const app = express();
 const server = http.createServer(app);
 
@@ -32,11 +37,19 @@ const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
 
 let sceneIndex = 0;
 const roomName = "someRoom";
+const clients = {};
 const playerNames = {};
 const playerNameSet = new Set();
 
 let clues = {};
 let votes = {};
+let gameState: ServerGameState = {
+  numPlayers: 0,
+  numNPCs: 0,
+  letters: {},
+  visibleIndex: {},
+  deck: [],
+};
 
 const resetState = () => {
   clues = {};
@@ -45,6 +58,7 @@ const resetState = () => {
 
 io.on("connection", (client) => {
   client.join(roomName);
+  clients[client.id] = client;
 
   client.on("disconnect", () => {
     io.to(roomName).emit("playerLeft", {
@@ -52,6 +66,7 @@ io.on("connection", (client) => {
       playerName: playerNames[client.id],
     });
     playerNameSet.delete(playerNames[client.id]);
+    delete clients[client.id];
     delete playerNames[client.id];
   });
 
@@ -59,6 +74,31 @@ io.on("connection", (client) => {
     sceneIndex++;
     sceneIndex %= scenes.length;
     resetState();
+
+    if (scenes[sceneIndex] === "SetupScene") {
+      const numPlayers = Object.keys(playerNames).length;
+      const numNPCs = MaxPlayers - Object.keys(playerNames).length;
+      const { playerHands, npcHands, deck } = setupNewGame(
+        Object.keys(playerNames)
+      );
+      const visibleIndex = {};
+      for (const key of Object.keys(playerNames)) {
+        visibleIndex[key] = 0;
+      }
+      for (let i = 0; i < numNPCs; i++) {
+        visibleIndex[`N${i + 1}`] = 0;
+      }
+      gameState = {
+        numPlayers,
+        numNPCs,
+        deck,
+        letters: {
+          ...playerHands,
+          ...npcHands,
+        },
+        visibleIndex,
+      };
+    }
 
     io.to(roomName).emit("update", {
       scene: scenes[sceneIndex],
@@ -104,6 +144,16 @@ io.on("connection", (client) => {
   // We should actually track who voted for whom so we can actually change votes
   client.on("vote", (data) => {
     votes[data.votedID] ? votes[data.votedID]++ : (votes[data.votedID] = 1);
+  });
+
+  ////////////////
+  // Game loop
+  ////////////////
+  client.on("getVisibleLetters", () => {
+    client.emit(
+      "visibleLetters",
+      getVisibleLetters(client.id, gameState, playerNames)
+    );
   });
 
   io.emit("ready", {
