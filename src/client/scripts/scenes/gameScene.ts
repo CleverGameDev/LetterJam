@@ -222,22 +222,22 @@ export default class GameScene extends Phaser.Scene {
         // If hint is valid
         // Player now assigns tokens to letters
         // Recall: Letters can be player letters, NPC letters, or wildcard
-        // Each person's "guessing sheet", can be automatically updated.
+        // Each person's "guessing sheet" can be automatically updated.
         break;
       case PLAY_STATE.INTERPRET_HINT:
-        // Remindind users that their sheet is updated
-        // e.g. cause the guessing sheet to pop-up
-        // Players cna jot down guesses
+        // Remind users that their sheet is updated (ex. cause the guessing sheet to pop-up)
+        // Players can jot down guesses
 
-        // DECIDE_TO_MOVE_ON -- not yet clear this needs to be a different UI state
+        // DECIDE_TO_MOVE_ON -- not yet clear if this needs to be a different UI state
         //
-        // Players can click "decide to move on" or not
-        // Each player chooses "Now I know my letter" or not.
-        // If yes => they get a new letter.
-        // If player is out of letter => go to "bonus letters" condition
-        // If  you  return  your  last  card to your row, draw a new one from the deck
+        // Players can click "decide to move on" (aka "Now I know my letter") or not
+        // If yes
+        //   If player has more letters, they get their next letter.
+        //   If player is out of letters, go to "bonus letters" condition.
+        //
         // If NPC letter was used, it should also be updated.
-        // Do you want to guess your final word?
+        //
+        // When should player guess their final word? Probably as part of endScene
         break;
       case PLAY_STATE.CHECK_END_CONDITION:
         // (1) If you end a round with no clue tokens for the next round, the game is over

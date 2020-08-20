@@ -6,7 +6,6 @@ export default class LobbyScene extends Phaser.Scene {
   players: string[];
   socket;
   id: number;
-  playerName: string;
   playerTexts;
   dialog: Dialog;
 
