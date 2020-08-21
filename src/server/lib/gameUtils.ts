@@ -1,22 +1,23 @@
-import { PlayerType, ServerGameState } from "../../shared/models";
+import { PlayerType, ServerGameState, getPlayerIDs } from "../../shared/models";
 
 export const getVisibleLetters = (
-  id: string,
-  gameState: ServerGameState,
-  playerNames
+  currentPlayerID: string,
+  gameState: ServerGameState
 ) => {
   const visibleLetters = [];
   for (const key of Object.keys(gameState.letters)) {
-    if (key !== id) {
-      const playerName = playerNames[key];
+    // If the letters belong to other players
+    if (key !== currentPlayerID) {
       let stand;
-      if (playerName) {
+      // Is it a human player?
+      if (gameState.players.has(key)) {
         stand = {
-          player: playerName,
+          player: gameState.players.get(key).Name,
           playerType: PlayerType.Player,
           letter: gameState.letters[key][gameState.visibleIndex[key]],
         };
       } else {
+        // It's an NPC deck
         stand = {
           player: key,
           playerType: PlayerType.NPC,

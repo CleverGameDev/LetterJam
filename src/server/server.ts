@@ -1,12 +1,26 @@
 import express from "express";
+import expressSession from "express-session";
+import expressSocketIOSession from "express-socket.io-session";
+import * as sqlite3 from "sqlite3";
+import sqliteStoreFactory from "express-session-sqlite";
+
 import http from "http";
 import path from "path";
 import socketIO from "socket.io";
+import * as _ from "lodash";
 
 import { setupNewGame } from "./lib/setup";
 import { getVisibleLetters } from "./lib/gameUtils";
 import { MaxPlayers } from "../shared/constants";
-import { ServerGameState } from "../shared/models";
+import {
+  ServerGameState,
+  getPlayerIDs,
+  getPlayerNames,
+} from "../shared/models";
+
+////////////////////
+// Server
+////////////////////
 
 const app = express();
 const server = http.createServer(app);
@@ -14,38 +28,68 @@ const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 const io = socketIO(server);
 
-// Web logic
+// Sessions
+// - https://www.npmjs.com/package/express-socket.io-session#usage
+// - https://www.npmjs.com/package/express-session-sqlite#usage
+const SqliteStore = sqliteStoreFactory(expressSession);
+
+const session = expressSession({
+  store: new SqliteStore({
+    driver: sqlite3.Database,
+
+    // for in-memory database
+    // path: ':memory:'
+    path: "/tmp/letterjam-sessions-sqlite.db",
+
+    // Session TTL in milliseconds
+    ttl: 24 * 60 * 60 * 1000, // 1 day
+  }),
+
+  secret: "letterjam-session-secret",
+
+  // We can tune the below depending on what session store we choose in prod.
+  // Useful reading: https://stackoverflow.com/a/40396102
+  //
+  // Saves the session so it doesn't expire
+  resave: true,
+  // Persists the session even if we don't modify it on first visit
+  saveUninitialized: true,
+});
+
+// Use session in server and socket io
+app.use(session);
+io.use(
+  expressSocketIOSession(session, {
+    autoSave: true,
+  })
+);
+
+// Routes
 app.use("/", express.static(path.join(__dirname, "../../dist")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../../dist/index.html"));
 });
 
-app.get("/port", (req, res) => {
-  // 443 in prod, 3000 in localhost
-  if (process.env.IS_HEROKU) {
-    res.send({
-      internal_port: port,
-      port: 443,
-    });
-    return;
-  }
-  res.send({ port });
-});
+////////////////////
+// Game state
+////////////////////
 
 const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
-
 let sceneIndex = 0;
-const roomName = "someRoom";
-const clients = {};
-const playerNames = {};
-const playerNameSet = new Set();
 
+// TODO: Support dynamic room name (e.g from URL path or query string)
+const roomName = "someRoom";
+
+// Players
 let clues = {};
 let votes = {};
-let gameState: ServerGameState = {
+const gameState: ServerGameState = {
+  players: new Map(),
+
   numPlayers: 0,
   numNPCs: 0,
+
   letters: {},
   visibleIndex: {},
   deck: [],
@@ -56,18 +100,38 @@ const resetState = () => {
   votes = {};
 };
 
+// TODO: consider s/client/socket to match SocketIO docs..
+// TODO: rename sessionID
+const playerID = (client: socketIO.Socket) => client.handshake.session.id;
+
+////////////////////////////////////////
+// SocketIO event handling
+////////////////////////////////////////
 io.on("connection", (client) => {
+  // "Login" on first connection
+  // TODO: This creates a race condition if you have multiple browser windows open as server starts
+  if (!gameState.players.has(playerID(client))) {
+    // Add to players
+    gameState.players.set(playerID(client), {
+      Name: "Default Player Name",
+    });
+
+    io.to(roomName).emit("playerJoined", {
+      playerID: playerID(client),
+      playerName: gameState.players.get(playerID(client)).Name,
+    });
+  }
+
   client.join(roomName);
-  clients[client.id] = client;
 
   client.on("disconnect", () => {
+    // TODO: change to 'offline' or something?
+    // Have a specific action to explicitly disconnect once you've joined 1x and are in game
     io.to(roomName).emit("playerLeft", {
-      playerId: client.id,
-      playerName: playerNames[client.id],
+      playerId: playerID(client),
+      playerName: gameState.players.get(playerID(client))?.Name,
     });
-    playerNameSet.delete(playerNames[client.id]);
-    delete clients[client.id];
-    delete playerNames[client.id];
+    // gameState.players.delete(playerID(client));
   });
 
   client.on("nextScene", () => {
@@ -76,28 +140,29 @@ io.on("connection", (client) => {
     resetState();
 
     if (scenes[sceneIndex] === "SetupScene") {
-      const numPlayers = Object.keys(playerNames).length;
-      const numNPCs = MaxPlayers - Object.keys(playerNames).length;
+      const numPlayers = getPlayerIDs(gameState).length;
+      const numNPCs = MaxPlayers - numPlayers;
       const { playerHands, npcHands, deck } = setupNewGame(
-        Object.keys(playerNames)
+        getPlayerIDs(gameState)
       );
+      // ?? what is visibleIndex
       const visibleIndex = {};
-      for (const key of Object.keys(playerNames)) {
+      for (const key of getPlayerIDs(gameState)) {
         visibleIndex[key] = 0;
       }
       for (let i = 0; i < numNPCs; i++) {
         visibleIndex[`N${i + 1}`] = 0;
       }
-      gameState = {
-        numPlayers,
-        numNPCs,
-        deck,
-        letters: {
-          ...playerHands,
-          ...npcHands,
-        },
-        visibleIndex,
+
+      // Update gameState
+      gameState.numPlayers = numPlayers;
+      gameState.numNPCs = numNPCs;
+      gameState.deck = deck;
+      gameState.letters = {
+        ...playerHands,
+        ...npcHands,
       };
+      gameState.visibleIndex = visibleIndex;
     }
 
     io.to(roomName).emit("update", {
@@ -117,27 +182,20 @@ io.on("connection", (client) => {
 
   client.on("setPlayerName", (playerName) => {
     // Don't let players take another player's name
-    if (playerNameSet.has(playerName)) {
+    if (getPlayerNames(gameState).indexOf(playerName) > -1) {
       return;
     }
-    if (playerNames[client.id]) {
-      const oldName = playerNames[client.id];
-      playerNameSet.delete(oldName);
-      playerNames[client.id] = playerName;
-      playerNameSet.add(playerName);
-      io.to(roomName).emit("playerRenamed", {
-        playerId: client.id,
-        oldPlayerName: oldName,
-        newPlayerName: playerName,
-      });
-    } else {
-      playerNames[client.id] = playerName;
-      playerNameSet.add(playerName);
-      io.to(roomName).emit("playerJoined", {
-        playerId: client.id,
-        playerName,
-      });
-    }
+
+    // update server game state
+    const oldName = gameState.players.get(playerID(client)).Name;
+    gameState.players.set(playerID(client), { Name: playerName });
+
+    // broadcast event
+    io.to(roomName).emit("playerRenamed", {
+      playerId: playerID(client),
+      oldPlayerName: oldName,
+      newPlayerName: playerName,
+    });
   });
 
   // This voting system is like Medium, you can vote as many times as you'd like
@@ -150,18 +208,20 @@ io.on("connection", (client) => {
   // Game loop
   ////////////////
   client.on("getVisibleLetters", () => {
-    client.emit(
-      "visibleLetters",
-      getVisibleLetters(client.id, gameState, playerNames)
-    );
+    const visibleLetters = getVisibleLetters(playerID(client), gameState);
+    client.emit("visibleLetters", visibleLetters);
   });
 
   io.emit("ready", {
-    id: client.id,
+    id: playerID(client),
     scene: scenes[sceneIndex],
-    players: Array.from(playerNameSet),
+    players: getPlayerNames(gameState),
   });
 });
+
+//
+// Start server
+//
 
 server.listen(port, () => {
   console.log("Express is listening on http://localhost:" + port);

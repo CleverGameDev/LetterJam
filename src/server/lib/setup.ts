@@ -5,6 +5,7 @@ import {
   MaxPlayers,
   NPCCardGrowth,
 } from "../../shared/constants";
+import { PlayerID, ServerGameState } from "../../shared/models";
 
 // This should all live on the server actually
 const getFullDeck = () => {
@@ -15,24 +16,29 @@ const getFullDeck = () => {
   return letters;
 };
 
-export const setupNewGame = (players) => {
-  const playerHands = {};
-  const npcHands = {};
-
-  const fullDeck = getFullDeck();
-  const chunks = _.chunk(_.shuffle(fullDeck), fullDeck.length / players.length);
+export const setupNewGame = (playerIDs: PlayerID[]): any => {
+  const playerHands = {}; // map from player ID to their word
+  const npcHands = {}; // map from NPC ID to their stack of letters
   const deck = [];
 
   // This part should be handled by player interaction
   // For now, just assign players 5 random letters each
-  for (const index in chunks) {
-    const word = chunks[index].splice(0, 5);
-    playerHands[players[index]] = word;
-    deck.push(...chunks[index]);
+  const fullDeck = getFullDeck();
+  const chunks = _.chunk(
+    _.shuffle(fullDeck),
+    fullDeck.length / playerIDs.length
+  );
+  for (let i = 0; i < playerIDs.length; i++) {
+    // Take 5 letters from the chunk and assign it to the player
+    const word = chunks[i].splice(0, 5);
+    playerHands[playerIDs[i]] = word;
+
+    // Take the remaining letters from the chunk and add back to the deck
+    deck.push(...chunks[i]);
   }
 
   // Take the remaining letters to populate NPC hands
-  for (let i = 0; i < MaxPlayers - players.length; i++) {
+  for (let i = 0; i < MaxPlayers - playerIDs.length; i++) {
     npcHands[`N${i + 1}`] = deck.splice(0, BaseNPCCards + NPCCardGrowth * i);
   }
 

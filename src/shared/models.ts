@@ -29,6 +29,12 @@ export enum Letter {
   Y = "y",
 }
 
+export type PlayerID = string;
+
+export type PlayerProperties = {
+  Name: string;
+};
+
 export enum PlayerType {
   Player = "player",
   NPC = "npc",
@@ -52,6 +58,7 @@ export type Clue = {
 // where the value is a tuple of the two but I couldn't think of
 // a good name for it
 export type ServerGameState = {
+  players: Map<PlayerID, PlayerProperties>;
   numPlayers: number;
   numNPCs: number;
   letters: {
@@ -64,3 +71,8 @@ export type ServerGameState = {
   // redTokens,
   // greenTokens
 };
+
+export const getPlayerIDs = (s: ServerGameState) =>
+  Array.from(s.players.keys());
+export const getPlayerNames = (s: ServerGameState) =>
+  getPlayerIDs(s).map((n) => s.players.get(n).Name);

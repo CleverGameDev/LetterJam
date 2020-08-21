@@ -42,11 +42,13 @@ module.exports = {
       gameName: "Letter Jam",
       template: "src/index.html",
     }),
-    new CopyWebpackPlugin([
-      { from: "src/client/assets", to: "assets" },
-      { from: "pwa", to: "" },
-      { from: "src/client/favicon.ico", to: "" },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "src/client/assets", to: "assets" },
+        { from: "pwa", to: "" },
+        { from: "src/favicon.ico", to: "" },
+      ],
+    }),
     new InjectManifest({
       swSrc: path.resolve(__dirname, "../pwa/sw.js"),
     }),
