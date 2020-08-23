@@ -1,5 +1,3 @@
-import PhaserLogo from "../objects/phaserLogo";
-import PlayBtn from "../objects/playBtn";
 import Dialog from "../objects/dialog";
 
 export default class LobbyScene extends Phaser.Scene {
@@ -8,13 +6,14 @@ export default class LobbyScene extends Phaser.Scene {
   id: number;
   playerTexts;
   dialog: Dialog;
+  rexUI: any;
 
   constructor() {
     super({ key: "LobbyScene" });
     this.playerTexts = [];
     this.dialog = new Dialog(
       this,
-      "Enter name",
+      " ",
       "What is your player name?",
       null,
       (content) => {
@@ -27,6 +26,13 @@ export default class LobbyScene extends Phaser.Scene {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
     this.load.image("play-btn", "assets/img/play-btn.png");
     this.dialog.preload();
+    const url =
+      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js";
+    this.load.scenePlugin({
+      key: "rexuiplugin",
+      url: url,
+      sceneKey: "rexUI",
+    });
   }
 
   init({ socket, id, players }) {
@@ -54,19 +60,58 @@ export default class LobbyScene extends Phaser.Scene {
     });
   };
 
+  createButton = (scene, text) => {
+    return scene.rexUI.add.label({
+      width: 100,
+      height: 40,
+      background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0xae3f4b),
+      text: scene.add.text(0, 0, text, {
+        fontSize: 18,
+      }),
+      space: {
+        left: 10,
+        right: 10,
+      },
+      align: "center",
+    });
+  };
+
   create() {
-    const logo = new PhaserLogo(
-      this,
-      this.cameras.main.width / 2 - 50,
-      600
-    ).setScale(0.25, 0.25);
-    logo.on("pointerdown", () => this.dialog.open());
-    const playBtn = new PlayBtn(
-      this,
-      this.cameras.main.width / 2 + 50,
-      600
-    ).setScale(0.25, 0.25);
-    playBtn.on("pointerdown", () => this.socket.emit("nextScene"));
+    const buttons = this.rexUI.add
+      .buttons({
+        anchor: {
+          centerX: "center",
+          centerY: "center+200",
+        },
+        orientation: "x",
+        buttons: [
+          this.createButton(this, "Rename"),
+          this.add.sprite(150, 150, "play-btn").setScale(0.25, 0.25),
+        ],
+        space: { item: 8 },
+      })
+      .layout();
+
+    buttons
+      .on("button.click", (button, index) => {
+        if (index == 0) {
+          this.dialog.open();
+        } else if (index == 1) {
+          this.socket.emit("nextScene");
+        }
+      })
+      .on("button.out", function (button, index) {
+        if (typeof button.getElement === "function") {
+          button.getElement("background").setStrokeStyle();
+        }
+        button.setInteractive({ cursor: "default" });
+      })
+      .on("button.over", function (button, index) {
+        if (typeof button.getElement === "function") {
+          button.getElement("background").setStrokeStyle(3, 0xa23a47);
+        }
+        button.setInteractive({ useHandCursor: true });
+      });
 
     this.add.text(0, 0, `LOBBY SCENE`, {
       color: "#000000",
