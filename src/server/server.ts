@@ -11,7 +11,7 @@ import * as _ from "lodash";
 
 import { setupNewGame } from "./lib/setup";
 import { getVisibleLetters } from "./lib/gameUtils";
-import { MaxPlayers } from "../shared/constants";
+import { MaxPlayers, Scenes } from "../shared/constants";
 import {
   ServerGameState,
   getPlayerIDs,
@@ -75,9 +75,6 @@ app.get("/", (req, res) => {
 // Game state
 ////////////////////
 
-const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
-let sceneIndex = 0;
-
 // TODO: Support dynamic room name (e.g from URL path or query string)
 const roomName = "someRoom";
 
@@ -85,9 +82,8 @@ const roomName = "someRoom";
 let clues = {};
 let votes = {};
 const gameState: ServerGameState = {
+  sceneIndex: 0,
   players: new Map(),
-
-  numPlayers: 0,
   numNPCs: 0,
 
   letters: {},
@@ -100,52 +96,49 @@ const resetState = () => {
   votes = {};
 };
 
-// TODO: consider s/client/socket to match SocketIO docs..
 // TODO: rename sessionID
-const playerID = (client: socketIO.Socket) => client.handshake.session.id;
+const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
 
 ////////////////////////////////////////
 // SocketIO event handling
 ////////////////////////////////////////
-io.on("connection", (client) => {
+io.on("connection", (socket) => {
   // "Login" on first connection
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
-  if (!gameState.players.has(playerID(client))) {
+  if (!gameState.players.has(playerID(socket))) {
     // Add to players
-    gameState.players.set(playerID(client), {
+    gameState.players.set(playerID(socket), {
       Name: "Default Player Name",
     });
 
     io.to(roomName).emit("playerJoined", {
-      playerID: playerID(client),
-      playerName: gameState.players.get(playerID(client)).Name,
+      playerID: playerID(socket),
+      playerName: gameState.players.get(playerID(socket)).Name,
     });
   }
 
-  client.join(roomName);
+  socket.join(roomName);
 
-  client.on("disconnect", () => {
+  socket.on("disconnect", () => {
     // TODO: change to 'offline' or something?
     // Have a specific action to explicitly disconnect once you've joined 1x and are in game
     io.to(roomName).emit("playerLeft", {
-      playerId: playerID(client),
-      playerName: gameState.players.get(playerID(client))?.Name,
+      playerId: playerID(socket),
+      playerName: gameState.players.get(playerID(socket))?.Name,
     });
     // gameState.players.delete(playerID(client));
   });
 
-  client.on("nextScene", () => {
-    sceneIndex++;
-    sceneIndex %= scenes.length;
+  socket.on("nextScene", () => {
+    gameState.sceneIndex++;
+    gameState.sceneIndex %= Scenes.length;
     resetState();
 
-    if (scenes[sceneIndex] === "SetupScene") {
-      const numPlayers = getPlayerIDs(gameState).length;
-      const numNPCs = MaxPlayers - numPlayers;
+    if (Scenes[gameState.sceneIndex] === "SetupScene") {
+      const numNPCs = MaxPlayers - getPlayerIDs(gameState).length;
       const { playerHands, npcHands, deck } = setupNewGame(
         getPlayerIDs(gameState)
       );
-      // ?? what is visibleIndex
       const visibleIndex = {};
       for (const key of getPlayerIDs(gameState)) {
         visibleIndex[key] = 0;
@@ -155,7 +148,6 @@ io.on("connection", (client) => {
       }
 
       // Update gameState
-      gameState.numPlayers = numPlayers;
       gameState.numNPCs = numNPCs;
       gameState.deck = deck;
       gameState.letters = {
@@ -166,33 +158,33 @@ io.on("connection", (client) => {
     }
 
     io.to(roomName).emit("update", {
-      scene: scenes[sceneIndex],
+      scene: Scenes[gameState.sceneIndex],
     });
   });
 
   /////////////////
   // Discuss step
   /////////////////
-  client.on("updateClue", (clue) => {
+  socket.on("updateClue", (clue) => {
     clues[clue.playerID] = {
       ...clue,
     };
-    client.emit("clues", clues);
+    socket.emit("clues", clues);
   });
 
-  client.on("setPlayerName", (playerName) => {
+  socket.on("setPlayerName", (playerName) => {
     // Don't let players take another player's name
     if (getPlayerNames(gameState).indexOf(playerName) > -1) {
       return;
     }
 
     // update server game state
-    const oldName = gameState.players.get(playerID(client)).Name;
-    gameState.players.set(playerID(client), { Name: playerName });
+    const oldName = gameState.players.get(playerID(socket)).Name;
+    gameState.players.set(playerID(socket), { Name: playerName });
 
     // broadcast event
     io.to(roomName).emit("playerRenamed", {
-      playerId: playerID(client),
+      playerId: playerID(socket),
       oldPlayerName: oldName,
       newPlayerName: playerName,
     });
@@ -200,21 +192,22 @@ io.on("connection", (client) => {
 
   // This voting system is like Medium, you can vote as many times as you'd like
   // We should actually track who voted for whom so we can actually change votes
-  client.on("vote", (data) => {
+  socket.on("vote", (data) => {
     votes[data.votedID] ? votes[data.votedID]++ : (votes[data.votedID] = 1);
   });
 
   ////////////////
   // Game loop
   ////////////////
-  client.on("getVisibleLetters", () => {
-    const visibleLetters = getVisibleLetters(playerID(client), gameState);
-    client.emit("visibleLetters", visibleLetters);
+  socket.on("getVisibleLetters", () => {
+    const visibleLetters = getVisibleLetters(playerID(socket), gameState);
+    socket.emit("visibleLetters", visibleLetters);
   });
 
-  io.emit("ready", {
-    id: playerID(client),
-    scene: scenes[sceneIndex],
+  // Move from Preload scene to lobbyScene
+  socket.emit("ready", {
+    id: playerID(socket),
+    scene: Scenes[gameState.sceneIndex],
     players: getPlayerNames(gameState),
   });
 });
