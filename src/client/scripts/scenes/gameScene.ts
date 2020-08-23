@@ -158,7 +158,7 @@ export default class GameScene extends Phaser.Scene {
       this.clues = data;
     });
 
-    this.socket.on("update", (data) => {
+    this.socket.on("changeScene", (data) => {
       this.scene.start(data.scene, {
         socket: this.socket,
         id: this.id,

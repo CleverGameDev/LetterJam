@@ -157,7 +157,7 @@ io.on("connection", (socket) => {
       gameState.visibleIndex = visibleIndex;
     }
 
-    io.to(roomName).emit("update", {
+    io.to(roomName).emit("changeScene", {
       scene: Scenes[gameState.sceneIndex],
     });
   });
