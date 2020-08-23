@@ -11,7 +11,7 @@ import * as _ from "lodash";
 
 import { setupNewGame } from "./lib/setup";
 import { getVisibleLetters } from "./lib/gameUtils";
-import { MaxPlayers } from "../shared/constants";
+import { MaxPlayers, Scenes } from "../shared/constants";
 import {
   ServerGameState,
   getPlayerIDs,
@@ -75,9 +75,6 @@ app.get("/", (req, res) => {
 // Game state
 ////////////////////
 
-const scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
-let sceneIndex = 0;
-
 // TODO: Support dynamic room name (e.g from URL path or query string)
 const roomName = "someRoom";
 
@@ -85,9 +82,8 @@ const roomName = "someRoom";
 let clues = {};
 let votes = {};
 const gameState: ServerGameState = {
+  sceneIndex: 0,
   players: new Map(),
-
-  numPlayers: 0,
   numNPCs: 0,
 
   letters: {},
@@ -135,17 +131,15 @@ io.on("connection", (client) => {
   });
 
   client.on("nextScene", () => {
-    sceneIndex++;
-    sceneIndex %= scenes.length;
+    gameState.sceneIndex++;
+    gameState.sceneIndex %= Scenes.length;
     resetState();
 
-    if (scenes[sceneIndex] === "SetupScene") {
-      const numPlayers = getPlayerIDs(gameState).length;
-      const numNPCs = MaxPlayers - numPlayers;
+    if (Scenes[gameState.sceneIndex] === "SetupScene") {
+      const numNPCs = MaxPlayers - getPlayerIDs(gameState).length;
       const { playerHands, npcHands, deck } = setupNewGame(
         getPlayerIDs(gameState)
       );
-      // ?? what is visibleIndex
       const visibleIndex = {};
       for (const key of getPlayerIDs(gameState)) {
         visibleIndex[key] = 0;
@@ -155,7 +149,6 @@ io.on("connection", (client) => {
       }
 
       // Update gameState
-      gameState.numPlayers = numPlayers;
       gameState.numNPCs = numNPCs;
       gameState.deck = deck;
       gameState.letters = {
@@ -166,7 +159,7 @@ io.on("connection", (client) => {
     }
 
     io.to(roomName).emit("update", {
-      scene: scenes[sceneIndex],
+      scene: Scenes[gameState.sceneIndex],
     });
   });
 
@@ -214,7 +207,7 @@ io.on("connection", (client) => {
 
   io.emit("ready", {
     id: playerID(client),
-    scene: scenes[sceneIndex],
+    scene: Scenes[gameState.sceneIndex],
     players: getPlayerNames(gameState),
   });
 });
