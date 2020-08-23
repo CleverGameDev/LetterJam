@@ -205,7 +205,8 @@ io.on("connection", (client) => {
     client.emit("visibleLetters", visibleLetters);
   });
 
-  io.emit("ready", {
+  // Move from Preload scene to lobbyScene
+  client.emit("ready", {
     id: playerID(client),
     scene: Scenes[gameState.sceneIndex],
     players: getPlayerNames(gameState),
