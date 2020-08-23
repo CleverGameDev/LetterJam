@@ -17,6 +17,7 @@ import {
   getPlayerIDs,
   getPlayerNames,
 } from "../shared/models";
+import { EVENTS, ChangeSceneEvent } from "../shared/events";
 
 ////////////////////
 // Server
@@ -157,7 +158,7 @@ io.on("connection", (socket) => {
       gameState.visibleIndex = visibleIndex;
     }
 
-    io.to(roomName).emit("changeScene", {
+    io.to(roomName).emit(EVENTS.CHANGE_SCENE, {
       scene: Scenes[gameState.sceneIndex],
     });
   });
