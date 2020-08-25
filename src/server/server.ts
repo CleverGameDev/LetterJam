@@ -169,7 +169,7 @@ io.on("connection", (socket) => {
     clues[clue.playerID] = {
       ...clue,
     };
-    socket.emit("clues", clues);
+    io.to(roomName).emit("clues", clues);
   });
 
   socket.on("setPlayerName", (playerName) => {
