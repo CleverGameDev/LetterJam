@@ -5,7 +5,7 @@ import GuessingSheet from "../objects/guessingSheet";
 import { SelfStand } from "../objects/stand";
 import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
-import { giveClue } from "../lib/discuss";
+import { giveClue, vote } from "../lib/discuss";
 import { Clue, GameState, Letter, PlayerType } from "src/shared/models";
 
 const key = "GameScene";
@@ -30,9 +30,11 @@ export default class GameScene extends Phaser.Scene {
   players: string[];
   activeClues: ActiveClues;
   dialog: Dialog;
+  voteDialog: Dialog;
   clues: Clue[];
   gameState: GameState;
   board;
+  winningVoteText: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key });
@@ -57,11 +59,21 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     );
+    this.voteDialog = new Dialog(
+      this,
+      " ",
+      "Who are you voting for?",
+      null,
+      (votedID) => {
+        vote(this.socket, this.id.toString(), votedID);
+      }
+    );
   }
 
   preload() {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
     this.dialog.preload();
+    this.voteDialog.preload();
   }
 
   init({ socket, id, players }) {
@@ -158,8 +170,24 @@ export default class GameScene extends Phaser.Scene {
       this.gameState.visibleLetters = visibleLetters;
     });
 
+    this.socket.on("winningVote", (data) => {
+      if (this.winningVoteText) {
+        this.winningVoteText.destroy();
+      }
+      this.winningVoteText = this.add.text(
+        400,
+        500,
+        `${data.playerID} has most votes with ${data.votes} votes`,
+        {
+          color: "#000000",
+          fontSize: 36,
+        }
+      );
+    });
+
     // Discuss UI elements
     this.dialog.create();
+    this.voteDialog.create();
     const clueBtn = new PhaserLogo(
       this,
       this.cameras.main.width * 0.95,
@@ -186,6 +214,15 @@ export default class GameScene extends Phaser.Scene {
       }
       this.activeClues.setVisible(!this.activeClues.visible);
     });
+
+    const voteBtn = new PhaserLogo(
+      this,
+      this.cameras.main.width * 0.85,
+      this.cameras.main.height * 0.95
+    )
+      .setOrigin(0, 0)
+      .setScale(0.1, 0.1);
+    voteBtn.on("pointerdown", () => this.voteDialog.open());
 
     this._drawVisibleLetters();
     this.socket.emit("getVisibleLetters");

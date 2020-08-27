@@ -194,6 +194,11 @@ io.on("connection", (socket) => {
   // We should actually track who voted for whom so we can actually change votes
   socket.on("vote", (data) => {
     votes[data.votedID] ? votes[data.votedID]++ : (votes[data.votedID] = 1);
+    const maxVotePlayerID = _.maxBy(Object.keys(votes), (key) => votes[key]);
+    io.to(roomName).emit("winningVote", {
+      playerID: maxVotePlayerID,
+      votes: votes[maxVotePlayerID],
+    });
   });
 
   ////////////////
