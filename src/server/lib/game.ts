@@ -1,4 +1,4 @@
-import socketIO, { Socket } from "socket.io";
+import socketIO, { Socket, Server } from "socket.io";
 import * as _ from "lodash";
 
 import { setupNewGame } from "../lib/setup";
@@ -8,20 +8,13 @@ import {
   ServerGameState,
   getPlayerIDs,
   getPlayerNames,
+  resetVotesAndClues,
 } from "../../shared/models";
 import { E, EType } from "../../shared/events";
 
+const roomName = "someRoom";
+
 export const startGame = (io: SocketIO.Server) => {
-  ////////////////////
-  // Game state
-  ////////////////////
-
-  // TODO: Support dynamic room name (e.g from URL path or query string)
-  const roomName = "someRoom";
-
-  // Players
-  let clues = {};
-  let votes = {};
   const gameState: ServerGameState = {
     sceneIndex: 0,
     players: new Map(),
@@ -30,19 +23,17 @@ export const startGame = (io: SocketIO.Server) => {
     letters: {},
     visibleIndex: {},
     deck: [],
+
+    clues: {},
+    votes: {},
   };
 
-  const resetState = () => {
-    clues = {};
-    votes = {};
-  };
+  setupSocketIO(io, gameState);
+};
 
-  ////////////////////////////////////////
-  // SocketIO event handling
-  ////////////////////////////////////////
-  // TODO: rename sessionID
-  const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
+const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
 
+const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
   io.on("connection", (socket) => {
     // "Login" on first connection
     // TODO: This creates a race condition if you have multiple browser windows open as server starts
@@ -73,7 +64,7 @@ export const startGame = (io: SocketIO.Server) => {
     socket.on("nextScene", () => {
       gameState.sceneIndex++;
       gameState.sceneIndex %= Scenes.length;
-      resetState();
+      resetVotesAndClues(gameState);
 
       if (Scenes[gameState.sceneIndex] === "SetupScene") {
         const numNPCs = MaxPlayers - getPlayerIDs(gameState).length;
@@ -109,10 +100,10 @@ export const startGame = (io: SocketIO.Server) => {
     // Discuss step
     /////////////////
     socket.on("updateClue", (clue) => {
-      clues[clue.playerID] = {
+      gameState.clues[clue.playerID] = {
         ...clue,
       };
-      io.to(roomName).emit("clues", clues);
+      io.to(roomName).emit("clues", gameState.clues);
     });
 
     socket.on("setPlayerName", (playerName) => {
@@ -136,11 +127,16 @@ export const startGame = (io: SocketIO.Server) => {
     // This voting system is like Medium, you can vote as many times as you'd like
     // We should actually track who voted for whom so we can actually change votes
     socket.on("vote", (data) => {
-      votes[data.votedID] ? votes[data.votedID]++ : (votes[data.votedID] = 1);
-      const maxVotePlayerID = _.maxBy(Object.keys(votes), (key) => votes[key]);
+      gameState.votes[data.votedID]
+        ? gameState.votes[data.votedID]++
+        : (gameState.votes[data.votedID] = 1);
+      const maxVotePlayerID = _.maxBy(
+        Object.keys(gameState.votes),
+        (key) => gameState.votes[key]
+      );
       io.to(roomName).emit("winningVote", {
         playerID: maxVotePlayerID,
-        votes: votes[maxVotePlayerID],
+        votes: gameState.votes[maxVotePlayerID],
       });
     });
 
