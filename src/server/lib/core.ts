@@ -18,14 +18,14 @@ const handlePlayerJoined = (
   socket: Socket,
   gameState: ServerGameState
 ) => {
-  // "Login" on first connection
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
   if (!gameState.players.has(playerID(socket))) {
-    // Add to players
+    // Update game state
     gameState.players.set(playerID(socket), {
       Name: "Default Player Name",
     });
 
+    // Emit event
     io.to(gameState.room).emit(E.PlayerJoined, <EType[E.PlayerJoined]>{
       playerID: playerID(socket),
       playerName: gameState.players.get(playerID(socket)).Name,
@@ -68,16 +68,18 @@ const registerListeners = (
   // Global
   //
   socket.on("disconnect", () => {
-    // TODO: change to 'offline' or something?
-    // Have a specific action to explicitly disconnect once you've joined 1x and are in game
+    // Update game state
+    // TODO: https://trello.com/c/8JwHD7nB/107-letterjam-given-persistent-ids-figure-out-how-a-player-leaves-lobby
+
+    // Emit event
     io.to(gameState.room).emit(E.PlayerLeft, <EType[E.PlayerLeft]>{
       playerID: playerID(socket),
       playerName: gameState.players.get(playerID(socket))?.Name,
     });
-    // gameState.players.delete(playerID(client));
   });
 
   socket.on(E.NextScene, () => {
+    // Update game state
     gameState.sceneIndex++;
     gameState.sceneIndex %= Scenes.length;
     resetVotesAndClues(gameState);
@@ -86,27 +88,26 @@ const registerListeners = (
       setupNewGame(gameState);
     }
 
-    // Emit ChangeScene event
-    const data: EType[E.ChangeScene] = {
+    // Emit event
+    io.to(gameState.room).emit(E.ChangeScene, <EType[E.ChangeScene]>{
       scene: Scenes[gameState.sceneIndex],
-    };
-    io.to(gameState.room).emit(E.ChangeScene, data);
+    });
   });
 
   //
   // LobbyScene
   //
   socket.on(E.SetPlayerName, (playerName: EType[E.SetPlayerName]) => {
-    // Don't let players take another player's name
+    // Update game state
     if (getPlayerNames(gameState).indexOf(playerName) > -1) {
+      // Don't let players take another player's name
       return;
     }
 
-    // update server game state
     const oldName = gameState.players.get(playerID(socket)).Name;
     gameState.players.set(playerID(socket), { Name: playerName });
 
-    // broadcast event
+    // Emit event
     io.to(gameState.room).emit(E.PlayerRenamed, <EType[E.PlayerRenamed]>{
       playerID: playerID(socket),
       oldPlayerName: oldName,
@@ -118,22 +119,27 @@ const registerListeners = (
   // GameScene
   //
   socket.on(E.GetVisibleLetters, () => {
+    // Get game state
     const visibleLetters = getVisibleLetters(playerID(socket), gameState);
-    socket.emit(E.VisibleLetters, visibleLetters);
+
+    // Emit event
+    socket.emit(E.VisibleLetters, <EType[E.VisibleLetters]>visibleLetters);
   });
 
   socket.on(E.UpdateClue, (clue: EType[E.UpdateClue]) => {
+    // Update game state
     gameState.clues[clue.playerID] = {
       ...clue,
     };
 
-    const data: EType[E.Clues] = gameState.clues;
-    io.to(gameState.room).emit(E.Clues, data);
+    // Emit event
+    io.to(gameState.room).emit(E.Clues, <EType[E.Clues]>gameState.clues);
   });
 
   // This voting system is like Medium, you can vote as many times as you'd like
   // We should actually track who voted for whom so we can actually change votes
   socket.on(E.Vote, (data: EType[E.Vote]) => {
+    // Update game state
     const names = getPlayerNames(gameState);
     if (names.indexOf(data.votedID) < 0) {
       // ignore vote if there's no player with that name
@@ -148,6 +154,7 @@ const registerListeners = (
       (key) => gameState.votes[key]
     );
 
+    // Emit event
     io.to(gameState.room).emit(E.WinningVote, <EType[E.WinningVote]>{
       playerID: maxVotePlayerID,
       votes: gameState.votes[maxVotePlayerID],
