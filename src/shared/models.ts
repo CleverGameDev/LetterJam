@@ -58,8 +58,9 @@ export type Clue = {
 // where the value is a tuple of the two but I couldn't think of
 // a good name for it
 export type ServerGameState = {
-  sceneIndex: number;
+  room: string;
 
+  sceneIndex: number;
   players: Map<PlayerID, PlayerProperties>;
   numNPCs: number;
   letters: {

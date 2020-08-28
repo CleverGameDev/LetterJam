@@ -3,23 +3,23 @@ import * as _ from "lodash";
 
 import { setupNewGame } from "../lib/setup";
 import { getVisibleLetters } from "../lib/gameUtils";
-import { MaxPlayers, Scenes } from "../../shared/constants";
+import { Scenes } from "../../shared/constants";
 import {
   ServerGameState,
-  getPlayerIDs,
   getPlayerNames,
   resetVotesAndClues,
 } from "../../shared/models";
 import { E, EType } from "../../shared/events";
 
-const roomName = "someRoom";
-
 export const startGame = (io: SocketIO.Server) => {
   const gameState: ServerGameState = {
+    // Global
     sceneIndex: 0,
+    room: "someRoom",
     players: new Map(),
     numNPCs: 0,
 
+    // GameScene
     letters: {},
     visibleIndex: {},
     deck: [],
@@ -43,18 +43,18 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
         Name: "Default Player Name",
       });
 
-      io.to(roomName).emit(E.PlayerJoined, <EType[E.PlayerJoined]>{
+      io.to(gameState.room).emit(E.PlayerJoined, <EType[E.PlayerJoined]>{
         playerID: playerID(socket),
         playerName: gameState.players.get(playerID(socket)).Name,
       });
     }
 
-    socket.join(roomName);
+    socket.join(gameState.room);
 
     socket.on("disconnect", () => {
       // TODO: change to 'offline' or something?
       // Have a specific action to explicitly disconnect once you've joined 1x and are in game
-      io.to(roomName).emit(E.PlayerLeft, <EType[E.PlayerLeft]>{
+      io.to(gameState.room).emit(E.PlayerLeft, <EType[E.PlayerLeft]>{
         playerID: playerID(socket),
         playerName: gameState.players.get(playerID(socket))?.Name,
       });
@@ -74,7 +74,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       const data: EType[E.ChangeScene] = {
         scene: Scenes[gameState.sceneIndex],
       };
-      io.to(roomName).emit(E.ChangeScene, data);
+      io.to(gameState.room).emit(E.ChangeScene, data);
     });
 
     /////////////////
@@ -86,7 +86,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       };
 
       const data: EType[E.Clues] = gameState.clues;
-      io.to(roomName).emit(E.Clues, data);
+      io.to(gameState.room).emit(E.Clues, data);
     });
 
     socket.on(E.SetPlayerName, (playerName: EType[E.SetPlayerName]) => {
@@ -100,7 +100,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       gameState.players.set(playerID(socket), { Name: playerName });
 
       // broadcast event
-      io.to(roomName).emit(E.PlayerRenamed, <EType[E.PlayerRenamed]>{
+      io.to(gameState.room).emit(E.PlayerRenamed, <EType[E.PlayerRenamed]>{
         playerID: playerID(socket),
         oldPlayerName: oldName,
         newPlayerName: playerName,
@@ -124,7 +124,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
         (key) => gameState.votes[key]
       );
 
-      io.to(roomName).emit(E.WinningVote, <EType[E.WinningVote]>{
+      io.to(gameState.room).emit(E.WinningVote, <EType[E.WinningVote]>{
         playerID: maxVotePlayerID,
         votes: gameState.votes[maxVotePlayerID],
       });
