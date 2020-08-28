@@ -142,10 +142,12 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
         Object.keys(gameState.votes),
         (key) => gameState.votes[key]
       );
-      io.to(roomName).emit("winningVote", {
+
+      const winningVote: EType[E.WinningVote] = {
         playerID: maxVotePlayerID,
         votes: gameState.votes[maxVotePlayerID],
-      });
+      };
+      io.to(roomName).emit(E.WinningVote, winningVote);
     });
 
     ////////////////

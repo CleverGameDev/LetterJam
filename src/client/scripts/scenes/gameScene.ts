@@ -174,7 +174,7 @@ export default class GameScene extends Phaser.Scene {
       }
     );
 
-    this.socket.on("winningVote", (data) => {
+    this.socket.on(E.WinningVote, (data: EType[E.WinningVote]) => {
       if (this.winningVoteText) {
         this.winningVoteText.destroy();
       }
