@@ -7,6 +7,12 @@ export enum E {
   ChangeScene = "changeScene",
   NextScene = "nextScene",
 
+  PlayerJoined = "playerJoined",
+  PlayerLeft = "playerLeft",
+
+  SetPlayerName = "setPlayerName",
+  PlayerRenamed = "playerRenamed",
+
   GetVisibleLetters = "getVisibleLetters",
   VisibleLetters = "visibleLetters",
 
@@ -27,6 +33,22 @@ export type EType = {
 
   [E.ChangeScene]: {
     scene: string;
+  };
+
+  [E.PlayerJoined]: {
+    playerID: string;
+    playerName: string;
+  };
+  [E.PlayerLeft]: {
+    playerID: string;
+    playerName: string;
+  };
+
+  [E.SetPlayerName]: string;
+  [E.PlayerRenamed]: {
+    playerID: string;
+    oldPlayerName: string;
+    newPlayerName: string;
   };
 
   [E.VisibleLetters]: Stand[];

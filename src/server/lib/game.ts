@@ -1,4 +1,4 @@
-import socketIO, { Socket, Server } from "socket.io";
+import socketIO, { Socket } from "socket.io";
 import * as _ from "lodash";
 
 import { setupNewGame } from "../lib/setup";
@@ -34,7 +34,7 @@ export const startGame = (io: SocketIO.Server) => {
 const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
 
 const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
-  io.on("connection", (socket) => {
+  io.on("connection", (socket: Socket) => {
     // "Login" on first connection
     // TODO: This creates a race condition if you have multiple browser windows open as server starts
     if (!gameState.players.has(playerID(socket))) {
@@ -43,7 +43,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
         Name: "Default Player Name",
       });
 
-      io.to(roomName).emit("playerJoined", {
+      io.to(roomName).emit(E.PlayerJoined, <EType[E.PlayerJoined]>{
         playerID: playerID(socket),
         playerName: gameState.players.get(playerID(socket)).Name,
       });
@@ -54,8 +54,8 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     socket.on("disconnect", () => {
       // TODO: change to 'offline' or something?
       // Have a specific action to explicitly disconnect once you've joined 1x and are in game
-      io.to(roomName).emit("playerLeft", {
-        playerId: playerID(socket),
+      io.to(roomName).emit(E.PlayerLeft, <EType[E.PlayerLeft]>{
+        playerID: playerID(socket),
         playerName: gameState.players.get(playerID(socket))?.Name,
       });
       // gameState.players.delete(playerID(client));
@@ -108,7 +108,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       io.to(roomName).emit(E.Clues, data);
     });
 
-    socket.on("setPlayerName", (playerName) => {
+    socket.on(E.SetPlayerName, (playerName: EType[E.SetPlayerName]) => {
       // Don't let players take another player's name
       if (getPlayerNames(gameState).indexOf(playerName) > -1) {
         return;
@@ -119,8 +119,8 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       gameState.players.set(playerID(socket), { Name: playerName });
 
       // broadcast event
-      io.to(roomName).emit("playerRenamed", {
-        playerId: playerID(socket),
+      io.to(roomName).emit(E.PlayerRenamed, <EType[E.PlayerRenamed]>{
+        playerID: playerID(socket),
         oldPlayerName: oldName,
         newPlayerName: playerName,
       });
@@ -159,11 +159,10 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     });
 
     // Move from Preload scene to lobbyScene
-    const ready: EType[E.Ready] = {
+    socket.emit(E.Ready, <EType[E.Ready]>{
       id: playerID(socket),
       scene: Scenes[gameState.sceneIndex],
       players: getPlayerNames(gameState),
-    };
-    socket.emit(E.Ready, ready);
+    });
   });
 };
