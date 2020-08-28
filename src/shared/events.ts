@@ -13,6 +13,7 @@ export enum E {
   UpdateClue = "updateClue",
 
   WinningVote = "winningVote",
+  Vote = "vote",
 }
 
 // EType is a lookup from Event Name to Event Type
@@ -35,5 +36,10 @@ export type EType = {
   [E.WinningVote]: {
     playerID: string;
     votes: number;
+  };
+
+  [E.Vote]: {
+    senderID: string;
+    votedID: string;
   };
 };

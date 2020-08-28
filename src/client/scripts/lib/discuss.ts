@@ -1,5 +1,5 @@
 import * as models from "../../../shared/models";
-import { E } from "../../../shared/events";
+import { E, EType } from "../../../shared/events";
 
 // if false, clue is not valid
 export const giveClue = (
@@ -77,8 +77,9 @@ const getLettersByPlayerType = (gameState: models.GameState) => {
 
 // Send vote to server. PlayerID can be accessed from clue
 export const vote = (socket, senderID, votedID) => {
-  socket.emit("vote", {
+  const v: EType[E.Vote] = {
     senderID,
     votedID,
-  });
+  };
+  socket.emit(E.Vote, v);
 };
