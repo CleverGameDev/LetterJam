@@ -1,9 +1,8 @@
 import socketIO, { Socket } from "socket.io";
 import * as _ from "lodash";
 
-import { setupNewGame } from "../lib/setup";
 import { Scenes } from "../../shared/constants";
-import { ServerGameState } from "../../shared/models";
+import { ServerGameState } from "../lib/gameState";
 import { E, EType } from "../../shared/events";
 
 const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
@@ -80,7 +79,7 @@ const registerListeners = (
     gameState.resetVotesAndClues();
 
     if (Scenes[gameState.sceneIndex] === "SetupScene") {
-      setupNewGame(gameState);
+      gameState.setupNewGame();
     }
 
     // Emit event
