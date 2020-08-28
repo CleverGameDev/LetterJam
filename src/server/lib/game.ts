@@ -8,18 +8,11 @@ import {
   ServerGameState,
   getPlayerIDs,
   getPlayerNames,
+  resetVotesAndClues,
 } from "../../shared/models";
 import { E, EType } from "../../shared/events";
 
 const roomName = "someRoom";
-
-let clues = {};
-let votes = {};
-
-const resetState = () => {
-  clues = {};
-  votes = {};
-};
 
 export const startGame = (io: SocketIO.Server) => {
   const gameState: ServerGameState = {
@@ -30,6 +23,9 @@ export const startGame = (io: SocketIO.Server) => {
     letters: {},
     visibleIndex: {},
     deck: [],
+
+    clues: {},
+    votes: {},
   };
 
   setupSocketIO(io, gameState);
@@ -68,7 +64,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     socket.on("nextScene", () => {
       gameState.sceneIndex++;
       gameState.sceneIndex %= Scenes.length;
-      resetState();
+      resetVotesAndClues(gameState);
 
       if (Scenes[gameState.sceneIndex] === "SetupScene") {
         const numNPCs = MaxPlayers - getPlayerIDs(gameState).length;
@@ -104,10 +100,10 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     // Discuss step
     /////////////////
     socket.on("updateClue", (clue) => {
-      clues[clue.playerID] = {
+      gameState.clues[clue.playerID] = {
         ...clue,
       };
-      io.to(roomName).emit("clues", clues);
+      io.to(roomName).emit("clues", gameState.clues);
     });
 
     socket.on("setPlayerName", (playerName) => {
@@ -131,11 +127,16 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     // This voting system is like Medium, you can vote as many times as you'd like
     // We should actually track who voted for whom so we can actually change votes
     socket.on("vote", (data) => {
-      votes[data.votedID] ? votes[data.votedID]++ : (votes[data.votedID] = 1);
-      const maxVotePlayerID = _.maxBy(Object.keys(votes), (key) => votes[key]);
+      gameState.votes[data.votedID]
+        ? gameState.votes[data.votedID]++
+        : (gameState.votes[data.votedID] = 1);
+      const maxVotePlayerID = _.maxBy(
+        Object.keys(gameState.votes),
+        (key) => gameState.votes[key]
+      );
       io.to(roomName).emit("winningVote", {
         playerID: maxVotePlayerID,
-        votes: votes[maxVotePlayerID],
+        votes: gameState.votes[maxVotePlayerID],
       });
     });
 

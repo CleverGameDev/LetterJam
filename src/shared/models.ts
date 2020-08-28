@@ -71,9 +71,17 @@ export type ServerGameState = {
   deck: Letter[];
   // redTokens,
   // greenTokens
+
+  clues: { [playerID: string]: any };
+  votes: { [playerID: string]: number };
 };
 
 export const getPlayerIDs = (s: ServerGameState) =>
   Array.from(s.players.keys());
 export const getPlayerNames = (s: ServerGameState) =>
   getPlayerIDs(s).map((n) => s.players.get(n).Name);
+
+export const resetVotesAndClues = (s: ServerGameState) => {
+  s.clues = {};
+  s.votes = {};
+};
