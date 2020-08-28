@@ -99,11 +99,13 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     /////////////////
     // Discuss step
     /////////////////
-    socket.on("updateClue", (clue) => {
+    socket.on(E.UpdateClue, (clue: EType[E.UpdateClue]) => {
       gameState.clues[clue.playerID] = {
         ...clue,
       };
-      io.to(roomName).emit("clues", gameState.clues);
+
+      const data: EType[E.Clues] = gameState.clues;
+      io.to(roomName).emit(E.Clues, data);
     });
 
     socket.on("setPlayerName", (playerName) => {

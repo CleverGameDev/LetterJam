@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
   activeClues: ActiveClues;
   dialog: Dialog;
   voteDialog: Dialog;
-  clues: Clue[];
+  clues: { [playerID: string]: Clue };
   gameState: GameState;
   board;
   winningVoteText: Phaser.GameObjects.Text;
@@ -155,7 +155,7 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    this.socket.on("clues", (data) => {
+    this.socket.on(E.Clues, (data: EType[E.Clues]) => {
       this.clues = data;
     });
 

@@ -1,4 +1,4 @@
-import { Stand } from "../shared/models";
+import { Clue, Stand } from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
@@ -6,6 +6,9 @@ export enum E {
 
   GetVisibleLetters = "getVisibleLetters",
   VisibleLetters = "visibleLetters",
+
+  Clues = "clues",
+  UpdateClue = "updateClue",
 }
 
 // EType is a lookup from Event Name to Event Type
@@ -13,5 +16,9 @@ export type EType = {
   [E.ChangeScene]: {
     scene: string;
   };
+
   [E.VisibleLetters]: Stand[];
+
+  [E.Clues]: { [playerID: string]: Clue };
+  [E.UpdateClue]: Clue;
 };
