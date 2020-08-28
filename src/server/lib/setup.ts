@@ -49,6 +49,24 @@ const drawCards = (playerIDs: string[]) => {
   };
 };
 
+export const initGameState = (): ServerGameState => {
+  return {
+    // Global
+    sceneIndex: 0,
+    room: "someRoom",
+    players: new Map(),
+    numNPCs: 0,
+
+    // GameScene
+    letters: {},
+    visibleIndex: {},
+    deck: [],
+
+    clues: {},
+    votes: {},
+  };
+};
+
 export const setupNewGame = (gameState: ServerGameState): any => {
   const playerIDs = getPlayerIDs(gameState);
   const { playerHands, npcHands, deck } = drawCards(playerIDs);
