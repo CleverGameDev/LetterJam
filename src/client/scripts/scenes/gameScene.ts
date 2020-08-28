@@ -167,9 +167,12 @@ export default class GameScene extends Phaser.Scene {
       });
     });
 
-    this.socket.on("visibleLetters", (visibleLetters) => {
-      this.gameState.visibleLetters = visibleLetters;
-    });
+    this.socket.on(
+      E.VisibleLetters,
+      (visibleLetters: EType[E.VisibleLetters]) => {
+        this.gameState.visibleLetters = visibleLetters;
+      }
+    );
 
     this.socket.on("winningVote", (data) => {
       if (this.winningVoteText) {
@@ -226,7 +229,7 @@ export default class GameScene extends Phaser.Scene {
     voteBtn.on("pointerdown", () => this.voteDialog.open());
 
     this._drawVisibleLetters();
-    this.socket.emit("getVisibleLetters");
+    this.socket.emit(E.GetVisibleLetters);
   }
 
   iteratePlayState(pointer) {

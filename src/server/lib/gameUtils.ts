@@ -1,14 +1,14 @@
-import { PlayerType, ServerGameState, getPlayerIDs } from "../../shared/models";
+import { PlayerType, ServerGameState, Stand } from "../../shared/models";
 
 export const getVisibleLetters = (
   currentPlayerID: string,
   gameState: ServerGameState
-) => {
+): Stand[] => {
   const visibleLetters = [];
   for (const key of Object.keys(gameState.letters)) {
     // If the letters belong to other players
     if (key !== currentPlayerID) {
-      let stand;
+      let stand: Stand;
       // Is it a human player?
       if (gameState.players.has(key)) {
         stand = {

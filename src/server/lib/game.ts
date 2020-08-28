@@ -149,9 +149,9 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     ////////////////
     // Game loop
     ////////////////
-    socket.on("getVisibleLetters", () => {
+    socket.on(E.GetVisibleLetters, () => {
       const visibleLetters = getVisibleLetters(playerID(socket), gameState);
-      socket.emit("visibleLetters", visibleLetters);
+      socket.emit(E.VisibleLetters, visibleLetters);
     });
 
     // Move from Preload scene to lobbyScene
