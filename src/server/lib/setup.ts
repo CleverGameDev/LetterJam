@@ -5,7 +5,7 @@ import {
   MaxPlayers,
   NPCCardGrowth,
 } from "../../shared/constants";
-import { PlayerID, ServerGameState } from "../../shared/models";
+import { ServerGameState, getPlayerIDs } from "../../shared/models";
 
 // This should all live on the server actually
 const getFullDeck = () => {
@@ -16,7 +16,7 @@ const getFullDeck = () => {
   return letters;
 };
 
-export const setupNewGame = (playerIDs: PlayerID[]): any => {
+const drawCards = (playerIDs: string[]) => {
   const playerHands = {}; // map from player ID to their word
   const npcHands = {}; // map from NPC ID to their stack of letters
   const deck = [];
@@ -47,4 +47,27 @@ export const setupNewGame = (playerIDs: PlayerID[]): any => {
     npcHands,
     deck,
   };
+};
+
+export const setupNewGame = (gameState: ServerGameState): any => {
+  const playerIDs = getPlayerIDs(gameState);
+  const { playerHands, npcHands, deck } = drawCards(playerIDs);
+
+  const numNPCs = MaxPlayers - playerIDs.length;
+  const visibleIndex = {};
+  for (const key of playerIDs) {
+    visibleIndex[key] = 0;
+  }
+  for (let i = 0; i < numNPCs; i++) {
+    visibleIndex[`N${i + 1}`] = 0;
+  }
+
+  // Update gameState
+  gameState.numNPCs = numNPCs;
+  gameState.deck = deck;
+  gameState.letters = {
+    ...playerHands,
+    ...npcHands,
+  };
+  gameState.visibleIndex = visibleIndex;
 };

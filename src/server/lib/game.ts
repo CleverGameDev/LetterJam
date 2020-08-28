@@ -67,26 +67,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       resetVotesAndClues(gameState);
 
       if (Scenes[gameState.sceneIndex] === "SetupScene") {
-        const numNPCs = MaxPlayers - getPlayerIDs(gameState).length;
-        const { playerHands, npcHands, deck } = setupNewGame(
-          getPlayerIDs(gameState)
-        );
-        const visibleIndex = {};
-        for (const key of getPlayerIDs(gameState)) {
-          visibleIndex[key] = 0;
-        }
-        for (let i = 0; i < numNPCs; i++) {
-          visibleIndex[`N${i + 1}`] = 0;
-        }
-
-        // Update gameState
-        gameState.numNPCs = numNPCs;
-        gameState.deck = deck;
-        gameState.letters = {
-          ...playerHands,
-          ...npcHands,
-        };
-        gameState.visibleIndex = visibleIndex;
+        setupNewGame(gameState);
       }
 
       // Emit ChangeScene event
@@ -143,11 +124,10 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
         (key) => gameState.votes[key]
       );
 
-      const winningVote: EType[E.WinningVote] = {
+      io.to(roomName).emit(E.WinningVote, <EType[E.WinningVote]>{
         playerID: maxVotePlayerID,
         votes: gameState.votes[maxVotePlayerID],
-      };
-      io.to(roomName).emit(E.WinningVote, winningVote);
+      });
     });
 
     ////////////////
