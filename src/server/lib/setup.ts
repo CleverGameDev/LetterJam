@@ -5,7 +5,7 @@ import {
   MaxPlayers,
   NPCCardGrowth,
 } from "../../shared/constants";
-import { ServerGameState, getPlayerIDs } from "../../shared/models";
+import { ServerGameState } from "../../shared/models";
 
 // This should all live on the server actually
 const getFullDeck = () => {
@@ -49,26 +49,8 @@ const drawCards = (playerIDs: string[]) => {
   };
 };
 
-export const initGameState = (): ServerGameState => {
-  return {
-    // Global
-    sceneIndex: 0,
-    room: "someRoom",
-    players: new Map(),
-    numNPCs: 0,
-
-    // GameScene
-    letters: {},
-    visibleLetterIdx: {},
-    deck: [],
-
-    clues: {},
-    votes: {},
-  };
-};
-
 export const setupNewGame = (gameState: ServerGameState): any => {
-  const playerIDs = getPlayerIDs(gameState);
+  const playerIDs = gameState.getPlayerIDs();
   const { playerHands, npcHands, deck } = drawCards(playerIDs);
 
   const numNPCs = MaxPlayers - playerIDs.length;

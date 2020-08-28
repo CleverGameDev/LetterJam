@@ -8,8 +8,8 @@ import http from "http";
 import path from "path";
 import socketIO from "socket.io";
 
-import { initGameState } from "./lib/setup";
 import { setupSocketIO } from "./lib/core";
+import { ServerGameState } from "../shared/models";
 
 const app = express();
 const server = http.createServer(app);
@@ -47,7 +47,7 @@ io.use(
 );
 
 // Initialize game state and socketIO handling
-setupSocketIO(io, initGameState());
+setupSocketIO(io, new ServerGameState());
 
 // Start server
 server.listen(port, () => {

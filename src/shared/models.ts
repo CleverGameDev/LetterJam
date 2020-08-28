@@ -54,15 +54,19 @@ export type Clue = {
   useWildcard: boolean;
 };
 
-// I think we can combine letters and visibleLetterIdx into one field
-// where the value is a tuple of the two but I couldn't think of
-// a good name for it
-export type ServerGameState = {
+export class ServerGameState {
+  //
+  // Common properties, shared across scenes
+  //
   room: string;
 
   sceneIndex: number;
   players: Map<PlayerID, PlayerProperties>;
   numNPCs: number;
+
+  //
+  // GameScene properties
+  //
   letters: {
     [id: string]: Letter[];
   };
@@ -72,17 +76,31 @@ export type ServerGameState = {
   deck: Letter[];
   // redTokens,
   // greenTokens
-
   clues: { [playerID: string]: Clue };
   votes: { [playerID: string]: number };
-};
 
-export const getPlayerIDs = (s: ServerGameState) =>
-  Array.from(s.players.keys());
-export const getPlayerNames = (s: ServerGameState) =>
-  getPlayerIDs(s).map((n) => s.players.get(n).Name);
+  constructor() {
+    this.sceneIndex = 0;
+    this.room = "someRoom";
+    this.players = new Map();
+    this.numNPCs = 0;
+    this.letters = {};
+    this.visibleLetterIdx = {};
+    this.deck = [];
+    this.clues = {};
+    this.votes = {};
+  }
 
-export const resetVotesAndClues = (s: ServerGameState) => {
-  s.clues = {};
-  s.votes = {};
-};
+  getPlayerIDs() {
+    return Array.from(this.players.keys());
+  }
+
+  getPlayerNames() {
+    return this.getPlayerIDs().map((n) => this.players.get(n).Name);
+  }
+
+  resetVotesAndClues() {
+    this.clues = {};
+    this.votes = {};
+  }
+}

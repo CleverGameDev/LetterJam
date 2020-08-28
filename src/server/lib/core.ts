@@ -1,14 +1,10 @@
 import socketIO, { Socket } from "socket.io";
 import * as _ from "lodash";
 
-import { setupNewGame, initGameState } from "../lib/setup";
+import { setupNewGame } from "../lib/setup";
 import { getVisibleLetters } from "../lib/gameUtils";
 import { Scenes } from "../../shared/constants";
-import {
-  ServerGameState,
-  getPlayerNames,
-  resetVotesAndClues,
-} from "../../shared/models";
+import { ServerGameState } from "../../shared/models";
 import { E, EType } from "../../shared/events";
 
 const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
@@ -43,7 +39,7 @@ const loadActiveScene = (
   socket.emit(E.Ready, <EType[E.Ready]>{
     id: playerID(socket),
     scene: Scenes[gameState.sceneIndex],
-    players: getPlayerNames(gameState),
+    players: gameState.getPlayerNames(),
   });
 };
 
@@ -82,7 +78,7 @@ const registerListeners = (
     // Update game state
     gameState.sceneIndex++;
     gameState.sceneIndex %= Scenes.length;
-    resetVotesAndClues(gameState);
+    gameState.resetVotesAndClues();
 
     if (Scenes[gameState.sceneIndex] === "SetupScene") {
       setupNewGame(gameState);
@@ -99,7 +95,7 @@ const registerListeners = (
   //
   socket.on(E.SetPlayerName, (playerName: EType[E.SetPlayerName]) => {
     // Update game state
-    if (getPlayerNames(gameState).indexOf(playerName) > -1) {
+    if (gameState.getPlayerNames().indexOf(playerName) > -1) {
       // Don't let players take another player's name
       return;
     }
@@ -140,8 +136,7 @@ const registerListeners = (
   // We should actually track who voted for whom so we can actually change votes
   socket.on(E.Vote, (data: EType[E.Vote]) => {
     // Update game state
-    const names = getPlayerNames(gameState);
-    if (names.indexOf(data.votedID) < 0) {
+    if (gameState.getPlayerNames().indexOf(data.votedID) < 0) {
       // ignore vote if there's no player with that name
       return;
     }
