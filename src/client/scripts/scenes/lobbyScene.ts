@@ -1,4 +1,5 @@
 import Dialog from "../objects/dialog";
+import { E, EType } from "../../../shared/events";
 
 export default class LobbyScene extends Phaser.Scene {
   players: string[];
@@ -123,7 +124,7 @@ export default class LobbyScene extends Phaser.Scene {
     this.dialog.create();
     this.dialog.open();
 
-    this.socket.on("update", (data) => {
+    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
       this.scene.start(data.scene, {
         socket: this.socket,
         id: this.id,
