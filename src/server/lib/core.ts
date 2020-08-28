@@ -33,6 +33,20 @@ const handlePlayerJoined = (
   }
 };
 
+const loadActiveScene = (
+  io: SocketIO.Server,
+  socket: Socket,
+  gameState: ServerGameState
+) => {
+  // A newly connected user starts at the PreloadScene, which listens for
+  // an E.Ready event. When that event is fired, it will load the active scene.
+  socket.emit(E.Ready, <EType[E.Ready]>{
+    id: playerID(socket),
+    scene: Scenes[gameState.sceneIndex],
+    players: getPlayerNames(gameState),
+  });
+};
+
 export const setupSocketIO = (
   io: SocketIO.Server,
   gameState: ServerGameState
@@ -41,13 +55,7 @@ export const setupSocketIO = (
     socket.join(gameState.room);
     handlePlayerJoined(io, socket, gameState);
     registerListeners(io, socket, gameState);
-
-    // Move from PreloadScene to LobbyScene
-    socket.emit(E.Ready, <EType[E.Ready]>{
-      id: playerID(socket),
-      scene: Scenes[gameState.sceneIndex],
-      players: getPlayerNames(gameState),
-    });
+    loadActiveScene(io, socket, gameState);
   });
 };
 
