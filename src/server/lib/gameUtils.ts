@@ -14,14 +14,14 @@ export const getVisibleLetters = (
         stand = {
           player: gameState.players.get(key).Name,
           playerType: PlayerType.Player,
-          letter: gameState.letters[key][gameState.visibleIndex[key]],
+          letter: gameState.letters[key][gameState.visibleLetterIdx[key]],
         };
       } else {
         // It's an NPC deck
         stand = {
           player: key,
           playerType: PlayerType.NPC,
-          letter: gameState.letters[key][gameState.visibleIndex[key]],
+          letter: gameState.letters[key][gameState.visibleLetterIdx[key]],
         };
       }
       visibleLetters.push(stand);

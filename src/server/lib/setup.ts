@@ -59,7 +59,7 @@ export const initGameState = (): ServerGameState => {
 
     // GameScene
     letters: {},
-    visibleIndex: {},
+    visibleLetterIdx: {},
     deck: [],
 
     clues: {},
@@ -72,12 +72,12 @@ export const setupNewGame = (gameState: ServerGameState): any => {
   const { playerHands, npcHands, deck } = drawCards(playerIDs);
 
   const numNPCs = MaxPlayers - playerIDs.length;
-  const visibleIndex = {};
+  const visibleLetterIdx = {};
   for (const key of playerIDs) {
-    visibleIndex[key] = 0;
+    visibleLetterIdx[key] = 0;
   }
   for (let i = 0; i < numNPCs; i++) {
-    visibleIndex[`N${i + 1}`] = 0;
+    visibleLetterIdx[`N${i + 1}`] = 0;
   }
 
   // Update gameState
@@ -87,5 +87,5 @@ export const setupNewGame = (gameState: ServerGameState): any => {
     ...playerHands,
     ...npcHands,
   };
-  gameState.visibleIndex = visibleIndex;
+  gameState.visibleLetterIdx = visibleLetterIdx;
 };

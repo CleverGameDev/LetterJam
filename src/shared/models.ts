@@ -54,7 +54,7 @@ export type Clue = {
   useWildcard: boolean;
 };
 
-// I think we can combine letters and visibleIndex into one field
+// I think we can combine letters and visibleLetterIdx into one field
 // where the value is a tuple of the two but I couldn't think of
 // a good name for it
 export type ServerGameState = {
@@ -66,7 +66,7 @@ export type ServerGameState = {
   letters: {
     [id: string]: Letter[];
   };
-  visibleIndex: {
+  visibleLetterIdx: {
     [id: string]: number;
   };
   deck: Letter[];
