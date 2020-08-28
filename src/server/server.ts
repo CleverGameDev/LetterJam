@@ -9,7 +9,7 @@ import path from "path";
 import socketIO from "socket.io";
 
 import { setupSocketIO } from "./lib/core";
-import { ServerGameState } from "../shared/models";
+import { ServerGameState } from "./lib/gameState";
 
 const app = express();
 const server = http.createServer(app);
