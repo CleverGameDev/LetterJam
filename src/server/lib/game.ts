@@ -1,4 +1,4 @@
-import socketIO, { Socket } from "socket.io";
+import socketIO, { Socket, Server } from "socket.io";
 import * as _ from "lodash";
 
 import { setupNewGame } from "../lib/setup";
@@ -11,17 +11,17 @@ import {
 } from "../../shared/models";
 import { E, EType } from "../../shared/events";
 
+const roomName = "someRoom";
+
+let clues = {};
+let votes = {};
+
+const resetState = () => {
+  clues = {};
+  votes = {};
+};
+
 export const startGame = (io: SocketIO.Server) => {
-  ////////////////////
-  // Game state
-  ////////////////////
-
-  // TODO: Support dynamic room name (e.g from URL path or query string)
-  const roomName = "someRoom";
-
-  // Players
-  let clues = {};
-  let votes = {};
   const gameState: ServerGameState = {
     sceneIndex: 0,
     players: new Map(),
@@ -32,17 +32,12 @@ export const startGame = (io: SocketIO.Server) => {
     deck: [],
   };
 
-  const resetState = () => {
-    clues = {};
-    votes = {};
-  };
+  setupSocketIO(io, gameState);
+};
 
-  ////////////////////////////////////////
-  // SocketIO event handling
-  ////////////////////////////////////////
-  // TODO: rename sessionID
-  const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
+const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
 
+const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
   io.on("connection", (socket) => {
     // "Login" on first connection
     // TODO: This creates a race condition if you have multiple browser windows open as server starts
