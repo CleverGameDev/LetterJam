@@ -33,7 +33,7 @@ export default class SetupScene extends Phaser.Scene {
       this.cameras.main.width / 2 - 100,
       400
     ).setScale(0.25, 0.25);
-    logo.on("pointerdown", () => this.socket.emit("nextScene"));
+    logo.on("pointerdown", () => this.socket.emit(E.NextScene));
 
     this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
       this.scene.start(data.scene, {

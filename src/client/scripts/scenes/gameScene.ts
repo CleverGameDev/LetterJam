@@ -124,7 +124,7 @@ export default class GameScene extends Phaser.Scene {
       400
     ).setScale(0.25, 0.25);
     logo1.on("pointerdown", this.iteratePlayState, this);
-    logo2.on("pointerdown", () => this.socket.emit("nextScene"));
+    logo2.on("pointerdown", () => this.socket.emit(E.NextScene));
 
     // Guessing sheet, and a button to show/hide the guessing sheet
     this.guessingSheet = new GuessingSheet(this);

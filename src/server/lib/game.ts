@@ -61,7 +61,7 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
       // gameState.players.delete(playerID(client));
     });
 
-    socket.on("nextScene", () => {
+    socket.on(E.NextScene, () => {
       gameState.sceneIndex++;
       gameState.sceneIndex %= Scenes.length;
       resetVotesAndClues(gameState);

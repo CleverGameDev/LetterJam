@@ -5,6 +5,7 @@ export enum E {
   Ready = "ready",
 
   ChangeScene = "changeScene",
+  NextScene = "nextScene",
 
   GetVisibleLetters = "getVisibleLetters",
   VisibleLetters = "visibleLetters",
