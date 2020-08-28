@@ -17,7 +17,7 @@ import {
   getPlayerIDs,
   getPlayerNames,
 } from "../shared/models";
-import { EVENTS, ChangeSceneEvent } from "../shared/events";
+import { E, EType } from "../shared/events";
 
 ////////////////////
 // Server
@@ -158,9 +158,11 @@ io.on("connection", (socket) => {
       gameState.visibleIndex = visibleIndex;
     }
 
-    io.to(roomName).emit(EVENTS.CHANGE_SCENE, {
+    // Emit ChangeScene event
+    const data: EType[E.ChangeScene] = {
       scene: Scenes[gameState.sceneIndex],
-    });
+    };
+    io.to(roomName).emit(E.ChangeScene, data);
   });
 
   /////////////////

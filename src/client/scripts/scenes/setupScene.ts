@@ -1,5 +1,5 @@
 import PhaserLogo from "../objects/phaserLogo";
-import { EVENTS, ChangeSceneEvent } from "../../../shared/events";
+import { E, EType } from "../../../shared/events";
 
 const key = "SetupScene";
 
@@ -35,7 +35,7 @@ export default class SetupScene extends Phaser.Scene {
     ).setScale(0.25, 0.25);
     logo.on("pointerdown", () => this.socket.emit("nextScene"));
 
-    this.socket.on(EVENTS.CHANGE_SCENE, (data: ChangeSceneEvent) => {
+    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
       this.scene.start(data.scene, {
         socket: this.socket,
         id: this.id,

@@ -7,7 +7,7 @@ import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
 import { giveClue } from "../lib/discuss";
 import { Clue, GameState } from "../../../shared/models";
-import { EVENTS, ChangeSceneEvent } from "../../../shared/events";
+import { E, EType } from "../../../shared/events";
 
 const key = "GameScene";
 
@@ -159,7 +159,7 @@ export default class GameScene extends Phaser.Scene {
       this.clues = data;
     });
 
-    this.socket.on(EVENTS.CHANGE_SCENE, (data: ChangeSceneEvent) => {
+    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
       this.scene.start(data.scene, {
         socket: this.socket,
         id: this.id,
