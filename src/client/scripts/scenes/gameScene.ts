@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
   activeClues: ActiveClues;
   dialog: Dialog;
   voteDialog: Dialog;
-  clues: Clue[];
+  clues: { [playerID: string]: Clue };
   gameState: GameState;
   board;
   winningVoteText: Phaser.GameObjects.Text;
@@ -124,7 +124,7 @@ export default class GameScene extends Phaser.Scene {
       400
     ).setScale(0.25, 0.25);
     logo1.on("pointerdown", this.iteratePlayState, this);
-    logo2.on("pointerdown", () => this.socket.emit("nextScene"));
+    logo2.on("pointerdown", () => this.socket.emit(E.NextScene));
 
     // Guessing sheet, and a button to show/hide the guessing sheet
     this.guessingSheet = new GuessingSheet(this);
@@ -155,7 +155,7 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    this.socket.on("clues", (data) => {
+    this.socket.on(E.Clues, (data: EType[E.Clues]) => {
       this.clues = data;
     });
 
@@ -167,11 +167,14 @@ export default class GameScene extends Phaser.Scene {
       });
     });
 
-    this.socket.on("visibleLetters", (visibleLetters) => {
-      this.gameState.visibleLetters = visibleLetters;
-    });
+    this.socket.on(
+      E.VisibleLetters,
+      (visibleLetters: EType[E.VisibleLetters]) => {
+        this.gameState.visibleLetters = visibleLetters;
+      }
+    );
 
-    this.socket.on("winningVote", (data) => {
+    this.socket.on(E.WinningVote, (data: EType[E.WinningVote]) => {
       if (this.winningVoteText) {
         this.winningVoteText.destroy();
       }
@@ -226,7 +229,7 @@ export default class GameScene extends Phaser.Scene {
     voteBtn.on("pointerdown", () => this.voteDialog.open());
 
     this._drawVisibleLetters();
-    this.socket.emit("getVisibleLetters");
+    this.socket.emit(E.GetVisibleLetters);
   }
 
   iteratePlayState(pointer) {

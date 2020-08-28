@@ -1,4 +1,5 @@
-import * as models from "src/shared/models";
+import * as models from "../../../shared/models";
+import { E, EType } from "../../../shared/events";
 
 // if false, clue is not valid
 export const giveClue = (
@@ -11,9 +12,11 @@ export const giveClue = (
   if (!clue) {
     return false;
   }
+
   // send clue to server. sending a second clue should override the first since
   // each player can only have one active clue
-  socket.emit("updateClue", clue);
+  const data: models.Clue = clue;
+  socket.emit(E.UpdateClue, data);
 };
 
 const generateClue = (
@@ -74,8 +77,9 @@ const getLettersByPlayerType = (gameState: models.GameState) => {
 
 // Send vote to server. PlayerID can be accessed from clue
 export const vote = (socket, senderID, votedID) => {
-  socket.emit("vote", {
+  const v: EType[E.Vote] = {
     senderID,
     votedID,
-  });
+  };
+  socket.emit(E.Vote, v);
 };

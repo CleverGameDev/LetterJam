@@ -72,7 +72,7 @@ export type ServerGameState = {
   // redTokens,
   // greenTokens
 
-  clues: { [playerID: string]: any };
+  clues: { [playerID: string]: Clue };
   votes: { [playerID: string]: number };
 };
 

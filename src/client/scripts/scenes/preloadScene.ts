@@ -1,4 +1,5 @@
 import io from "socket.io-client";
+import { E, EType } from "../../../shared/events";
 
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -6,7 +7,7 @@ export default class PreloadScene extends Phaser.Scene {
 
     const socket = io();
 
-    socket.on("ready", (data) => {
+    socket.on(E.Ready, (data: EType[E.Ready]) => {
       const { id, scene, players } = data;
       this.scene.start(scene, { socket, id, players });
     });

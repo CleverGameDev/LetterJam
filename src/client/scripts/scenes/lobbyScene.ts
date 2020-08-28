@@ -98,7 +98,7 @@ export default class LobbyScene extends Phaser.Scene {
         if (index == 0) {
           this.dialog.open();
         } else if (index == 1) {
-          this.socket.emit("nextScene");
+          this.socket.emit(E.NextScene);
         }
       })
       .on("button.out", function (button, index) {
