@@ -3,7 +3,7 @@ import { E, EType } from "../../../shared/events";
 
 export default class LobbyScene extends Phaser.Scene {
   players: string[];
-  socket;
+  socket: SocketIO.Socket;
   id: number;
   playerTexts;
   dialog: Dialog;

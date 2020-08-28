@@ -1,15 +1,14 @@
-import socketIO, { Socket } from "socket.io";
 import * as _ from "lodash";
 
 import { Scenes } from "../../shared/constants";
 import { ServerGameState } from "../lib/gameState";
 import { E, EType } from "../../shared/events";
 
-const playerID = (socket: socketIO.Socket) => socket.handshake.session.id;
+const playerID = (socket: SocketIO.Socket) => socket.handshake.session.id;
 
 const handlePlayerJoined = (
   io: SocketIO.Server,
-  socket: Socket,
+  socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
@@ -29,7 +28,7 @@ const handlePlayerJoined = (
 
 const loadActiveScene = (
   io: SocketIO.Server,
-  socket: Socket,
+  socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
   // A newly connected user starts at the PreloadScene, which listens for
@@ -45,7 +44,7 @@ export const setupSocketIO = (
   io: SocketIO.Server,
   gameState: ServerGameState
 ) => {
-  io.on("connection", (socket: Socket) => {
+  io.on("connection", (socket: SocketIO.Socket) => {
     socket.join(gameState.room);
     handlePlayerJoined(io, socket, gameState);
     registerListeners(io, socket, gameState);
@@ -55,7 +54,7 @@ export const setupSocketIO = (
 
 const registerListeners = (
   io: SocketIO.Server,
-  socket: Socket,
+  socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
   //
