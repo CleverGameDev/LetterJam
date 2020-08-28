@@ -5,7 +5,7 @@ import GuessingSheet from "../objects/guessingSheet";
 import { SelfStand } from "../objects/stand";
 import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
-import { giveClue } from "../lib/discuss";
+import { giveClue, vote } from "../lib/discuss";
 import { Clue, GameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
 
