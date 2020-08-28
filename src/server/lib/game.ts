@@ -127,6 +127,12 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     // This voting system is like Medium, you can vote as many times as you'd like
     // We should actually track who voted for whom so we can actually change votes
     socket.on("vote", (data) => {
+      const names = getPlayerNames(gameState);
+      if (names.indexOf(data.votedID) < 0) {
+        // ignore vote if there's no player with that name
+        return;
+      }
+
       gameState.votes[data.votedID]
         ? gameState.votes[data.votedID]++
         : (gameState.votes[data.votedID] = 1);
