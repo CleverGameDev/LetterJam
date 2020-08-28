@@ -2,7 +2,6 @@ import socketIO, { Socket } from "socket.io";
 import * as _ from "lodash";
 
 import { setupNewGame } from "../lib/setup";
-import { getVisibleLetters } from "../lib/gameUtils";
 import { Scenes } from "../../shared/constants";
 import { ServerGameState } from "../../shared/models";
 import { E, EType } from "../../shared/events";
@@ -116,7 +115,7 @@ const registerListeners = (
   //
   socket.on(E.GetVisibleLetters, () => {
     // Get game state
-    const visibleLetters = getVisibleLetters(playerID(socket), gameState);
+    const visibleLetters = gameState.getVisibleLetters(playerID(socket));
 
     // Emit event
     socket.emit(E.VisibleLetters, <EType[E.VisibleLetters]>visibleLetters);
