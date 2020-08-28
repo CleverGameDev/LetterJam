@@ -4,7 +4,7 @@ import { E, EType } from "../../../shared/events";
 const key = "SetupScene";
 
 export default class SetupScene extends Phaser.Scene {
-  socket;
+  socket: SocketIO.Socket;
   id: number;
   players: string[];
 

@@ -6,7 +6,7 @@ import { SelfStand } from "../objects/stand";
 import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
-import { Clue, GameState } from "../../../shared/models";
+import { Clue, ClientGameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
 
 const key = "GameScene";
@@ -26,14 +26,14 @@ export default class GameScene extends Phaser.Scene {
   playState: PLAY_STATE;
   flower: Flower;
   selfStand: SelfStand;
-  socket;
+  socket: SocketIO.Socket;
   id: number;
   players: string[];
   activeClues: ActiveClues;
   dialog: Dialog;
   voteDialog: Dialog;
   clues: { [playerID: string]: Clue };
-  gameState: GameState;
+  gameState: ClientGameState;
   board;
   winningVoteText: Phaser.GameObjects.Text;
 

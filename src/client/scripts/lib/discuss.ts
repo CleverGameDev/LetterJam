@@ -3,10 +3,10 @@ import { E, EType } from "../../../shared/events";
 
 // if false, clue is not valid
 export const giveClue = (
-  socket,
+  socket: SocketIO.Socket,
   id: string,
   word: string,
-  gameState: models.GameState
+  gameState: models.ClientGameState
 ): boolean => {
   const clue = generateClue(id, word, gameState);
   if (!clue) {
@@ -15,14 +15,13 @@ export const giveClue = (
 
   // send clue to server. sending a second clue should override the first since
   // each player can only have one active clue
-  const data: models.Clue = clue;
-  socket.emit(E.UpdateClue, data);
+  socket.emit(E.UpdateClue, <models.Clue>clue);
 };
 
 const generateClue = (
   id: string,
   word: string,
-  gameState: models.GameState
+  gameState: models.ClientGameState
 ): models.Clue | false => {
   // Don't check if the word is actually a word,
   // just check if it's valid given the game state
@@ -63,7 +62,7 @@ const generateClue = (
 };
 
 // Helper function to separate visible letters by type of player
-const getLettersByPlayerType = (gameState: models.GameState) => {
+const getLettersByPlayerType = (gameState: models.ClientGameState) => {
   const playerTypeLetters = {
     [models.PlayerType.Player]: [],
     [models.PlayerType.NPC]: [],

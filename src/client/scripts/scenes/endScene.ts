@@ -2,7 +2,7 @@ import PhaserLogo from "../objects/phaserLogo";
 import { E, EType } from "../../../shared/events";
 
 export default class EndScene extends Phaser.Scene {
-  socket;
+  socket: SocketIO.Socket;
   id: number;
   players: string[];
 

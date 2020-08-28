@@ -41,7 +41,7 @@ export enum PlayerType {
   Bonus = "bonus",
 }
 
-export type GameState = {
+export type ClientGameState = {
   visibleLetters: Stand[];
 };
 
