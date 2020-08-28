@@ -159,10 +159,11 @@ const setupSocketIO = (io: SocketIO.Server, gameState: ServerGameState) => {
     });
 
     // Move from Preload scene to lobbyScene
-    socket.emit("ready", {
+    const ready: EType[E.Ready] = {
       id: playerID(socket),
       scene: Scenes[gameState.sceneIndex],
       players: getPlayerNames(gameState),
-    });
+    };
+    socket.emit(E.Ready, ready);
   });
 };
