@@ -132,7 +132,7 @@ export default class LobbyScene extends Phaser.Scene {
       });
     });
 
-    this.socket.on("playerLeft", (data) => {
+    this.socket.on(E.PlayerLeft, (data: EType[E.PlayerLeft]) => {
       const playerSet = new Set(this.players);
       if (!playerSet.has(data.playerName)) {
         return;
@@ -143,7 +143,7 @@ export default class LobbyScene extends Phaser.Scene {
       this.drawPlayerTexts();
     });
 
-    this.socket.on("playerJoined", (data) => {
+    this.socket.on(E.PlayerJoined, (data: EType[E.PlayerJoined]) => {
       const playerSet = new Set(this.players);
       if (playerSet.has(data.playerName)) {
         return;
@@ -153,7 +153,7 @@ export default class LobbyScene extends Phaser.Scene {
       this.drawPlayerTexts();
     });
 
-    this.socket.on("playerRenamed", (data) => {
+    this.socket.on(E.PlayerRenamed, (data: EType[E.PlayerRenamed]) => {
       const updatedPlayers = new Set(this.players);
       updatedPlayers.delete(data.oldPlayerName);
       updatedPlayers.add(data.newPlayerName);
