@@ -5,6 +5,8 @@ import LobbyScene from "./scenes/lobbyScene";
 import EndScene from "./scenes/endScene";
 import SetupScene from "./scenes/setupScene";
 
+import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin";
+
 const DEFAULT_WIDTH = 1280;
 const DEFAULT_HEIGHT = 720;
 
@@ -22,6 +24,15 @@ const config: Phaser.Types.Core.GameConfig = {
     height: DEFAULT_HEIGHT,
   },
   scene: [PreloadScene, LobbyScene, SetupScene, GameScene, EndScene],
+  plugins: {
+    scene: [
+      {
+        key: "rexUI",
+        plugin: RexUIPlugin,
+        mapping: "rexUI",
+      },
+    ],
+  },
   physics: {
     default: "arcade",
     arcade: {

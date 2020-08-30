@@ -73,8 +73,6 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
-    this.dialog.preload();
-    this.voteDialog.preload();
   }
 
   init({ socket, id, players }) {

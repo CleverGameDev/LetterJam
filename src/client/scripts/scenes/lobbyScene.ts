@@ -7,7 +7,7 @@ export default class LobbyScene extends Phaser.Scene {
   id: number;
   playerTexts;
   dialog: Dialog;
-  rexUI: any;
+  rexUI: any; // global plugin
 
   constructor() {
     super({ key: "LobbyScene" });
@@ -26,14 +26,6 @@ export default class LobbyScene extends Phaser.Scene {
   preload() {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
     this.load.image("play-btn", "assets/img/play-btn.png");
-    this.dialog.preload();
-    const url =
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js";
-    this.load.scenePlugin({
-      key: "rexuiplugin",
-      url: url,
-      sceneKey: "rexUI",
-    });
   }
 
   init({ socket, id, players }) {
