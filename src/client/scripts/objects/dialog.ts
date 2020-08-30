@@ -14,25 +14,6 @@ export default class Dialog {
     this.submitFn = submitFn;
   }
 
-  preload() {
-    let url;
-    url =
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbbcodetextplugin.min.js";
-    this.scene.load.plugin("rexbbcodetextplugin", url, true);
-
-    url =
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rextexteditplugin.min.js";
-    this.scene.load.plugin("rextexteditplugin", url, true);
-
-    url =
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js";
-    this.scene.load.scenePlugin({
-      key: "rexuiplugin",
-      url: url,
-      sceneKey: "rexUI",
-    });
-  }
-
   create() {
     const createLabel = function (scene, text) {
       return scene.rexUI.add.label({
@@ -84,8 +65,8 @@ export default class Dialog {
           },
         }),
 
-        content: this.scene.add
-          .rexBBCodeText(400, 300, this.placeholderTxt, {
+        content: this.scene.rexUI.add
+          .BBCodeText(400, 300, this.placeholderTxt, {
             color: "white",
             fontSize: "24px",
             fixedWidth: 200,
@@ -94,7 +75,7 @@ export default class Dialog {
           .setOrigin(0.5)
           .setInteractive()
           .on("pointerdown", function () {
-            this.scene.plugins.get("rextexteditplugin").edit(this);
+            this.scene.rexUI.edit(this);
           }),
 
         actions: [

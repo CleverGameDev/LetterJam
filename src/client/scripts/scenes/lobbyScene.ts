@@ -7,7 +7,7 @@ export default class LobbyScene extends Phaser.Scene {
   id: number;
   playerTexts;
   dialog: Dialog;
-  rexUI: any;
+  rexUI: any; // global plugin
 
   constructor() {
     super({ key: "LobbyScene" });
@@ -26,14 +26,6 @@ export default class LobbyScene extends Phaser.Scene {
   preload() {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
     this.load.image("play-btn", "assets/img/play-btn.png");
-    this.dialog.preload();
-    const url =
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js";
-    this.load.scenePlugin({
-      key: "rexuiplugin",
-      url: url,
-      sceneKey: "rexUI",
-    });
   }
 
   init({ socket, id, players }) {
@@ -132,7 +124,7 @@ export default class LobbyScene extends Phaser.Scene {
       });
     });
 
-    this.socket.on("playerLeft", (data) => {
+    this.socket.on(E.PlayerLeft, (data: EType[E.PlayerLeft]) => {
       const playerSet = new Set(this.players);
       if (!playerSet.has(data.playerName)) {
         return;
@@ -143,7 +135,7 @@ export default class LobbyScene extends Phaser.Scene {
       this.drawPlayerTexts();
     });
 
-    this.socket.on("playerJoined", (data) => {
+    this.socket.on(E.PlayerJoined, (data: EType[E.PlayerJoined]) => {
       const playerSet = new Set(this.players);
       if (playerSet.has(data.playerName)) {
         return;
@@ -153,7 +145,7 @@ export default class LobbyScene extends Phaser.Scene {
       this.drawPlayerTexts();
     });
 
-    this.socket.on("playerRenamed", (data) => {
+    this.socket.on(E.PlayerRenamed, (data: EType[E.PlayerRenamed]) => {
       const updatedPlayers = new Set(this.players);
       updatedPlayers.delete(data.oldPlayerName);
       updatedPlayers.add(data.newPlayerName);
