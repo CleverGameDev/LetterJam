@@ -1,4 +1,3 @@
-import PhaserLogo from "../objects/phaserLogo";
 import PlayStateText from "../objects/playStateText";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
@@ -37,6 +36,8 @@ export default class GameScene extends Phaser.Scene {
   board;
   winningVoteText: Phaser.GameObjects.Text;
 
+  rexUI: any; // global plugin
+
   constructor() {
     super({ key });
     this.board = [];
@@ -71,10 +72,6 @@ export default class GameScene extends Phaser.Scene {
     );
   }
 
-  preload() {
-    this.load.image("phaser-logo", "assets/img/phaser-logo.png");
-  }
-
   init({ socket, id, players }) {
     this.socket = socket;
     this.id = id;
@@ -103,6 +100,22 @@ export default class GameScene extends Phaser.Scene {
     });
   };
 
+  _createButton = (scene, text) => {
+    return scene.rexUI.add.label({
+      width: 100,
+      height: 40,
+      background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0xae3f4b),
+      text: scene.add.text(0, 0, text, {
+        fontSize: 18,
+      }),
+      space: {
+        left: 10,
+        right: 10,
+      },
+      align: "center",
+    });
+  };
+
   create() {
     // Scene title
     this.add.text(0, 0, `${key}`, {
@@ -110,33 +123,8 @@ export default class GameScene extends Phaser.Scene {
       fontSize: 36,
     });
 
-    // interative game logos.. these are buttons that let us navigate around
-    const logo1 = new PhaserLogo(
-      this,
-      this.cameras.main.width / 2 - 100,
-      400
-    ).setScale(0.25, 0.25);
-    const logo2 = new PhaserLogo(
-      this,
-      this.cameras.main.width / 2 + 100,
-      400
-    ).setScale(0.25, 0.25);
-    logo1.on("pointerdown", this.iteratePlayState, this);
-    logo2.on("pointerdown", () => this.socket.emit(E.NextScene));
-
-    // Guessing sheet, and a button to show/hide the guessing sheet
     this.guessingSheet = new GuessingSheet(this);
-    const guessingSheetButton = new PhaserLogo(
-      this,
-      0,
-      this.cameras.main.height * 0.95
-    )
-      .setOrigin(0, 0)
-      .setScale(0.1, 0.1);
     this.guessingSheet.setVisible(false);
-    guessingSheetButton.on("pointerdown", () =>
-      this.guessingSheet.setVisible(!this.guessingSheet.visible)
-    );
 
     // Game sub-state
     this.playStateText = new PlayStateText(this);
@@ -190,44 +178,70 @@ export default class GameScene extends Phaser.Scene {
     // Discuss UI elements
     this.dialog.create();
     this.voteDialog.create();
-    const clueBtn = new PhaserLogo(
-      this,
-      this.cameras.main.width * 0.95,
-      this.cameras.main.height * 0.95
-    )
-      .setOrigin(0, 0)
-      .setScale(0.1, 0.1);
-    clueBtn.on("pointerdown", () => this.dialog.open());
 
     this.activeClues = new ActiveClues(this);
     this.activeClues.setVisible(false);
-    const activeCluesBtn = new PhaserLogo(
-      this,
-      this.cameras.main.width * 0.9,
-      this.cameras.main.height * 0.95
-    )
-      .setOrigin(0, 0)
-      .setScale(0.1, 0.1);
-    activeCluesBtn.on("pointerdown", () => {
-      if (!this.activeClues.visible) {
-        this._clearVisibleLetters();
-      } else {
-        this._drawVisibleLetters();
-      }
-      this.activeClues.setVisible(!this.activeClues.visible);
-    });
-
-    const voteBtn = new PhaserLogo(
-      this,
-      this.cameras.main.width * 0.85,
-      this.cameras.main.height * 0.95
-    )
-      .setOrigin(0, 0)
-      .setScale(0.1, 0.1);
-    voteBtn.on("pointerdown", () => this.voteDialog.open());
 
     this._drawVisibleLetters();
     this.socket.emit(E.GetVisibleLetters);
+
+    const buttons = this.rexUI.add
+      .buttons({
+        anchor: {
+          centerX: "center",
+          bottom: "bottom-10",
+        },
+        orientation: "x",
+        buttons: [
+          this._createButton(this, "Guessing Sheet"),
+          this._createButton(this, "Next Scene"),
+          this._createButton(this, "Active Clues"),
+          this._createButton(this, "Give Clue"),
+          this._createButton(this, "Vote for a Clue"),
+        ],
+        space: { item: 8 },
+      })
+      .layout();
+
+    buttons
+      .on("button.click", (button, index) => {
+        switch (index) {
+          case 0:
+            this.guessingSheet.setVisible(!this.guessingSheet.visible);
+            break;
+          case 1:
+            this.socket.emit(E.NextScene);
+            break;
+          case 2:
+            if (!this.activeClues.visible) {
+              this._clearVisibleLetters();
+            } else {
+              this._drawVisibleLetters();
+            }
+            this.activeClues.setVisible(!this.activeClues.visible);
+            break;
+          case 3:
+            this.dialog.open();
+            break;
+          case 4:
+            this.voteDialog.open();
+            break;
+          default:
+            break;
+        }
+      })
+      .on("button.out", function (button, index) {
+        if (typeof button.getElement === "function") {
+          button.getElement("background").setStrokeStyle();
+        }
+        button.setInteractive({ cursor: "default" });
+      })
+      .on("button.over", function (button, index) {
+        if (typeof button.getElement === "function") {
+          button.getElement("background").setStrokeStyle(3, 0xa23a47);
+        }
+        button.setInteractive({ useHandCursor: true });
+      });
   }
 
   iteratePlayState(pointer) {
