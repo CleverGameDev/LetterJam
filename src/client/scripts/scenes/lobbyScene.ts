@@ -23,11 +23,6 @@ export default class LobbyScene extends Phaser.Scene {
     );
   }
 
-  preload() {
-    this.load.image("phaser-logo", "assets/img/phaser-logo.png");
-    this.load.image("play-btn", "assets/img/play-btn.png");
-  }
-
   init({ socket, id, players }) {
     this.socket = socket;
     this.id = id;
@@ -74,12 +69,12 @@ export default class LobbyScene extends Phaser.Scene {
       .buttons({
         anchor: {
           centerX: "center",
-          centerY: "center+200",
+          bottom: "bottom-10",
         },
         orientation: "x",
         buttons: [
           this.createButton(this, "Rename"),
-          this.add.sprite(150, 150, "play-btn").setScale(0.25, 0.25),
+          this.createButton(this, "Start Game"),
         ],
         space: { item: 8 },
       })
