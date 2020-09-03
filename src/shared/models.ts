@@ -53,3 +53,7 @@ export type Clue = {
   numBonus: number;
   useWildcard: boolean;
 };
+
+export type FullClue = Clue & {
+  word: string;
+};
