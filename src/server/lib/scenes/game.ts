@@ -10,9 +10,9 @@ const getLetterOrdering = (gameState) => {
     Object.keys(gameState.votes),
     (key) => gameState.votes[key]
   );
-  const visibleLetters = gameState.getVisibleLetters(maxVotePlayerName);
 
   const playerID = gameState.getPlayerIDFromName(maxVotePlayerName);
+  const visibleLetters = gameState.getVisibleLetters(playerID);
   const normalizedWord = (gameState.clueWords[playerID] || "").toLowerCase();
   const letterOrdering = [];
 
@@ -105,6 +105,11 @@ const registerListeners = (
     if (PlayStates[gameState.playStateIndex] === PlayStateEnum.PROVIDE_HINT) {
       const letterOrdering = getLetterOrdering(gameState);
       io.to(gameState.room).emit(E.LetterOrdering, letterOrdering);
+    }
+    if (
+      PlayStates[gameState.playStateIndex] === PlayStateEnum.CHECK_END_CONDITION
+    ) {
+      gameState.resetVotesAndClues();
     }
   });
 };
