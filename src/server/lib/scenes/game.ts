@@ -122,6 +122,8 @@ const deregisterListeners = (
   socket.removeAllListeners(E.GetVisibleLetters);
   socket.removeAllListeners(E.UpdateClue);
   socket.removeAllListeners(E.Vote);
+  socket.removeAllListeners(E.NextVisibleLetter);
+  socket.removeAllListeners(E.PlayerReady);
 };
 
 export const setup = (io, socket, gameState) => {
