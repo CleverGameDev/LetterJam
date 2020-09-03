@@ -5,24 +5,19 @@ import { SelfStand } from "../objects/stand";
 import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
+
+import { PlayStateEnum } from "../../../shared/constants";
 import { Clue, ClientGameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
 
 const key = "GameScene";
-
-export enum PLAY_STATE {
-  DISCUSS = "discuss",
-  PROVIDE_HINT = "provide_hint",
-  INTERPRET_HINT = "interpret_hint",
-  CHECK_END_CONDITION = "check_end_condition",
-}
 
 export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text;
   playStateText: Phaser.GameObjects.Text;
   guessingSheet: GuessingSheet;
 
-  playState: PLAY_STATE;
+  playState: PlayStateEnum;
   flower: Flower;
   selfStand: SelfStand;
   socket: SocketIO.Socket;
@@ -128,7 +123,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Game sub-state
     this.playStateText = new PlayStateText(this);
-    this.playState = PLAY_STATE.DISCUSS;
+    this.playState = PlayStateEnum.DISCUSS;
     this.flower = new Flower(this, this.players.length);
     // TODO: add playerID and deck for self
     this.selfStand = new SelfStand(this, "playerID", 2);
@@ -160,6 +155,10 @@ export default class GameScene extends Phaser.Scene {
       }
     );
 
+    this.socket.on(E.ChangePlayState, (data: EType[E.ChangePlayState]) => {
+      this.playState = data.playState;
+    });
+
     this.socket.on(E.WinningVote, (data: EType[E.WinningVote]) => {
       if (this.winningVoteText) {
         this.winningVoteText.destroy();
@@ -175,6 +174,28 @@ export default class GameScene extends Phaser.Scene {
       );
     });
 
+    this.socket.on(E.LetterOrdering, (letterordering) => {
+      const letters = [];
+      for (const playerName of letterordering) {
+        if (playerName === "*") {
+          letters.push("*");
+          continue;
+        }
+        let found = false;
+        for (const stand of this.gameState.visibleLetters) {
+          if (stand.player === playerName) {
+            letters.push(stand.letter);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          letters.push("?");
+        }
+      }
+      this.guessingSheet.addClueWord(letters);
+    });
+
     // Discuss UI elements
     this.dialog.create();
     this.voteDialog.create();
@@ -183,7 +204,6 @@ export default class GameScene extends Phaser.Scene {
     this.activeClues.setVisible(false);
 
     this._drawVisibleLetters();
-    this.socket.emit(E.GetVisibleLetters);
 
     const buttons = this.rexUI.add
       .buttons({
@@ -198,6 +218,8 @@ export default class GameScene extends Phaser.Scene {
           this._createButton(this, "Active Clues"),
           this._createButton(this, "Give Clue"),
           this._createButton(this, "Vote for a Clue"),
+          this._createButton(this, "Go to next letter"),
+          this._createButton(this, "I am ready"),
         ],
         space: { item: 8 },
       })
@@ -226,6 +248,12 @@ export default class GameScene extends Phaser.Scene {
           case 4:
             this.voteDialog.open();
             break;
+          case 5:
+            this.socket.emit(E.NextVisibleLetter);
+            break;
+          case 6:
+            this.socket.emit(E.PlayerReady);
+            break;
           default:
             break;
         }
@@ -244,30 +272,22 @@ export default class GameScene extends Phaser.Scene {
       });
   }
 
-  iteratePlayState(pointer) {
-    const currentStateIdx = Object.values(PLAY_STATE).indexOf(this.playState);
-    const numStates = Object.values(PLAY_STATE).length;
-
-    this.playState = Object.values(PLAY_STATE)[
-      (currentStateIdx + 1) % numStates
-    ];
-  }
-
   update() {
     this.playStateText.update(this.playState);
     this.flower.update();
+    this.socket.emit(E.GetVisibleLetters);
     this._clearVisibleLetters();
     this._drawVisibleLetters();
 
     switch (this.playState) {
-      case PLAY_STATE.DISCUSS:
+      case PlayStateEnum.DISCUSS:
         // Concluded when one player's hint is chosen.
         // Chosen via voting in game, and then clicking continue once there's agreement (could also have timer)
         if (this.activeClues) {
           this.activeClues.update();
         }
         break;
-      case PLAY_STATE.PROVIDE_HINT:
+      case PlayStateEnum.PROVIDE_HINT:
         // If player IS NOT the hint provider
         // Wait to receive the hint
 
@@ -281,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
         // Recall: Letters can be player letters, NPC letters, or wildcard
         // Each person's "guessing sheet" can be automatically updated.
         break;
-      case PLAY_STATE.INTERPRET_HINT:
+      case PlayStateEnum.INTERPRET_HINT:
         // Remind users that their sheet is updated (ex. cause the guessing sheet to pop-up)
         // Players can jot down guesses
 
@@ -296,7 +316,7 @@ export default class GameScene extends Phaser.Scene {
         //
         // When should player guess their final word? Probably as part of endScene
         break;
-      case PLAY_STATE.CHECK_END_CONDITION:
+      case PlayStateEnum.CHECK_END_CONDITION:
         // (1) If you end a round with no clue tokens for the next round, the game is over
         // OR (2) The game ends with leftover tokens if everyone decides they don’t need any more clues.
         break;

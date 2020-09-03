@@ -15,7 +15,10 @@ export const giveClue = (
 
   // send clue to server. sending a second clue should override the first since
   // each player can only have one active clue
-  socket.emit(E.UpdateClue, <models.Clue>clue);
+  socket.emit(E.UpdateClue, <models.FullClue>{
+    ...(<models.Clue>clue),
+    word,
+  });
 };
 
 const generateClue = (

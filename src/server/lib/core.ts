@@ -31,7 +31,7 @@ const loadActiveScene = (
 ) => {
   // A newly connected user starts at the PreloadScene, which listens for
   // an E.Ready event. When that event is fired, it will load the active scene.
-  socket.emit(E.Ready, <EType[E.Ready]>{
+  socket.emit(E.ServerReady, <EType[E.ServerReady]>{
     id: playerID(socket),
     scene: Scenes[gameState.sceneIndex],
     players: gameState.getPlayerNames(),

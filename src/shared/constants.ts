@@ -79,4 +79,30 @@ export const BaseNPCCards = 7;
 export const NPCCardGrowth = 1;
 export const MaxPlayers = 6;
 
-export const Scenes = ["LobbyScene", "SetupScene", "GameScene", "EndScene"];
+export enum SceneEnum {
+  LobbyScene = "LobbyScene",
+  SetupScene = "SetupScene",
+  GameScene = "GameScene",
+  EndScene = "EndScene",
+}
+
+export const Scenes = [
+  SceneEnum.LobbyScene,
+  SceneEnum.SetupScene,
+  SceneEnum.GameScene,
+  SceneEnum.EndScene,
+];
+
+export enum PlayStateEnum {
+  DISCUSS = "discuss",
+  PROVIDE_HINT = "provide_hint",
+  INTERPRET_HINT = "interpret_hint",
+  CHECK_END_CONDITION = "check_end_condition",
+}
+
+export const PlayStates = [
+  PlayStateEnum.DISCUSS,
+  PlayStateEnum.PROVIDE_HINT,
+  PlayStateEnum.INTERPRET_HINT,
+  PlayStateEnum.CHECK_END_CONDITION,
+];

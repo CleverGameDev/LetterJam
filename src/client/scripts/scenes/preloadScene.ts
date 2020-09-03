@@ -7,7 +7,7 @@ export default class PreloadScene extends Phaser.Scene {
 
     const socket = io();
 
-    socket.on(E.Ready, (data: EType[E.Ready]) => {
+    socket.on(E.ServerReady, (data: EType[E.ServerReady]) => {
       const { id, scene, players } = data;
       this.scene.start(scene, { socket, id, players });
     });

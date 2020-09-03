@@ -1,4 +1,4 @@
-import { PLAY_STATE } from "../scenes/gameScene";
+import { PlayStateEnum } from "../../../shared/constants";
 
 export default class PlayStateText extends Phaser.GameObjects.Text {
   constructor(scene: Phaser.Scene) {
@@ -10,19 +10,19 @@ export default class PlayStateText extends Phaser.GameObjects.Text {
   public update(state: string) {
     this.setText(`State: ${state}`);
     switch (state) {
-      case PLAY_STATE.DISCUSS: {
+      case PlayStateEnum.DISCUSS: {
         this.setColor("green");
         break;
       }
-      case PLAY_STATE.PROVIDE_HINT: {
+      case PlayStateEnum.PROVIDE_HINT: {
         this.setColor("red");
         break;
       }
-      case PLAY_STATE.INTERPRET_HINT: {
+      case PlayStateEnum.INTERPRET_HINT: {
         this.setColor("blue");
         break;
       }
-      case PLAY_STATE.CHECK_END_CONDITION: {
+      case PlayStateEnum.CHECK_END_CONDITION: {
         this.setColor("orange");
         break;
       }
