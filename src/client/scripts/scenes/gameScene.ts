@@ -204,7 +204,6 @@ export default class GameScene extends Phaser.Scene {
     this.activeClues.setVisible(false);
 
     this._drawVisibleLetters();
-    this.socket.emit(E.GetVisibleLetters);
 
     const buttons = this.rexUI.add
       .buttons({
@@ -276,6 +275,7 @@ export default class GameScene extends Phaser.Scene {
   update() {
     this.playStateText.update(this.playState);
     this.flower.update();
+    this.socket.emit(E.GetVisibleLetters);
     this._clearVisibleLetters();
     this._drawVisibleLetters();
 
