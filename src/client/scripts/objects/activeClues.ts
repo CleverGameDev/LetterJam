@@ -1,11 +1,21 @@
 import { Clue } from "../../../shared/models";
+import GameScene from "../scenes/gameScene";
+
+const headers = [
+  "Player       ",
+  "Word Length  ",
+  "Players used ",
+  "NPCs used    ",
+  "Bonuses used ",
+  "Wildcard used",
+];
 
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
   content;
-  scene;
+  scene: GameScene;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: GameScene) {
     super(scene, 0, 0);
 
     this.scene = scene;
@@ -16,7 +26,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
         0,
         scene.cameras.main.width,
         scene.cameras.main.height / 2,
-        55
+        10
       )
       .setOrigin(0, 0);
     const title = scene.add.text(20, 20, "Active Clues", {
@@ -35,36 +45,34 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  clueToArray = (clue: Clue): any[] => {
-    return [
-      clue.playerID,
-      clue.wordLength,
-      clue.numPlayers,
-      clue.numNPCs,
-      clue.numBonus,
+  clueToArray = (clue: Clue): string[] => {
+    const out = [
+      clue.playerID.substr(0, 6),
+      `${clue.wordLength}`,
+      `${clue.numPlayers}`,
+      `${clue.numNPCs}`,
+      `${clue.numBonus}`,
       clue.useWildcard ? "Y" : "N",
     ];
+
+    for (let i = 0; i < out.length; i++) {
+      out[i] = out[i].toString().padEnd(headers[i].length);
+    }
+
+    return out;
   };
 
   update(): void {
-    const matrix = [
-      [
-        "Player",
-        "Word Length",
-        "Players used",
-        "NPCs used",
-        "Bonuses used",
-        "Wildcard used",
-      ],
-    ];
+    let text = "No clues yet";
     if (this.scene.clues) {
+      const matrix = [headers];
       for (const key of Object.keys(this.scene.clues)) {
         matrix.push(this.clueToArray(this.scene.clues[key]));
       }
-    } else {
-      matrix.push(["No clues yet", "", "", "", "", ""]);
+
+      text = Phaser.Utils.Array.Matrix.MatrixToString(matrix);
     }
 
-    this.content.setText(Phaser.Utils.Array.Matrix.MatrixToString(matrix));
+    this.content.setText(text);
   }
 }
