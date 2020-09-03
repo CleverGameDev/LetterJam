@@ -41,6 +41,7 @@ export class ServerGameState {
   votes: { [playerID: string]: number };
   clueWords: { [playerID: string]: string };
   playStateIndex: number;
+  playersReady: Set<string>;
 
   constructor() {
     this.sceneIndex = 0;
@@ -54,6 +55,7 @@ export class ServerGameState {
     this.votes = {};
     this.clueWords = {};
     this.playStateIndex = 0;
+    this.playersReady = new Set();
   }
 
   getPlayerIDs() {
@@ -76,6 +78,14 @@ export class ServerGameState {
   resetVotesAndClues() {
     this.clues = {};
     this.votes = {};
+  }
+
+  areAllPlayersReady(): boolean {
+    return this.playersReady.size >= Array.from(this.players.keys()).length;
+  }
+
+  resetPlayersReady() {
+    this.playersReady = new Set();
   }
 
   getVisibleLetters(currentPlayerID: string): Stand[] {
