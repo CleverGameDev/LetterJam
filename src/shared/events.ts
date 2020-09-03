@@ -1,8 +1,9 @@
-import { Clue, Stand } from "../shared/models";
+import { PlayStateEnum } from "../shared/constants";
+import { Clue, FullClue, Stand } from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
-  Ready = "ready",
+  ServerReady = "serverReady",
 
   ChangeScene = "changeScene",
   NextScene = "nextScene",
@@ -16,16 +17,23 @@ export enum E {
   GetVisibleLetters = "getVisibleLetters",
   VisibleLetters = "visibleLetters",
 
+  ChangePlayState = "changePlayState",
+
+  LetterOrdering = "letterOrdering",
+  NextVisibleLetter = "nextVisibleLetter",
+
   Clues = "clues",
   UpdateClue = "updateClue",
 
   WinningVote = "winningVote",
   Vote = "vote",
+
+  PlayerReady = "playerReady",
 }
 
 // EType is a lookup from Event Name to Event Type
 export type EType = {
-  [E.Ready]: {
+  [E.ServerReady]: {
     id: string;
     scene: string;
     players: string[];
@@ -53,8 +61,16 @@ export type EType = {
 
   [E.VisibleLetters]: Stand[];
 
+  [E.ChangePlayState]: {
+    playState: PlayStateEnum;
+  };
+
+  [E.NextVisibleLetter]: void;
+
+  [E.LetterOrdering]: string[];
+
   [E.Clues]: { [playerID: string]: Clue };
-  [E.UpdateClue]: Clue;
+  [E.UpdateClue]: FullClue;
 
   [E.WinningVote]: {
     playerID: string;
@@ -65,4 +81,6 @@ export type EType = {
     senderID: string;
     votedID: string;
   };
+
+  [E.PlayerReady]: void;
 };
