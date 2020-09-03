@@ -7,7 +7,7 @@ export default class PlayStateText extends Phaser.GameObjects.Text {
     this.setOrigin(0);
   }
 
-  public update(state: string) {
+  public update(state: string): void {
     this.setText(`State: ${state}`);
     switch (state) {
       case PlayStateEnum.DISCUSS: {

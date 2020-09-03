@@ -1,3 +1,5 @@
+import { Clue } from "../../../shared/models";
+
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
   content;
@@ -33,7 +35,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  clueToArray = (clue) => {
+  clueToArray = (clue: Clue): any[] => {
     return [
       clue.playerID,
       clue.wordLength,
@@ -44,7 +46,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     ];
   };
 
-  update() {
+  update(): void {
     const matrix = [
       [
         "Player",

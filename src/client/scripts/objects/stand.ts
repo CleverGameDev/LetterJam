@@ -60,7 +60,7 @@ export class NPCStand extends Stand {
     scene.add.existing(this.cardsLeft);
   }
 
-  public next(nextCard: string) {
+  public next(nextCard: string): void {
     if (this.deckLength > 0) {
       this.standView.setLetter(nextCard);
       this.deckLength--;

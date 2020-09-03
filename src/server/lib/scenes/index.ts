@@ -17,7 +17,10 @@ const sceneHandlers = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   sceneName: SceneEnum
-) => {
+): {
+  setup: (gameState: ServerGameState) => void;
+  teardown: (gameState: ServerGameState) => void;
+} => {
   const scene = scenes[sceneName];
   return {
     setup: (gameState: ServerGameState) => {

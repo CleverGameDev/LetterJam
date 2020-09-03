@@ -131,7 +131,7 @@ export const setup = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   gameState: ServerGameState
-) => {
+): void => {
   gameState.playStateIndex = 0;
   registerListeners(io, socket, gameState);
 };
@@ -140,6 +140,6 @@ export const teardown = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   gameState: ServerGameState
-) => {
+): void => {
   deregisterListeners(io, socket, gameState);
 };

@@ -44,7 +44,7 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  addClueWord(clueWord) {
+  addClueWord(clueWord: string[]): void {
     if (clueWord.length > 10) {
       this.matrix.push(clueWord.slice(0, 10));
     } else if (clueWord.length < 10) {

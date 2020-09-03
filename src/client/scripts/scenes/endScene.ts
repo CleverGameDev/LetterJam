@@ -11,17 +11,17 @@ export default class EndScene extends Phaser.Scene {
     super({ key: SceneEnum.EndScene });
   }
 
-  preload() {
+  preload(): void {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
   }
 
-  init({ socket, id, players }) {
+  init({ socket, id, players }): void {
     this.socket = socket;
     this.id = id;
     this.players = players;
   }
 
-  create() {
+  create(): void {
     this.add.text(0, 0, `END SCENE`, {
       color: "#000000",
       fontSize: 36,

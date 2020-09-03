@@ -43,7 +43,7 @@ export default class Flower extends Phaser.GameObjects.Text {
     }
   }
 
-  public update() {
+  public update(): void {
     // TODO: different colors would be nice
     this.setText(
       `Red tokens: ${this.redTokens}\nGreen tokens: ${this.greenTokens}\nLocked green tokens: ${this.greenTokensLocked}`
@@ -52,7 +52,7 @@ export default class Flower extends Phaser.GameObjects.Text {
 
   // Perform the logic to take turns
   // Returns true if successful, false otherwise
-  public takeToken(playerID: integer) {
+  public takeToken(playerID: integer): boolean {
     // Perform logic to take turns
 
     // If this is the first time a player has offered a clue, take a red token
