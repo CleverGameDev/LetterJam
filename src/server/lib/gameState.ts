@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import {
   Clue,
+  FullClue,
   Letter,
   PlayerID,
   PlayerProperties,
@@ -36,8 +37,10 @@ export class ServerGameState {
   deck: Letter[];
   // redTokens,
   // greenTokens
-  clues: { [playerID: string]: Clue };
+  clues: { [playerID: string]: FullClue };
   votes: { [playerID: string]: number };
+  clueWords: { [playerID: string]: string };
+  playStateIndex: number;
 
   constructor() {
     this.sceneIndex = 0;
@@ -49,6 +52,8 @@ export class ServerGameState {
     this.deck = [];
     this.clues = {};
     this.votes = {};
+    this.clueWords = {};
+    this.playStateIndex = 0;
   }
 
   getPlayerIDs() {
@@ -57,6 +62,15 @@ export class ServerGameState {
 
   getPlayerNames() {
     return this.getPlayerIDs().map((n) => this.players.get(n).Name);
+  }
+
+  getPlayerIDFromName(name) {
+    for (const id of this.getPlayerIDs()) {
+      if (this.players.get(id).Name === name) {
+        return id;
+      }
+    }
+    return "";
   }
 
   resetVotesAndClues() {
