@@ -1,4 +1,5 @@
 import PhaserLogo from "../objects/phaserLogo";
+import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 
 export default class EndScene extends Phaser.Scene {
@@ -7,7 +8,7 @@ export default class EndScene extends Phaser.Scene {
   players: string[];
 
   constructor() {
-    super({ key: "EndScene" });
+    super({ key: SceneEnum.EndScene });
   }
 
   preload() {

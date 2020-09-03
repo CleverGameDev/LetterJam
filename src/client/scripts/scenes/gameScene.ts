@@ -6,11 +6,11 @@ import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
 
-import { PlayStateEnum } from "../../../shared/constants";
+import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
 import { Clue, ClientGameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
 
-const key = "GameScene";
+const key = SceneEnum.GameScene;
 
 export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text;
@@ -174,27 +174,30 @@ export default class GameScene extends Phaser.Scene {
       );
     });
 
-    this.socket.on(E.LetterOrdering, (letterordering) => {
-      const letters = [];
-      for (const playerName of letterordering) {
-        if (playerName === "*") {
-          letters.push("*");
-          continue;
-        }
-        let found = false;
-        for (const stand of this.gameState.visibleLetters) {
-          if (stand.player === playerName) {
-            letters.push(stand.letter);
-            found = true;
-            break;
+    this.socket.on(
+      E.LetterOrdering,
+      (letterordering: EType[E.LetterOrdering]) => {
+        const letters = [];
+        for (const playerName of letterordering) {
+          if (playerName === "*") {
+            letters.push("*");
+            continue;
+          }
+          let found = false;
+          for (const stand of this.gameState.visibleLetters) {
+            if (stand.player === playerName) {
+              letters.push(stand.letter);
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            letters.push("?");
           }
         }
-        if (!found) {
-          letters.push("?");
-        }
+        this.guessingSheet.addClueWord(letters);
       }
-      this.guessingSheet.addClueWord(letters);
-    });
+    );
 
     // Discuss UI elements
     this.dialog.create();

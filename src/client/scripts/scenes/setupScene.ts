@@ -1,7 +1,8 @@
 import PhaserLogo from "../objects/phaserLogo";
+import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 
-const key = "SetupScene";
+const key = SceneEnum.SetupScene;
 
 export default class SetupScene extends Phaser.Scene {
   socket: SocketIO.Socket;

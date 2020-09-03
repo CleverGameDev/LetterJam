@@ -1,4 +1,5 @@
 import Dialog from "../objects/dialog";
+import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 
 export default class LobbyScene extends Phaser.Scene {
@@ -10,7 +11,7 @@ export default class LobbyScene extends Phaser.Scene {
   rexUI: any; // global plugin
 
   constructor() {
-    super({ key: "LobbyScene" });
+    super({ key: SceneEnum.LobbyScene });
     this.playerTexts = [];
     this.dialog = new Dialog(
       this,

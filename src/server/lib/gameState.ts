@@ -81,7 +81,7 @@ export class ServerGameState {
   }
 
   areAllPlayersReady(): boolean {
-    return this.playersReady.size >= Array.from(this.players.keys()).length;
+    return this.playersReady.size >= this.getPlayerIDs().length;
   }
 
   resetPlayersReady() {

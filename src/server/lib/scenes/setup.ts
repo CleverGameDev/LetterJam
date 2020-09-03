@@ -18,11 +18,19 @@ const deregisterListeners = (
   return;
 };
 
-export const setup = (io, socket, gameState) => {
+export const setup = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+) => {
   registerListeners(io, socket, gameState);
   gameState.setupNewGame();
 };
 
-export const teardown = (io, socket, gameState) => {
+export const teardown = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+) => {
   deregisterListeners(io, socket, gameState);
 };
