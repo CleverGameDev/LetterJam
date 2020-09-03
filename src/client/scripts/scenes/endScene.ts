@@ -1,4 +1,5 @@
 import PhaserLogo from "../objects/phaserLogo";
+import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 
 export default class EndScene extends Phaser.Scene {
@@ -7,20 +8,20 @@ export default class EndScene extends Phaser.Scene {
   players: string[];
 
   constructor() {
-    super({ key: "EndScene" });
+    super({ key: SceneEnum.EndScene });
   }
 
-  preload() {
+  preload(): void {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
   }
 
-  init({ socket, id, players }) {
+  init({ socket, id, players }): void {
     this.socket = socket;
     this.id = id;
     this.players = players;
   }
 
-  create() {
+  create(): void {
     this.add.text(0, 0, `END SCENE`, {
       color: "#000000",
       fontSize: 36,

@@ -6,11 +6,11 @@ import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
 
-import { PlayStateEnum } from "../../../shared/constants";
+import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
 import { Clue, ClientGameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
 
-const key = "GameScene";
+const key = SceneEnum.GameScene;
 
 export default class GameScene extends Phaser.Scene {
   fpsText: Phaser.GameObjects.Text;
@@ -67,20 +67,20 @@ export default class GameScene extends Phaser.Scene {
     );
   }
 
-  init({ socket, id, players }) {
+  init({ socket, id, players }): void {
     this.socket = socket;
     this.id = id;
     this.players = players;
   }
 
-  _clearVisibleLetters = () => {
+  _clearVisibleLetters = (): void => {
     for (const text of this.board) {
       text.destroy();
     }
     this.board = [];
   };
 
-  _drawVisibleLetters = () => {
+  _drawVisibleLetters = (): void => {
     this.gameState.visibleLetters.forEach((stand, idx) => {
       const label = this.add.text(100 + 200 * idx, 200, stand.player, {
         color: "#000000",
@@ -95,7 +95,7 @@ export default class GameScene extends Phaser.Scene {
     });
   };
 
-  _createButton = (scene, text) => {
+  _createButton = (scene: GameScene, text: string) => {
     return scene.rexUI.add.label({
       width: 100,
       height: 40,
@@ -111,7 +111,7 @@ export default class GameScene extends Phaser.Scene {
     });
   };
 
-  create() {
+  create(): void {
     // Scene title
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
@@ -174,27 +174,30 @@ export default class GameScene extends Phaser.Scene {
       );
     });
 
-    this.socket.on(E.LetterOrdering, (letterordering) => {
-      const letters = [];
-      for (const playerName of letterordering) {
-        if (playerName === "*") {
-          letters.push("*");
-          continue;
-        }
-        let found = false;
-        for (const stand of this.gameState.visibleLetters) {
-          if (stand.player === playerName) {
-            letters.push(stand.letter);
-            found = true;
-            break;
+    this.socket.on(
+      E.LetterOrdering,
+      (letterordering: EType[E.LetterOrdering]) => {
+        const letters = [];
+        for (const playerName of letterordering) {
+          if (playerName === "*") {
+            letters.push("*");
+            continue;
+          }
+          let found = false;
+          for (const stand of this.gameState.visibleLetters) {
+            if (stand.player === playerName) {
+              letters.push(stand.letter);
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            letters.push("?");
           }
         }
-        if (!found) {
-          letters.push("?");
-        }
+        this.guessingSheet.addClueWord(letters);
       }
-      this.guessingSheet.addClueWord(letters);
-    });
+    );
 
     // Discuss UI elements
     this.dialog.create();
@@ -226,7 +229,7 @@ export default class GameScene extends Phaser.Scene {
       .layout();
 
     buttons
-      .on("button.click", (button, index) => {
+      .on("button.click", (button, index: number) => {
         switch (index) {
           case 0:
             this.guessingSheet.setVisible(!this.guessingSheet.visible);
@@ -272,7 +275,7 @@ export default class GameScene extends Phaser.Scene {
       });
   }
 
-  update() {
+  update(): void {
     this.playStateText.update(this.playState);
     this.flower.update();
     this.socket.emit(E.GetVisibleLetters);

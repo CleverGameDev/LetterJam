@@ -45,7 +45,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  clueToArray = (clue: Clue) => {
+  clueToArray = (clue: Clue): string[] => {
     const out = [
       clue.playerID.substr(0, 6),
       `${clue.wordLength}`,
@@ -62,7 +62,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     return out;
   };
 
-  update() {
+  update(): void {
     let text = "No clues yet";
     if (this.scene.clues) {
       const matrix = [headers];

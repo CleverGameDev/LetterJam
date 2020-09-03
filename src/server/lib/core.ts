@@ -44,7 +44,7 @@ const loadActiveScene = (
 export const setupSocketIO = (
   io: SocketIO.Server,
   gameState: ServerGameState
-) => {
+): void => {
   io.on("connection", (socket: SocketIO.Socket) => {
     socket.join(gameState.room);
     handlePlayerJoined(io, socket, gameState);

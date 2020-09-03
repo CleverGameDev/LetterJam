@@ -78,7 +78,11 @@ const getLettersByPlayerType = (gameState: models.ClientGameState) => {
 };
 
 // Send vote to server. PlayerID can be accessed from clue
-export const vote = (socket, senderID, votedID) => {
+export const vote = (
+  socket: SocketIO.Socket,
+  senderID: string,
+  votedID: string
+): void => {
   const v: EType[E.Vote] = {
     senderID,
     votedID,

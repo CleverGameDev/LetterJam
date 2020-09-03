@@ -6,7 +6,13 @@ export default class Dialog {
   submitFn: (content) => void;
   dialog;
 
-  constructor(scene, placeholderTxt, title, cancelFn, submitFn) {
+  constructor(
+    scene,
+    placeholderTxt: string,
+    title: string,
+    cancelFn: () => void,
+    submitFn: (content) => void
+  ) {
     this.scene = scene;
     this.placeholderTxt = placeholderTxt;
     this.title = title;
@@ -14,7 +20,7 @@ export default class Dialog {
     this.submitFn = submitFn;
   }
 
-  create() {
+  create(): void {
     const createLabel = function (scene, text) {
       return scene.rexUI.add.label({
         background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x5e92f3),
@@ -126,11 +132,11 @@ export default class Dialog {
     this.dialog = dialog;
   }
 
-  open() {
+  open(): void {
     this.dialog.setActive(true).setVisible(true);
   }
 
-  close() {
+  close(): void {
     this.dialog.setActive(false).setVisible(false);
   }
 }

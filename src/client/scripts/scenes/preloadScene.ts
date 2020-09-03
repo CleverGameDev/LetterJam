@@ -3,7 +3,7 @@ import { E, EType } from "../../../shared/events";
 
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
-    super({ key: "PreloadScene" });
+    super({ key: "PreloadScene" }); // Client-side only Scene
 
     const socket = io();
 

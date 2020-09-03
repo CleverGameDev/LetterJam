@@ -1,7 +1,8 @@
 import PhaserLogo from "../objects/phaserLogo";
+import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 
-const key = "SetupScene";
+const key = SceneEnum.SetupScene;
 
 export default class SetupScene extends Phaser.Scene {
   socket: SocketIO.Socket;
@@ -12,17 +13,17 @@ export default class SetupScene extends Phaser.Scene {
     super({ key });
   }
 
-  preload() {
+  preload(): void {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
   }
 
-  init({ socket, id, players }) {
+  init({ socket, id, players }): void {
     this.socket = socket;
     this.id = id;
     this.players = players;
   }
 
-  create() {
+  create(): void {
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
       fontSize: 36,

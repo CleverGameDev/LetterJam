@@ -3,9 +3,10 @@ import * as _ from "lodash";
 import { ServerGameState } from "../../lib/gameState";
 import { PlayStateEnum, PlayStates } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
+import { Stand } from "../../../shared/models";
 import { playerID } from "../playerUtils";
 
-const getLetterOrdering = (gameState) => {
+const getLetterOrdering = (gameState: ServerGameState) => {
   const maxVotePlayerName = _.maxBy(
     Object.keys(gameState.votes),
     (key) => gameState.votes[key]
@@ -16,7 +17,7 @@ const getLetterOrdering = (gameState) => {
   const normalizedWord = (gameState.clueWords[playerID] || "").toLowerCase();
   const letterOrdering = [];
 
-  const getLetterToPlayerID = (visibleLetters) => {
+  const getLetterToPlayerID = (visibleLetters: Stand[]) => {
     const letterToPlayerIDs = {};
     for (const stand of visibleLetters) {
       letterToPlayerIDs[stand.letter] =
@@ -126,11 +127,19 @@ const deregisterListeners = (
   socket.removeAllListeners(E.PlayerReady);
 };
 
-export const setup = (io, socket, gameState) => {
+export const setup = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+): void => {
   gameState.playStateIndex = 0;
   registerListeners(io, socket, gameState);
 };
 
-export const teardown = (io, socket, gameState) => {
+export const teardown = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+): void => {
   deregisterListeners(io, socket, gameState);
 };

@@ -1,6 +1,5 @@
 import * as _ from "lodash";
 import {
-  Clue,
   FullClue,
   Letter,
   PlayerID,
@@ -58,15 +57,15 @@ export class ServerGameState {
     this.playersReady = new Set();
   }
 
-  getPlayerIDs() {
+  getPlayerIDs(): string[] {
     return Array.from(this.players.keys());
   }
 
-  getPlayerNames() {
+  getPlayerNames(): string[] {
     return this.getPlayerIDs().map((n) => this.players.get(n).Name);
   }
 
-  getPlayerIDFromName(name) {
+  getPlayerIDFromName(name: string): string {
     for (const id of this.getPlayerIDs()) {
       if (this.players.get(id).Name === name) {
         return id;
@@ -75,16 +74,16 @@ export class ServerGameState {
     return "";
   }
 
-  resetVotesAndClues() {
+  resetVotesAndClues(): void {
     this.clues = {};
     this.votes = {};
   }
 
   areAllPlayersReady(): boolean {
-    return this.playersReady.size >= Array.from(this.players.keys()).length;
+    return this.playersReady.size >= this.getPlayerIDs().length;
   }
 
-  resetPlayersReady() {
+  resetPlayersReady(): void {
     this.playersReady = new Set();
   }
 
@@ -119,7 +118,7 @@ export class ServerGameState {
   // it requires us to know the number of connected players.
   //
   // (future) Consider isolating the per-game state from other server state.
-  setupNewGame() {
+  setupNewGame(): void {
     const playerIDs = this.getPlayerIDs();
     const { playerHands, npcHands, deck } = drawCards(playerIDs);
 

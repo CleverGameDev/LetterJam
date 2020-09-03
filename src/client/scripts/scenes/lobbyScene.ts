@@ -1,4 +1,5 @@
 import Dialog from "../objects/dialog";
+import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 
 export default class LobbyScene extends Phaser.Scene {
@@ -10,7 +11,7 @@ export default class LobbyScene extends Phaser.Scene {
   rexUI: any; // global plugin
 
   constructor() {
-    super({ key: "LobbyScene" });
+    super({ key: SceneEnum.LobbyScene });
     this.playerTexts = [];
     this.dialog = new Dialog(
       this,
@@ -23,20 +24,20 @@ export default class LobbyScene extends Phaser.Scene {
     );
   }
 
-  init({ socket, id, players }) {
+  init({ socket, id, players }): void {
     this.socket = socket;
     this.id = id;
     this.players = players;
   }
 
-  clearPlayerTexts = () => {
+  clearPlayerTexts = (): void => {
     for (const text of this.playerTexts) {
       text.destroy();
     }
     this.playerTexts = [];
   };
 
-  drawPlayerTexts = () => {
+  drawPlayerTexts = (): void => {
     this.players.forEach((p, idx) => {
       const text = this.add
         .text(this.cameras.main.width - 15, 100 * idx, `player = ${p}`, {
@@ -48,7 +49,7 @@ export default class LobbyScene extends Phaser.Scene {
     });
   };
 
-  createButton = (scene, text) => {
+  createButton = (scene: LobbyScene, text: string) => {
     return scene.rexUI.add.label({
       width: 100,
       height: 40,
@@ -64,7 +65,7 @@ export default class LobbyScene extends Phaser.Scene {
     });
   };
 
-  create() {
+  create(): void {
     const buttons = this.rexUI.add
       .buttons({
         anchor: {

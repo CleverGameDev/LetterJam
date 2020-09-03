@@ -1,6 +1,4 @@
 import { ServerGameState } from "../../lib/gameState";
-import { E, EType } from "../../../shared/events";
-import { playerID } from "../playerUtils";
 
 const registerListeners = (
   io: SocketIO.Server,
@@ -18,10 +16,18 @@ const deregisterListeners = (
   return;
 };
 
-export const setup = (io, socket, gameState) => {
+export const setup = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+): void => {
   registerListeners(io, socket, gameState);
 };
 
-export const teardown = (io, socket, gameState) => {
+export const teardown = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+): void => {
   deregisterListeners(io, socket, gameState);
 };
