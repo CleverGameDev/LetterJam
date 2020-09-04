@@ -6,7 +6,6 @@ import sceneHandlers from "./scenes";
 
 export const syncClientGameState = (
   io: SocketIO.Server,
-  socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
   // TODO: Debounce this so we don't spam the client with updates
@@ -37,7 +36,7 @@ const handlePlayerJoined = (
       Name: DefaultPlayerName,
     };
 
-    syncClientGameState(io, socket, gameState);
+    syncClientGameState(io, gameState);
   }
 };
 
@@ -77,7 +76,7 @@ const registerListeners = (
   socket.on("disconnect", () => {
     // Update game state
     // TODO: https://trello.com/c/8JwHD7nB/107-letterjam-given-persistent-ids-figure-out-how-a-player-leaves-lobby
-    // syncClientGameState(io, socket, gameState);
+    // syncClientGameState(io, gameState);
   });
 
   socket.on(E.NextScene, () => {
@@ -99,5 +98,6 @@ const registerListeners = (
     io.to(gameState.room).emit(E.ChangeScene, <EType[E.ChangeScene]>{
       scene: gameState.getScene(),
     });
+    syncClientGameState(io, gameState);
   });
 };

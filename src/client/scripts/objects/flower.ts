@@ -15,32 +15,6 @@ export default class Flower extends Phaser.GameObjects.Text {
     // TODO: find a better place to put this flower
     this.setPosition(scene.cameras.main.width / 2, 0);
     this.playerNum = playerNum;
-
-    switch (this.playerNum) {
-      case 2:
-      case 3:
-        this.redTokens = 6;
-        this.greenTokens = 2;
-        this.greenTokensLocked = 3;
-        break;
-      case 4:
-        this.redTokens = 4;
-        this.greenTokens = 6;
-        this.greenTokensLocked = 1;
-        break;
-      case 5:
-        this.redTokens = 5;
-        this.greenTokens = 5;
-        this.greenTokensLocked = 1;
-        break;
-      case 6:
-        this.redTokens = 6;
-        this.greenTokens = 4;
-        this.greenTokensLocked = 1;
-        break;
-      default:
-      // TODO: throw some kind of error for invalid player number
-    }
   }
 
   public update(): void {

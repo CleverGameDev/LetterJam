@@ -17,6 +17,7 @@ import {
   PlayStates,
 } from "../../shared/constants";
 
+// TODO: How to persist this across  restarts
 export class ServerGameState {
   //
   // Common properties, shared across scenes
@@ -37,8 +38,12 @@ export class ServerGameState {
     [id: string]: number;
   };
   deck: Letter[];
-  // redTokens,
-  // greenTokens
+
+  // flower
+  redTokens: number;
+  greenTokens: number;
+  greenTokensLocked: number;
+
   clues: { [playerID: string]: FullClue };
   votes: { [playerID: string]: number };
   clueWords: { [playerID: string]: string };
@@ -134,6 +139,31 @@ export class ServerGameState {
       visibleLetterIdx[`N${i + 1}`] = 0;
     }
 
+    switch (playerIDs.length) {
+      case 2:
+      case 3:
+        this.redTokens = 6;
+        this.greenTokens = 2;
+        this.greenTokensLocked = 3;
+        break;
+      case 4:
+        this.redTokens = 4;
+        this.greenTokens = 6;
+        this.greenTokensLocked = 1;
+        break;
+      case 5:
+        this.redTokens = 5;
+        this.greenTokens = 5;
+        this.greenTokensLocked = 1;
+        break;
+      case 6:
+        this.redTokens = 6;
+        this.greenTokens = 4;
+        this.greenTokensLocked = 1;
+        break;
+      default:
+      // TODO: throw some kind of error for invalid player number
+    }
     // Update gameState
     this.numNPCs = numNPCs;
     this.deck = deck;

@@ -17,7 +17,7 @@ const registerListeners = (
 
     gameState.players[playerID(socket)] = { Name: playerName };
 
-    syncClientGameState(io, socket, gameState);
+    syncClientGameState(io, gameState);
   });
 };
 

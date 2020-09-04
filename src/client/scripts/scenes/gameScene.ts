@@ -10,6 +10,7 @@ import { giveClue, vote } from "../lib/discuss";
 import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
 import { ClientGameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
+import { handleChangeScene } from "../lib/changeScene";
 
 const key = SceneEnum.GameScene;
 
@@ -124,14 +125,6 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    // this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
-    //   this.scene.start(data.scene, {
-    //     socket: this.socket,
-    //     id: this.id,
-    //     players: this.players,
-    //   });
-    // });
-
     this.winningVoteText = this.add.text(
       400,
       500,
@@ -218,9 +211,18 @@ export default class GameScene extends Phaser.Scene {
         }
         button.setInteractive({ useHandCursor: true });
       });
+
+    // Socket handlers
+    this.socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
+      this.gameState = data;
+      this.refreshUI();
+    });
+
+    handleChangeScene(this.socket, this.gameState, this);
+    this.refreshUI();
   }
 
-  update(): void {
+  refreshUI(): void {
     this.playStateText.update(this.gameState.playState);
     this.flower.update();
     this._clearVisibleLetters();

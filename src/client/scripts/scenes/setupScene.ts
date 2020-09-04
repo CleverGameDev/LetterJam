@@ -1,7 +1,8 @@
 import PhaserLogo from "../objects/phaserLogo";
 import { SceneEnum } from "../../../shared/constants";
-import { E, EType } from "../../../shared/events";
+import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
+import { handleChangeScene } from "../lib/changeScene";
 
 const key = SceneEnum.SetupScene;
 
@@ -35,11 +36,6 @@ export default class SetupScene extends Phaser.Scene {
     ).setScale(0.25, 0.25);
     logo.on("pointerdown", () => this.socket.emit(E.NextScene));
 
-    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
-      this.scene.start(data.scene, {
-        socket: this.socket,
-        gameState: this.gameState,
-      });
-    });
+    handleChangeScene(this.socket, this.gameState, this);
   }
 }

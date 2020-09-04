@@ -19,7 +19,7 @@ const registerListeners = (
       ...fullClue,
     };
 
-    syncClientGameState(io, socket, gameState);
+    syncClientGameState(io, gameState);
   });
 
   // This voting system is like Medium, you can vote as many times as you'd like
@@ -34,17 +34,18 @@ const registerListeners = (
     gameState.votes[data.votedID]
       ? gameState.votes[data.votedID]++
       : (gameState.votes[data.votedID] = 1);
-    const maxVotePlayerID = _.maxBy(
-      Object.keys(gameState.votes),
-      (key) => gameState.votes[key]
-    );
+    // TODO: put this in ClientGameState logic
+    // const maxVotePlayerID = _.maxBy(
+    //   Object.keys(gameState.votes),
+    //   (key) => gameState.votes[key]
+    // );
 
-    syncClientGameState(io, socket, gameState);
+    syncClientGameState(io, gameState);
   });
 
   socket.on(E.NextVisibleLetter, () => {
     gameState.visibleLetterIdx[playerID(socket)]++;
-    syncClientGameState(io, socket, gameState);
+    syncClientGameState(io, gameState);
   });
 
   socket.on(E.PlayerReady, () => {
@@ -55,9 +56,8 @@ const registerListeners = (
     gameState.playStateIndex++;
     gameState.playStateIndex %= PlayStates.length;
     gameState.resetPlayersReady();
-    io.to(gameState.room).emit(E.ChangePlayState, <EType[E.ChangePlayState]>{
-      playState: PlayStates[gameState.playStateIndex],
-    });
+
+    // TODO: Track who is ready and show it
 
     if (PlayStates[gameState.playStateIndex] === PlayStateEnum.PROVIDE_HINT) {
       // No action needed
@@ -68,7 +68,7 @@ const registerListeners = (
       gameState.resetVotesAndClues();
     }
 
-    syncClientGameState(io, socket, gameState);
+    syncClientGameState(io, gameState);
   });
 };
 

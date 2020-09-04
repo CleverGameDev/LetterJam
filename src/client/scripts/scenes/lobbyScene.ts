@@ -6,6 +6,7 @@ import {
 } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
+import { handleChangeScene } from "../lib/changeScene";
 
 export default class LobbyScene extends Phaser.Scene {
   socket: SocketIO.Socket;
@@ -116,15 +117,7 @@ export default class LobbyScene extends Phaser.Scene {
       this.refreshUI();
     });
 
-    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
-      // TODO: consider merging this logic with the above, adding
-      // if data.scene != current scene ... change scene
-      this.scene.start(data.scene, {
-        socket: this.socket,
-        gameState: this.gameState,
-      });
-    });
-
+    handleChangeScene(this.socket, this.gameState, this);
     this.refreshUI();
   }
 
