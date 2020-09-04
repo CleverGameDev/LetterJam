@@ -113,7 +113,7 @@ export default class LobbyScene extends Phaser.Scene {
     // Generic handler for any scene
     this.socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
       this.gameState = data;
-      // this.refreshUI();
+      this.refreshUI();
     });
 
     this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
@@ -130,30 +130,22 @@ export default class LobbyScene extends Phaser.Scene {
 
   refreshUI() {
     // update player texts
-    console.log(this.gameState);
     const playerIDs = Object.keys(this.gameState.players).sort();
     const numPlayers = playerIDs.length;
     for (let i = 0; i < MaxPlayers; i++) {
       const pt = this.playerTexts[i];
-      console.log({ i, pt });
       if (i < numPlayers) {
         const playerName = this.gameState.players[playerIDs[i]].Name;
         let currentPlayerMarker = "";
         if (playerIDs[i] == this.gameState.playerID) {
           currentPlayerMarker = " [*]";
         }
-
         pt.setVisible(true);
-        console.log({ playerName, currentPlayerMarker });
-        console.log("PT DATA:", pt.data);
         pt.setText(`player = ${playerName}${currentPlayerMarker}`);
       } else {
         pt.setVisible(false);
-        pt.setText("");
+        pt.setText("foo");
       }
     }
   }
-
-  // update() {
-  // }
 }

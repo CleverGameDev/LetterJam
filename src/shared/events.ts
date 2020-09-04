@@ -3,6 +3,7 @@ import { Clue, FullClue, Stand, ClientGameState } from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
+  ServerReady = "serverReady",
   SyncGameState = "syncGameState",
 
   ChangeScene = "changeScene",
@@ -33,6 +34,7 @@ export enum E {
 
 // EType is a lookup from Event Name to Event Type
 export type EType = {
+  [E.ServerReady]: ClientGameState;
   [E.SyncGameState]: ClientGameState;
 
   [E.ChangeScene]: {

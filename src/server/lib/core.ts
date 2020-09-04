@@ -11,20 +11,17 @@ export const syncClientGameState = (
 ) => {
   // TODO: Debounce this so we don't spam the client with updates
 
-  // // Send the right client game state to each socket
-  // Object.keys(io.sockets.in(gameState.room).sockets).forEach(sid => {
-  //   const pid = playerID(io.sockets.sockets[sid])
-  //   if (! pid) {
-  //     console.log("PID NOT FOUND")
-  //     return;
-  //   }
+  // Send the right client game state to each socket
+  Object.keys(io.sockets.in(gameState.room).sockets).forEach((sid) => {
+    const pid = playerID(io.sockets.sockets[sid]);
+    if (!pid) {
+      console.warn("couldn't find a player for this socket ID");
+      return;
+    }
 
-  //   const cgs = gameState.getClientGameState(pid);
-  //   console.log(`emit to ${sid} session = ${pid}`);
-  //   io.to(sid).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
-  // });
-  const cgs = gameState.getClientGameState(playerID(socket));
-  io.to(gameState.room).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
+    const cgs = gameState.getClientGameState(pid);
+    io.to(sid).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
+  });
 };
 
 const handlePlayerJoined = (
@@ -34,7 +31,6 @@ const handlePlayerJoined = (
 ) => {
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
   const id = playerID(socket);
-  console.log("PLAYER = ", id);
   if (!gameState.players[id]) {
     // Update game state
     gameState.players[id] = {
@@ -54,7 +50,8 @@ const loadActiveScene = (
   sceneHandlers(io, socket, Scenes[gameState.sceneIndex]).setup(gameState);
 
   // A newly connected user starts at the PreloadScene, which listens for
-  syncClientGameState(io, socket, gameState);
+  const cgs = gameState.getClientGameState(playerID(socket));
+  io.to(socket.id).emit(E.ServerReady, <EType[E.ServerReady]>cgs);
 };
 
 export const setupSocketIO = (
@@ -103,8 +100,4 @@ const registerListeners = (
       scene: gameState.getScene(),
     });
   });
-
-  //
-  // GameScene
-  //
 };
