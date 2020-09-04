@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import PlayStateText from "../objects/playStateText";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
@@ -7,27 +8,23 @@ import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
 
 import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
-import { Clue, ClientGameState } from "../../../shared/models";
+import { ClientGameState } from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
 
 const key = SceneEnum.GameScene;
 
 export default class GameScene extends Phaser.Scene {
+  socket: SocketIO.Socket;
+  gameState: ClientGameState;
+
   fpsText: Phaser.GameObjects.Text;
   playStateText: Phaser.GameObjects.Text;
   guessingSheet: GuessingSheet;
-
-  playState: PlayStateEnum;
+  activeClues: ActiveClues;
   flower: Flower;
   selfStand: SelfStand;
-  socket: SocketIO.Socket;
-  id: number;
-  players: string[];
-  activeClues: ActiveClues;
   dialog: Dialog;
   voteDialog: Dialog;
-  clues: { [playerID: string]: Clue };
-  gameState: ClientGameState;
   board;
   winningVoteText: Phaser.GameObjects.Text;
 
@@ -36,21 +33,14 @@ export default class GameScene extends Phaser.Scene {
   constructor() {
     super({ key });
     this.board = [];
-    this.gameState = {
-      visibleLetters: [],
-    };
+
     this.dialog = new Dialog(
       this,
       "Enter clue here",
       "What is your clue?",
       null,
-      (content) => {
-        const validClue = giveClue(
-          this.socket,
-          this.id.toString(),
-          content,
-          this.gameState
-        );
+      (content: string) => {
+        const validClue = giveClue(this.socket, content, this.gameState);
         if (!validClue) {
           // Let user know and prompt for another clue
         }
@@ -61,16 +51,15 @@ export default class GameScene extends Phaser.Scene {
       " ",
       "Who are you voting for?",
       null,
-      (votedID) => {
-        vote(this.socket, this.id.toString(), votedID);
+      (votedName: string) => {
+        vote(this.socket, this.gameState.playerID, votedName);
       }
     );
   }
 
-  init({ socket, id, players }): void {
+  init({ socket, gameState }): void {
     this.socket = socket;
-    this.id = id;
-    this.players = players;
+    this.gameState = gameState;
   }
 
   _clearVisibleLetters = (): void => {
@@ -123,8 +112,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Game sub-state
     this.playStateText = new PlayStateText(this);
-    this.playState = PlayStateEnum.DISCUSS;
-    this.flower = new Flower(this, this.players.length);
+    this.flower = new Flower(this, _.keys(this.gameState.players).length);
     // TODO: add playerID and deck for self
     this.selfStand = new SelfStand(this, "playerID", 2);
 
@@ -136,68 +124,25 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    this.socket.on(E.Clues, (data: EType[E.Clues]) => {
-      this.clues = data;
-    });
+    // this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
+    //   this.scene.start(data.scene, {
+    //     socket: this.socket,
+    //     id: this.id,
+    //     players: this.players,
+    //   });
+    // });
 
-    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
-      this.scene.start(data.scene, {
-        socket: this.socket,
-        id: this.id,
-        players: this.players,
-      });
-    });
-
-    this.socket.on(
-      E.VisibleLetters,
-      (visibleLetters: EType[E.VisibleLetters]) => {
-        this.gameState.visibleLetters = visibleLetters;
+    this.winningVoteText = this.add.text(
+      400,
+      500,
+      // `${data.playerID} has most votes with ${data.votes} votes`,
+      `player TODO has the most votes with TODO votes`,
+      {
+        color: "#000000",
+        fontSize: 36,
       }
     );
-
-    this.socket.on(E.ChangePlayState, (data: EType[E.ChangePlayState]) => {
-      this.playState = data.playState;
-    });
-
-    this.socket.on(E.WinningVote, (data: EType[E.WinningVote]) => {
-      if (this.winningVoteText) {
-        this.winningVoteText.destroy();
-      }
-      this.winningVoteText = this.add.text(
-        400,
-        500,
-        `${data.playerID} has most votes with ${data.votes} votes`,
-        {
-          color: "#000000",
-          fontSize: 36,
-        }
-      );
-    });
-
-    this.socket.on(
-      E.LetterOrdering,
-      (letterordering: EType[E.LetterOrdering]) => {
-        const letters = [];
-        for (const playerName of letterordering) {
-          if (playerName === "*") {
-            letters.push("*");
-            continue;
-          }
-          let found = false;
-          for (const stand of this.gameState.visibleLetters) {
-            if (stand.player === playerName) {
-              letters.push(stand.letter);
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            letters.push("?");
-          }
-        }
-        this.guessingSheet.addClueWord(letters);
-      }
-    );
+    this.winningVoteText.visible = false;
 
     // Discuss UI elements
     this.dialog.create();
@@ -276,13 +221,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(): void {
-    this.playStateText.update(this.playState);
+    this.playStateText.update(this.gameState.playState);
     this.flower.update();
-    this.socket.emit(E.GetVisibleLetters);
     this._clearVisibleLetters();
     this._drawVisibleLetters();
 
-    switch (this.playState) {
+    switch (this.gameState.playState) {
       case PlayStateEnum.DISCUSS:
         // Concluded when one player's hint is chosen.
         // Chosen via voting in game, and then clicking continue once there's agreement (could also have timer)

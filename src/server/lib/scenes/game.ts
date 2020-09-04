@@ -3,54 +3,14 @@ import * as _ from "lodash";
 import { ServerGameState } from "../../lib/gameState";
 import { PlayStateEnum, PlayStates } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
-import { Stand } from "../../../shared/models";
 import { playerID } from "../playerUtils";
-
-const getLetterOrdering = (gameState: ServerGameState) => {
-  const maxVotePlayerName = _.maxBy(
-    Object.keys(gameState.votes),
-    (key) => gameState.votes[key]
-  );
-
-  const playerID = gameState.getPlayerIDFromName(maxVotePlayerName);
-  const visibleLetters = gameState.getVisibleLetters(playerID);
-  const normalizedWord = (gameState.clueWords[playerID] || "").toLowerCase();
-  const letterOrdering = [];
-
-  const getLetterToPlayerID = (visibleLetters: Stand[]) => {
-    const letterToPlayerIDs = {};
-    for (const stand of visibleLetters) {
-      letterToPlayerIDs[stand.letter] =
-        letterToPlayerIDs[stand.letter] || stand.player;
-    }
-    return letterToPlayerIDs;
-  };
-
-  const letterToPlayerIDs = getLetterToPlayerID(visibleLetters);
-
-  for (const c of normalizedWord) {
-    if (letterToPlayerIDs[c]) {
-      letterOrdering.push(letterToPlayerIDs[c]);
-    } else {
-      letterOrdering.push("*");
-    }
-  }
-  return letterOrdering;
-};
+import { syncClientGameState } from "../core";
 
 const registerListeners = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
-  socket.on(E.GetVisibleLetters, () => {
-    // Get game state
-    const visibleLetters = gameState.getVisibleLetters(playerID(socket));
-
-    // Emit event
-    socket.emit(E.VisibleLetters, <EType[E.VisibleLetters]>visibleLetters);
-  });
-
   socket.on(E.UpdateClue, (fullClue: EType[E.UpdateClue]) => {
     // Update game state
     gameState.clueWords[fullClue.playerID] = fullClue.word;
@@ -59,8 +19,7 @@ const registerListeners = (
       ...fullClue,
     };
 
-    // Emit event
-    io.to(gameState.room).emit(E.Clues, <EType[E.Clues]>gameState.clues);
+    syncClientGameState(io, socket, gameState);
   });
 
   // This voting system is like Medium, you can vote as many times as you'd like
@@ -80,16 +39,12 @@ const registerListeners = (
       (key) => gameState.votes[key]
     );
 
-    // Emit event
-    io.to(gameState.room).emit(E.WinningVote, <EType[E.WinningVote]>{
-      playerID: maxVotePlayerID,
-      votes: gameState.votes[maxVotePlayerID],
-    });
+    syncClientGameState(io, socket, gameState);
   });
 
   socket.on(E.NextVisibleLetter, () => {
     gameState.visibleLetterIdx[playerID(socket)]++;
-    // Do we need to refresh client state or anything like that?
+    syncClientGameState(io, socket, gameState);
   });
 
   socket.on(E.PlayerReady, () => {
@@ -103,15 +58,17 @@ const registerListeners = (
     io.to(gameState.room).emit(E.ChangePlayState, <EType[E.ChangePlayState]>{
       playState: PlayStates[gameState.playStateIndex],
     });
+
     if (PlayStates[gameState.playStateIndex] === PlayStateEnum.PROVIDE_HINT) {
-      const letterOrdering = getLetterOrdering(gameState);
-      io.to(gameState.room).emit(E.LetterOrdering, letterOrdering);
+      // No action needed
     }
     if (
       PlayStates[gameState.playStateIndex] === PlayStateEnum.CHECK_END_CONDITION
     ) {
       gameState.resetVotesAndClues();
     }
+
+    syncClientGameState(io, socket, gameState);
   });
 };
 

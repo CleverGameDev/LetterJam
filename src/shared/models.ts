@@ -1,3 +1,5 @@
+import { PlayStateEnum } from "./constants";
+
 export type Stand = {
   player: string;
   playerType: PlayerType;
@@ -29,8 +31,6 @@ export enum Letter {
   Y = "y",
 }
 
-export type PlayerID = string;
-
 export type PlayerProperties = {
   Name: string;
 };
@@ -42,7 +42,20 @@ export enum PlayerType {
 }
 
 export type ClientGameState = {
+  //
+  // Common properties, shared across scenes
+  //
+  playerID: string;
+  scene: string;
+  players: { [playerID: string]: PlayerProperties };
+
+  //
+  // GameScene properties
+  //
   visibleLetters: Stand[];
+  playState: PlayStateEnum;
+  clues: { [playerID: string]: Clue };
+  letterOrdering: string[];
 };
 
 export type Clue = {

@@ -4,11 +4,10 @@ import { E, EType } from "../../../shared/events";
 // if false, clue is not valid
 export const giveClue = (
   socket: SocketIO.Socket,
-  id: string,
   word: string,
   gameState: models.ClientGameState
 ): boolean => {
-  const clue = generateClue(id, word, gameState);
+  const clue = generateClue(word, gameState);
   if (!clue) {
     return false;
   }
@@ -22,7 +21,6 @@ export const giveClue = (
 };
 
 const generateClue = (
-  id: string,
   word: string,
   gameState: models.ClientGameState
 ): models.Clue | false => {
@@ -30,7 +28,7 @@ const generateClue = (
   // just check if it's valid given the game state
   let wildcard = "";
   const clue: models.Clue = {
-    playerID: id,
+    playerID: gameState.playerID,
     wordLength: word.length,
     numPlayers: 0,
     numNPCs: 0,

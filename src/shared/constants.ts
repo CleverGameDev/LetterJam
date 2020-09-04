@@ -78,6 +78,7 @@ export const VictoryPhrase = {
 export const BaseNPCCards = 7;
 export const NPCCardGrowth = 1;
 export const MaxPlayers = 6;
+export const DefaultPlayerName = "Default Player Name";
 
 export enum SceneEnum {
   LobbyScene = "LobbyScene",

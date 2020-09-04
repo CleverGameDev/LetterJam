@@ -1,9 +1,9 @@
 import { PlayStateEnum } from "../shared/constants";
-import { Clue, FullClue, Stand } from "../shared/models";
+import { Clue, FullClue, Stand, ClientGameState } from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
-  ServerReady = "serverReady",
+  SyncGameState = "syncGameState",
 
   ChangeScene = "changeScene",
   NextScene = "nextScene",
@@ -33,11 +33,7 @@ export enum E {
 
 // EType is a lookup from Event Name to Event Type
 export type EType = {
-  [E.ServerReady]: {
-    id: string;
-    scene: string;
-    players: string[];
-  };
+  [E.SyncGameState]: ClientGameState;
 
   [E.ChangeScene]: {
     scene: string;

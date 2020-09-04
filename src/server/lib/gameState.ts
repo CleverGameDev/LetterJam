@@ -2,16 +2,19 @@ import * as _ from "lodash";
 import {
   FullClue,
   Letter,
-  PlayerID,
   PlayerProperties,
   PlayerType,
   Stand,
+  ClientGameState,
 } from "../../shared/models";
 import {
   BaseNPCCards,
   LetterDistribution,
   MaxPlayers,
   NPCCardGrowth,
+  Scenes,
+  PlayStateEnum,
+  PlayStates,
 } from "../../shared/constants";
 
 export class ServerGameState {
@@ -21,7 +24,7 @@ export class ServerGameState {
   room: string;
 
   sceneIndex: number;
-  players: Map<PlayerID, PlayerProperties>;
+  players: { [playerID: string]: PlayerProperties };
   numNPCs: number;
 
   //
@@ -45,7 +48,7 @@ export class ServerGameState {
   constructor() {
     this.sceneIndex = 0;
     this.room = "someRoom";
-    this.players = new Map();
+    this.players = {};
     this.numNPCs = 0;
     this.letters = {};
     this.visibleLetterIdx = {};
@@ -58,16 +61,16 @@ export class ServerGameState {
   }
 
   getPlayerIDs(): string[] {
-    return Array.from(this.players.keys());
+    return Array.from(_.keys(this.players));
   }
 
   getPlayerNames(): string[] {
-    return this.getPlayerIDs().map((n) => this.players.get(n).Name);
+    return this.getPlayerIDs().map((n) => this.players[n].Name);
   }
 
   getPlayerIDFromName(name: string): string {
     for (const id of this.getPlayerIDs()) {
-      if (this.players.get(id).Name === name) {
+      if (this.players[id].Name === name) {
         return id;
       }
     }
@@ -94,9 +97,9 @@ export class ServerGameState {
       if (key !== currentPlayerID) {
         let stand: Stand;
         // Is it a human player?
-        if (this.players.has(key)) {
+        if (this.players[key]) {
           stand = {
-            player: this.players.get(key).Name,
+            player: this.players[key].Name,
             playerType: PlayerType.Player,
             letter: this.letters[key][this.visibleLetterIdx[key]],
           };
@@ -139,6 +142,54 @@ export class ServerGameState {
       ...npcHands,
     };
     this.visibleLetterIdx = visibleLetterIdx;
+  }
+
+  getLetterOrdering(): string[] {
+    const maxVotePlayerName = _.maxBy(
+      Object.keys(this.votes),
+      (key) => this.votes[key]
+    );
+
+    const playerID = this.getPlayerIDFromName(maxVotePlayerName);
+    const visibleLetters = this.getVisibleLetters(playerID);
+    const normalizedWord = (this.clueWords[playerID] || "").toLowerCase();
+    const letterOrdering = [];
+
+    const letterToPlayerIDs = {};
+    for (const stand of visibleLetters) {
+      letterToPlayerIDs[stand.letter] =
+        letterToPlayerIDs[stand.letter] || stand.player;
+    }
+
+    for (const c of normalizedWord) {
+      if (letterToPlayerIDs[c]) {
+        letterOrdering.push(letterToPlayerIDs[c]);
+      } else {
+        letterOrdering.push("*");
+      }
+    }
+    return letterOrdering;
+  }
+
+  getScene() {
+    return Scenes[this.sceneIndex];
+  }
+
+  getPlayState() {
+    return PlayStates[this.playStateIndex];
+  }
+
+  getClientGameState(playerID: string): ClientGameState {
+    return {
+      playerID,
+      scene: this.getScene(),
+      players: this.players,
+
+      visibleLetters: this.getVisibleLetters(playerID),
+      playState: this.getPlayState(),
+      clues: this.clues,
+      letterOrdering: this.getLetterOrdering(),
+    };
   }
 }
 

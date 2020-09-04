@@ -45,6 +45,25 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
   }
 
   addClueWord(clueWord: string[]): void {
+    // const letters = [];
+    // for (const playerName of letterordering) {
+    //   if (playerName === "*") {
+    //     letters.push("*");
+    //     continue;
+    //   }
+    //   let found = false;
+    //   for (const stand of this.gameState.visibleLetters) {
+    //     if (stand.player === playerName) {
+    //       letters.push(stand.letter);
+    //       found = true;
+    //       break;
+    //     }
+    //   }
+    //   if (!found) {
+    //     letters.push("?");
+    //   }
+    // }
+
     if (clueWord.length > 10) {
       this.matrix.push(clueWord.slice(0, 10));
     } else if (clueWord.length < 10) {

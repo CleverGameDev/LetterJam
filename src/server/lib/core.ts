@@ -1,8 +1,31 @@
-import { Scenes } from "../../shared/constants";
+import { Scenes, DefaultPlayerName } from "../../shared/constants";
 import { ServerGameState } from "../lib/gameState";
 import { E, EType } from "../../shared/events";
 import { playerID } from "./playerUtils";
 import sceneHandlers from "./scenes";
+
+export const syncClientGameState = (
+  io: SocketIO.Server,
+  socket: SocketIO.Socket,
+  gameState: ServerGameState
+) => {
+  // TODO: Debounce this so we don't spam the client with updates
+
+  // // Send the right client game state to each socket
+  // Object.keys(io.sockets.in(gameState.room).sockets).forEach(sid => {
+  //   const pid = playerID(io.sockets.sockets[sid])
+  //   if (! pid) {
+  //     console.log("PID NOT FOUND")
+  //     return;
+  //   }
+
+  //   const cgs = gameState.getClientGameState(pid);
+  //   console.log(`emit to ${sid} session = ${pid}`);
+  //   io.to(sid).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
+  // });
+  const cgs = gameState.getClientGameState(playerID(socket));
+  io.to(gameState.room).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
+};
 
 const handlePlayerJoined = (
   io: SocketIO.Server,
@@ -10,17 +33,15 @@ const handlePlayerJoined = (
   gameState: ServerGameState
 ) => {
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
-  if (!gameState.players.has(playerID(socket))) {
+  const id = playerID(socket);
+  console.log("PLAYER = ", id);
+  if (!gameState.players[id]) {
     // Update game state
-    gameState.players.set(playerID(socket), {
-      Name: "Default Player Name",
-    });
+    gameState.players[id] = {
+      Name: DefaultPlayerName,
+    };
 
-    // Emit event
-    io.to(gameState.room).emit(E.PlayerJoined, <EType[E.PlayerJoined]>{
-      playerID: playerID(socket),
-      playerName: gameState.players.get(playerID(socket)).Name,
-    });
+    syncClientGameState(io, socket, gameState);
   }
 };
 
@@ -29,16 +50,11 @@ const loadActiveScene = (
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
-  // A newly connected user starts at the PreloadScene, which listens for
-  // an E.Ready event. When that event is fired, it will load the active scene.
-  socket.emit(E.ServerReady, <EType[E.ServerReady]>{
-    id: playerID(socket),
-    scene: Scenes[gameState.sceneIndex],
-    players: gameState.getPlayerNames(),
-  });
-
   // Add current scene listeners
   sceneHandlers(io, socket, Scenes[gameState.sceneIndex]).setup(gameState);
+
+  // A newly connected user starts at the PreloadScene, which listens for
+  syncClientGameState(io, socket, gameState);
 };
 
 export const setupSocketIO = (
@@ -64,20 +80,11 @@ const registerListeners = (
   socket.on("disconnect", () => {
     // Update game state
     // TODO: https://trello.com/c/8JwHD7nB/107-letterjam-given-persistent-ids-figure-out-how-a-player-leaves-lobby
-
-    // Emit event
-    io.to(gameState.room).emit(E.PlayerLeft, <EType[E.PlayerLeft]>{
-      playerID: playerID(socket),
-      playerName: gameState.players.get(playerID(socket))?.Name,
-    });
+    // syncClientGameState(io, socket, gameState);
   });
 
   socket.on(E.NextScene, () => {
-    const prevSceneHandler = sceneHandlers(
-      io,
-      socket,
-      Scenes[gameState.sceneIndex]
-    );
+    const prevSceneHandler = sceneHandlers(io, socket, gameState.getScene());
 
     // Remove previous listeners
     prevSceneHandler.teardown(gameState);
@@ -88,16 +95,12 @@ const registerListeners = (
     gameState.resetVotesAndClues();
 
     // Add new listeners
-    const nextSceneHandler = sceneHandlers(
-      io,
-      socket,
-      Scenes[gameState.sceneIndex]
-    );
+    const nextSceneHandler = sceneHandlers(io, socket, gameState.getScene());
     nextSceneHandler.setup(gameState);
 
     // Emit event
     io.to(gameState.room).emit(E.ChangeScene, <EType[E.ChangeScene]>{
-      scene: Scenes[gameState.sceneIndex],
+      scene: gameState.getScene(),
     });
   });
 

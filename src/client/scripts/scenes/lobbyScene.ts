@@ -1,12 +1,17 @@
 import Dialog from "../objects/dialog";
-import { SceneEnum } from "../../../shared/constants";
+import {
+  SceneEnum,
+  MaxPlayers,
+  DefaultPlayerName,
+} from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
+import { ClientGameState } from "../../../shared/models";
 
 export default class LobbyScene extends Phaser.Scene {
-  players: string[];
   socket: SocketIO.Socket;
-  id: number;
-  playerTexts;
+  gameState: ClientGameState;
+
+  playerTexts: Phaser.GameObjects.Text[];
   dialog: Dialog;
   rexUI: any; // global plugin
 
@@ -18,36 +23,16 @@ export default class LobbyScene extends Phaser.Scene {
       " ",
       "What is your player name?",
       null,
-      (content) => {
+      (content: string) => {
         this.socket.emit("setPlayerName", content);
       }
     );
   }
 
-  init({ socket, id, players }): void {
+  init({ socket, gameState }): void {
     this.socket = socket;
-    this.id = id;
-    this.players = players;
+    this.gameState = gameState;
   }
-
-  clearPlayerTexts = (): void => {
-    for (const text of this.playerTexts) {
-      text.destroy();
-    }
-    this.playerTexts = [];
-  };
-
-  drawPlayerTexts = (): void => {
-    this.players.forEach((p, idx) => {
-      const text = this.add
-        .text(this.cameras.main.width - 15, 100 * idx, `player = ${p}`, {
-          color: "#000000",
-          fontSize: 36,
-        })
-        .setOrigin(1, 0);
-      this.playerTexts.push(text);
-    });
-  };
 
   createButton = (scene: LobbyScene, text: string) => {
     return scene.rexUI.add.label({
@@ -107,47 +92,68 @@ export default class LobbyScene extends Phaser.Scene {
       fontSize: 36,
     });
 
-    this.drawPlayerTexts();
-
     this.dialog.create();
-    this.dialog.open();
+    if (
+      this.gameState.players[this.gameState.playerID].Name == DefaultPlayerName
+    ) {
+      this.dialog.open();
+    }
+
+    for (let i = 0; i < MaxPlayers; i++) {
+      const text = this.add
+        .text(this.cameras.main.width - 15, 100 * i, "", {
+          color: "#000000",
+          fontSize: 36,
+        })
+        .setOrigin(1, 0);
+      text.setVisible(false);
+      this.playerTexts.push(text);
+    }
+
+    // Generic handler for any scene
+    this.socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
+      this.gameState = data;
+      // this.refreshUI();
+    });
 
     this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
+      // TODO: consider merging this logic with the above, adding
+      // if data.scene != current scene ... change scene
       this.scene.start(data.scene, {
         socket: this.socket,
-        id: this.id,
-        players: this.players,
+        gameState: this.gameState,
       });
     });
 
-    this.socket.on(E.PlayerLeft, (data: EType[E.PlayerLeft]) => {
-      const playerSet = new Set(this.players);
-      if (!playerSet.has(data.playerName)) {
-        return;
-      }
-      playerSet.delete(data.playerName);
-      this.players = Array.from(playerSet);
-      this.clearPlayerTexts();
-      this.drawPlayerTexts();
-    });
-
-    this.socket.on(E.PlayerJoined, (data: EType[E.PlayerJoined]) => {
-      const playerSet = new Set(this.players);
-      if (playerSet.has(data.playerName)) {
-        return;
-      }
-      this.players.push(data.playerName);
-      this.clearPlayerTexts();
-      this.drawPlayerTexts();
-    });
-
-    this.socket.on(E.PlayerRenamed, (data: EType[E.PlayerRenamed]) => {
-      const updatedPlayers = new Set(this.players);
-      updatedPlayers.delete(data.oldPlayerName);
-      updatedPlayers.add(data.newPlayerName);
-      this.players = Array.from(updatedPlayers);
-      this.clearPlayerTexts();
-      this.drawPlayerTexts();
-    });
+    this.refreshUI();
   }
+
+  refreshUI() {
+    // update player texts
+    console.log(this.gameState);
+    const playerIDs = Object.keys(this.gameState.players).sort();
+    const numPlayers = playerIDs.length;
+    for (let i = 0; i < MaxPlayers; i++) {
+      const pt = this.playerTexts[i];
+      console.log({ i, pt });
+      if (i < numPlayers) {
+        const playerName = this.gameState.players[playerIDs[i]].Name;
+        let currentPlayerMarker = "";
+        if (playerIDs[i] == this.gameState.playerID) {
+          currentPlayerMarker = " [*]";
+        }
+
+        pt.setVisible(true);
+        console.log({ playerName, currentPlayerMarker });
+        console.log("PT DATA:", pt.data);
+        pt.setText(`player = ${playerName}${currentPlayerMarker}`);
+      } else {
+        pt.setVisible(false);
+        pt.setText("");
+      }
+    }
+  }
+
+  // update() {
+  // }
 }
