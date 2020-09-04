@@ -219,6 +219,7 @@ export class ServerGameState {
       playState: this.getPlayState(),
       clues: this.clues,
       letterOrdering: this.getLetterOrdering(),
+      votes: this.votes,
     };
   }
 }

@@ -1,4 +1,6 @@
 import { PlayStateEnum } from "./constants";
+import { Server } from "socket.io";
+import { ServerGameState } from "../server/lib/gameState";
 
 export type Stand = {
   player: string;
@@ -56,6 +58,7 @@ export type ClientGameState = {
   playState: PlayStateEnum;
   clues: { [playerID: string]: Clue };
   letterOrdering: string[];
+  votes: { [playerID: string]: number };
 };
 
 export type Clue = {

@@ -125,16 +125,10 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    this.winningVoteText = this.add.text(
-      400,
-      500,
-      // `${data.playerID} has most votes with ${data.votes} votes`,
-      `player TODO has the most votes with TODO votes`,
-      {
-        color: "#000000",
-        fontSize: 36,
-      }
-    );
+    this.winningVoteText = this.add.text(400, 500, "", {
+      color: "#000000",
+      fontSize: 36,
+    });
     this.winningVoteText.visible = false;
 
     // Discuss UI elements
@@ -222,11 +216,30 @@ export default class GameScene extends Phaser.Scene {
     this.refreshUI();
   }
 
+  _refreshWinningVoteText() {
+    const playerID = _.maxBy(
+      Object.keys(this.gameState.votes),
+      (key) => this.gameState.votes[key]
+    );
+    const maxVotes = this.gameState.votes[playerID];
+    if (maxVotes > 0) {
+      const playerName = this.gameState.players[playerID].Name;
+      this.winningVoteText.setText(
+        `${playerName} has most votes with ${maxVotes} votes`
+      );
+      this.winningVoteText.setVisible(true);
+    } else {
+      this.winningVoteText.setText("");
+      this.winningVoteText.setVisible(false);
+    }
+  }
+
   refreshUI(): void {
     this.playStateText.update(this.gameState.playState);
     this.flower.update();
     this._clearVisibleLetters();
     this._drawVisibleLetters();
+    this._refreshWinningVoteText();
 
     switch (this.gameState.playState) {
       case PlayStateEnum.DISCUSS:

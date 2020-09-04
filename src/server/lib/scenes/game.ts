@@ -31,14 +31,12 @@ const registerListeners = (
       return;
     }
 
-    gameState.votes[data.votedID]
-      ? gameState.votes[data.votedID]++
-      : (gameState.votes[data.votedID] = 1);
-    // TODO: put this in ClientGameState logic
-    // const maxVotePlayerID = _.maxBy(
-    //   Object.keys(gameState.votes),
-    //   (key) => gameState.votes[key]
-    // );
+    const playerID = gameState.getPlayerIDFromName(data.votedID);
+
+    // store votes by playerID
+    gameState.votes[playerID]
+      ? gameState.votes[playerID]++
+      : (gameState.votes[playerID] = 1);
 
     syncClientGameState(io, gameState);
   });
