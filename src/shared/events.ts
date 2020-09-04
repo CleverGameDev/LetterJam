@@ -3,38 +3,32 @@ import { Clue, FullClue, Stand, ClientGameState } from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
+  // Preload Scene
   ServerReady = "serverReady",
-  SyncGameState = "syncGameState",
 
+  // General
+  SyncGameState = "syncGameState",
   ChangeScene = "changeScene",
   NextScene = "nextScene",
 
+  // LobbyScene
   PlayerJoined = "playerJoined",
   PlayerLeft = "playerLeft",
-
   SetPlayerName = "setPlayerName",
-  PlayerRenamed = "playerRenamed",
 
+  // GameScene
   GetVisibleLetters = "getVisibleLetters",
-  VisibleLetters = "visibleLetters",
-
   ChangePlayState = "changePlayState",
-
-  LetterOrdering = "letterOrdering",
   NextVisibleLetter = "nextVisibleLetter",
-
-  Clues = "clues",
   UpdateClue = "updateClue",
-
-  WinningVote = "winningVote",
   Vote = "vote",
-
   PlayerReady = "playerReady",
 }
 
 // EType is a lookup from Event Name to Event Type
 export type EType = {
   [E.ServerReady]: ClientGameState;
+
   [E.SyncGameState]: ClientGameState;
 
   [E.ChangeScene]: {
@@ -45,19 +39,13 @@ export type EType = {
     playerID: string;
     playerName: string;
   };
+
   [E.PlayerLeft]: {
     playerID: string;
     playerName: string;
   };
 
   [E.SetPlayerName]: string;
-  [E.PlayerRenamed]: {
-    playerID: string;
-    oldPlayerName: string;
-    newPlayerName: string;
-  };
-
-  [E.VisibleLetters]: Stand[];
 
   [E.ChangePlayState]: {
     playState: PlayStateEnum;
@@ -65,15 +53,7 @@ export type EType = {
 
   [E.NextVisibleLetter]: void;
 
-  [E.LetterOrdering]: string[];
-
-  [E.Clues]: { [playerID: string]: Clue };
   [E.UpdateClue]: FullClue;
-
-  [E.WinningVote]: {
-    playerID: string;
-    votes: number;
-  };
 
   [E.Vote]: {
     senderID: string;
