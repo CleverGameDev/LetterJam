@@ -1,5 +1,5 @@
 import { PlayStateEnum } from "../shared/constants";
-import { Clue, FullClue, Stand, ClientGameState } from "../shared/models";
+import * as m from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
@@ -33,7 +33,7 @@ export type EType = {
   [E.ChangeScene]: {
     sceneKey: string;
   };
-  [E.SyncGameState]: ClientGameState;
+  [E.SyncGameState]: m.ClientGameState;
 
   // LobbyScene
   [E.PlayerJoined]: {
@@ -51,7 +51,7 @@ export type EType = {
     playState: PlayStateEnum;
   };
   [E.NextVisibleLetter]: void;
-  [E.UpdateClue]: FullClue;
+  [E.UpdateClue]: m.ClueV2;
   [E.Vote]: {
     senderID: string;
     votedID: string;

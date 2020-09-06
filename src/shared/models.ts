@@ -32,6 +32,7 @@ export enum Letter {
   U = "u",
   W = "w",
   Y = "y",
+  Wildcard = "*",
 }
 
 export type PlayerProperties = {
@@ -42,6 +43,7 @@ export enum PlayerType {
   Player = "player",
   NPC = "npc",
   Bonus = "bonus",
+  Wildcard = "wildcard",
 }
 
 export type GuessingSheet = {
@@ -64,7 +66,7 @@ export type ClientGameState = {
   //
   visibleLetters: Stand[];
   playState: PlayStateEnum;
-  clues: { [playerID: string]: Clue };
+  clues: { [playerID: string]: ClueV2 }; // TODO: Currently, this leaks info to client
   votes: { [playerID: string]: number };
   guessingSheet: GuessingSheet;
   flower: Flower;
@@ -74,6 +76,11 @@ export type Flower = {
   red: number;
   green: number;
   greenLocked: number;
+};
+
+export type ClueV2 = {
+  word: string;
+  assignedStands: Stand[];
 };
 
 export type Clue = {

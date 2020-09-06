@@ -11,14 +11,8 @@ const registerListeners = (
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
-  socket.on(E.UpdateClue, (fullClue: EType[E.UpdateClue]) => {
-    // Update game state
-    gameState.clueWords[fullClue.playerID] = fullClue.word;
-    delete fullClue.word;
-    gameState.clues[fullClue.playerID] = {
-      ...fullClue,
-    };
-
+  socket.on(E.UpdateClue, (clue: EType[E.UpdateClue]) => {
+    gameState.clues[playerID(socket)] = clue;
     syncClientGameState(io, gameState);
   });
 
@@ -55,10 +49,8 @@ const registerListeners = (
     gameState.playStateIndex %= PlayStates.length;
     gameState.resetPlayersReady();
 
-    // Disallow moving to this state if hint isn't given
-
+    // TODO: Disallow moving to this state if hint isn't given
     if (PlayStates[gameState.playStateIndex] === PlayStateEnum.PROVIDE_HINT) {
-      // update game state with the hint
       gameState.provideHint();
     }
 

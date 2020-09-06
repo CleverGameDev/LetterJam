@@ -14,52 +14,56 @@ export const giveClue = (
 
   // send clue to server. sending a second clue should override the first since
   // each player can only have one active clue
-  socket.emit(E.UpdateClue, <models.FullClue>{
-    ...(<models.Clue>clue),
-    word,
-  });
+  socket.emit(E.UpdateClue, <models.ClueV2>clue);
 };
 
 const generateClue = (
   word: string,
   gameState: models.ClientGameState
-): models.Clue | false => {
+): models.ClueV2 | false => {
   // Don't check if the word is actually a word,
   // just check if it's valid given the game state
-  let wildcard = "";
-  const clue: models.Clue = {
-    playerID: gameState.playerID,
-    wordLength: word.length,
-    numPlayers: 0,
-    numNPCs: 0,
-    numBonus: 0,
-    useWildcard: false,
-  };
-  const playerTypeLetters = getLettersByPlayerType(gameState);
-  const usedLetters = [];
   const normalizedWord = word.toLowerCase();
 
-  // Doesn't properly work if different players have the same letter
+  const clueV2: models.ClueV2 = {
+    word: word,
+    assignedStands: [],
+  };
+  let wildcardLetter = "";
   for (const c of normalizedWord) {
-    if (usedLetters.indexOf(c) !== -1) {
-      continue;
-    }
-    if (playerTypeLetters[models.PlayerType.Player].indexOf(c) !== -1) {
-      clue.numPlayers++;
-    } else if (playerTypeLetters[models.PlayerType.NPC].indexOf(c) !== -1) {
-      clue.numNPCs++;
-    } else if (playerTypeLetters[models.PlayerType.Bonus].indexOf(c) !== -1) {
-      clue.numBonus++;
-    } else {
-      if (wildcard) {
+    const s = getBestStand(gameState, c);
+
+    // wild card case
+    if (s.playerType == models.PlayerType.Wildcard) {
+      if (wildcardLetter != "" && wildcardLetter != c) {
+        // Wildcard can only be used for one letter
         return false;
       }
-      wildcard = c;
-      clue.useWildcard = true;
+      wildcardLetter = c;
     }
-    usedLetters.push(c);
+
+    clueV2.assignedStands.push(s);
   }
-  return clue;
+
+  return clueV2;
+};
+
+const getBestStand = (
+  gameState: models.ClientGameState,
+  letter: string
+): models.Stand => {
+  for (let i = 0; i < gameState.visibleLetters.length; i++) {
+    const stand = gameState.visibleLetters[i];
+    if (stand.letter == letter) {
+      return stand;
+    }
+  }
+
+  return {
+    player: "wildcard",
+    playerType: models.PlayerType.Wildcard,
+    letter: models.Letter.Wildcard,
+  };
 };
 
 // Helper function to separate visible letters by type of player

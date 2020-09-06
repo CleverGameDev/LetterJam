@@ -1,7 +1,7 @@
-import { Flower as FlowerModel } from "../../../shared/models";
+import * as models from "../../../shared/models";
 
 export default class Flower extends Phaser.GameObjects.Text {
-  flower: FlowerModel;
+  flower: models.Flower;
 
   constructor(scene: Phaser.Scene) {
     super(scene, 0, 100, "", { color: "black", fontSize: "28px" });
@@ -15,7 +15,7 @@ export default class Flower extends Phaser.GameObjects.Text {
     };
   }
 
-  public setFlowerData(flower: FlowerModel) {
+  public setFlowerData(flower: models.Flower) {
     this.flower = flower;
   }
 

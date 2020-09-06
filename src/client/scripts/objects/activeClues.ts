@@ -1,4 +1,5 @@
-import { Clue } from "../../../shared/models";
+import * as _ from "lodash";
+import { Clue, ClueV2, Stand, PlayerType } from "../../../shared/models";
 import GameScene from "../scenes/gameScene";
 
 const headers = [
@@ -45,15 +46,18 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  clueToArray = (clue: Clue): string[] => {
-    const playerName = this.scene.gameState.players[clue.playerID].Name;
+  clueToArray = (playerID: string, clue: ClueV2): string[] => {
+    const wordLength = clue.word.length;
+    const counts = _.countBy(clue.assignedStands, (s: Stand) => s.playerType);
+
+    const playerName = this.scene.gameState.players[playerID].Name;
     const out = [
       playerName,
-      `${clue.wordLength}`,
-      `${clue.numPlayers}`,
-      `${clue.numNPCs}`,
-      `${clue.numBonus}`,
-      clue.useWildcard ? "Y" : "N",
+      `${wordLength}`,
+      `${counts[PlayerType.Player] || 0}`,
+      `${counts[PlayerType.NPC] || 0}`,
+      `${counts[PlayerType.Bonus] || 0}`,
+      `${counts[PlayerType.Wildcard] ? "Y" : "N"}`,
     ];
 
     for (let i = 0; i < out.length; i++) {
@@ -68,7 +72,9 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     if (this.scene.gameState.clues) {
       const matrix = [headers];
       for (const player of Object.keys(this.scene.gameState.clues)) {
-        matrix.push(this.clueToArray(this.scene.gameState.clues[player]));
+        matrix.push(
+          this.clueToArray(player, this.scene.gameState.clues[player])
+        );
       }
 
       text = Phaser.Utils.Array.Matrix.MatrixToString(matrix);

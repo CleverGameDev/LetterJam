@@ -8,6 +8,7 @@ import {
   ClientGameState,
   GuessingSheet,
   Flower,
+  ClueV2,
 } from "../../shared/models";
 import {
   BaseNPCCards,
@@ -16,6 +17,7 @@ import {
   NPCCardGrowth,
   Scenes,
   PlayStates,
+  PlayStateEnum,
 } from "../../shared/constants";
 
 // TODO: How to persist this across  restarts
@@ -43,9 +45,8 @@ export class ServerGameState {
   flower: Flower;
 
   // TODO: consider using PlayerID type alias instead of string
-  clues: { [playerID: string]: FullClue };
+  clues: { [playerID: string]: ClueV2 };
   votes: { [playerID: string]: number };
-  clueWords: { [playerID: string]: string };
   guessingSheet: { [playerID: string]: GuessingSheet };
   playStateIndex: number;
   playersReady: Set<string>;
@@ -60,7 +61,6 @@ export class ServerGameState {
     this.deck = [];
     this.clues = {};
     this.votes = {};
-    this.clueWords = {};
     this.guessingSheet = {};
     this.playStateIndex = 0;
     this.playersReady = new Set();
@@ -138,34 +138,37 @@ export class ServerGameState {
   }
 
   provideHint() {
-    // Get the hint word from the player with the most votes
+    // Are we in the right play state?
+    if (this.getPlayState() != PlayStateEnum.PROVIDE_HINT) {
+      console.warn(`cannot provideHint in playState: ${this.getPlayState()}`);
+      return;
+    }
+
+    // Does someone have a winning clue?
+    const playerID = _.maxBy(Object.keys(this.votes), (key) => this.votes[key]);
+    const maxVotes = this.votes[playerID];
+    if (maxVotes == 0) {
+      console.warn(`cannot provide hint because no clue has >0 votes`);
+      return;
+    }
+
+    // Update each player's GuessingSheet with the winningClue from their perspective
+    const winningClue = this.clues[playerID];
     this.getPlayerIDs().forEach((playerID) => {
-      // add hint
-
-      // let out: string[][] = [];
-      // const letters = [];
-      // const visibleLetters = this.getVisibleLetters(playerID);
-      // for (const playerName of letterordering) {
-      //   if (playerName === "*") {
-      //     letters.push("*");
-      //     continue;
-      //   }
-      //   let found = false;
-      //   for (const stand of this.visibleLetters) {
-      //     if (stand.player === playerName) {
-      //       letters.push(stand.letter);
-      //       found = true;
-      //       break;
-      //     }
-      //   }
-      //   if (!found) {
-      //     letters.push("?");
-      //   }
-      // }
-
-      // return out;
-      this.guessingSheet[playerID].hints.push("abcdef");
+      let hintText = "";
+      for (let i = 0; i < winningClue.assignedStands.length; i++) {
+        const stand = winningClue.assignedStands[i];
+        if (this.getPlayerIDFromName(stand.player) == playerID) {
+          hintText += "?";
+        } else {
+          hintText += stand.letter;
+        }
+      }
+      this.guessingSheet[playerID].hints.push(hintText);
     });
+
+    // TODO
+    // takeTurnToken(playerID)
   }
 
   // setupNewGame is done separately from the constructor because

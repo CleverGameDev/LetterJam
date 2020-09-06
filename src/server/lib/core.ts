@@ -21,7 +21,10 @@ export const syncClientGameState = (
     const cgs = gameState.getClientGameState(pid);
     io.to(sid).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
   });
-  console.dir({ gameState }, { depth: null });
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`syncClientGameState ${new Date()} ... ServerGameState is:`);
+    console.dir({ gameState }, { depth: null });
+  }
 };
 
 const handlePlayerJoined = (
