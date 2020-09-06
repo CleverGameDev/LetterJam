@@ -44,18 +44,22 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  addClueWord(clueWord: string[]): void {
-    if (clueWord.length > 10) {
-      this.matrix.push(clueWord.slice(0, 10));
-    } else if (clueWord.length < 10) {
-      const row = [...clueWord];
-      while (row.length < 10) {
-        row.push("");
-      }
-      this.matrix.push(row);
-    } else {
-      this.matrix.push(clueWord);
-    }
+  setClueWords(guessingSheet: string[]): void {
+    this.matrix = Array.from(
+      guessingSheet.map((item) => {
+        // convert to an array, and force to length of 10
+        const word = new Array(10).fill("");
+        Array.from(item.substr(0, 10)).forEach((val, idx) => {
+          word[idx] = val;
+        });
+
+        return word;
+      })
+    );
+
+    // add header row
+    this.matrix.unshift(["1", "2", "3", "4", "5", "6", "7", "8", "9", "???"]);
+
     this.guessingSheetContent.setText(
       Phaser.Utils.Array.Matrix.MatrixToString(this.matrix)
     );

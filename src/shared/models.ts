@@ -1,3 +1,8 @@
+import { PlayStateEnum } from "./constants";
+import { Server } from "socket.io";
+import { ServerGameState } from "../server/lib/gameState";
+import e from "express";
+
 export type Stand = {
   player: string;
   playerType: PlayerType;
@@ -27,9 +32,8 @@ export enum Letter {
   U = "u",
   W = "w",
   Y = "y",
+  Wildcard = "*",
 }
-
-export type PlayerID = string;
 
 export type PlayerProperties = {
   Name: string;
@@ -39,10 +43,44 @@ export enum PlayerType {
   Player = "player",
   NPC = "npc",
   Bonus = "bonus",
+  Wildcard = "wildcard",
 }
 
+export type GuessingSheet = {
+  // after a clue is agreed upon, this stores each player's view of the clue
+  hints: string[];
+  notes: string[];
+};
+
+// TODO: separate client models, server models, and shared models
 export type ClientGameState = {
+  //
+  // Common properties, shared across scenes
+  //
+  playerID: string;
+  scene: string;
+  players: { [playerID: string]: PlayerProperties };
+
+  //
+  // GameScene properties
+  //
   visibleLetters: Stand[];
+  playState: PlayStateEnum;
+  clues: { [playerID: string]: ClueV2 }; // TODO: Currently, this leaks info to client
+  votes: { [playerID: string]: number };
+  guessingSheet: GuessingSheet;
+  flower: Flower;
+};
+
+export type Flower = {
+  red: number;
+  green: number;
+  greenLocked: number;
+};
+
+export type ClueV2 = {
+  word: string;
+  assignedStands: Stand[];
 };
 
 export type Clue = {

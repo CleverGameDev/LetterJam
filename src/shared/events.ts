@@ -1,48 +1,41 @@
 import { PlayStateEnum } from "../shared/constants";
-import { Clue, FullClue, Stand } from "../shared/models";
+import * as m from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
-  ServerReady = "serverReady",
+  /* Events sent by Server */
+  // General
+  SyncGameState = "syncGameState",
+  ChangeScene = "changeScene", // when a new scene should be loaded by all clients
+  // TODO: Could replace ServeReady if sent to just new client
 
-  ChangeScene = "changeScene",
+  /* Events sent by Clients */
+  // General
   NextScene = "nextScene",
 
+  // LobbyScene
   PlayerJoined = "playerJoined",
   PlayerLeft = "playerLeft",
-
   SetPlayerName = "setPlayerName",
-  PlayerRenamed = "playerRenamed",
 
+  // GameScene
   GetVisibleLetters = "getVisibleLetters",
-  VisibleLetters = "visibleLetters",
-
   ChangePlayState = "changePlayState",
-
-  LetterOrdering = "letterOrdering",
   NextVisibleLetter = "nextVisibleLetter",
-
-  Clues = "clues",
   UpdateClue = "updateClue",
-
-  WinningVote = "winningVote",
   Vote = "vote",
-
   PlayerReady = "playerReady",
 }
 
 // EType is a lookup from Event Name to Event Type
 export type EType = {
-  [E.ServerReady]: {
-    id: string;
-    scene: string;
-    players: string[];
-  };
-
+  // General
   [E.ChangeScene]: {
-    scene: string;
+    sceneKey: string;
   };
+  [E.SyncGameState]: m.ClientGameState;
 
+  // LobbyScene
   [E.PlayerJoined]: {
     playerID: string;
     playerName: string;
@@ -51,36 +44,17 @@ export type EType = {
     playerID: string;
     playerName: string;
   };
-
   [E.SetPlayerName]: string;
-  [E.PlayerRenamed]: {
-    playerID: string;
-    oldPlayerName: string;
-    newPlayerName: string;
-  };
 
-  [E.VisibleLetters]: Stand[];
-
+  // GameScene
   [E.ChangePlayState]: {
     playState: PlayStateEnum;
   };
-
   [E.NextVisibleLetter]: void;
-
-  [E.LetterOrdering]: string[];
-
-  [E.Clues]: { [playerID: string]: Clue };
-  [E.UpdateClue]: FullClue;
-
-  [E.WinningVote]: {
-    playerID: string;
-    votes: number;
-  };
-
+  [E.UpdateClue]: m.ClueV2;
   [E.Vote]: {
     senderID: string;
     votedID: string;
   };
-
   [E.PlayerReady]: void;
 };

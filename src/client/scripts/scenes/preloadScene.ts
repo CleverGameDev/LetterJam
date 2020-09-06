@@ -4,12 +4,26 @@ import { E, EType } from "../../../shared/events";
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
     super({ key: "PreloadScene" }); // Client-side only Scene
+  }
 
+  create() {
     const socket = io();
 
-    socket.on(E.ServerReady, (data: EType[E.ServerReady]) => {
-      const { id, scene, players } = data;
-      this.scene.start(scene, { socket, id, players });
+    // Sync changes to gamestate to the registry, a datastore which is shared
+    // across all scenes.
+    // This socket handler also persists across scenes.
+    socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
+      this.registry.set("gameState", data);
+    });
+
+    // Allow changing scene
+    socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
+      // Stop all existing scenes
+      Object.keys(this.scene.manager.scenes).forEach((k) => {
+        this.scene.manager.scenes[k].scene.stop();
+      });
+      // Start desired scene
+      this.scene.start(data.sceneKey, { socket });
     });
   }
 }

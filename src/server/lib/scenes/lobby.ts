@@ -1,6 +1,7 @@
 import { ServerGameState } from "../../lib/gameState";
 import { E, EType } from "../../../shared/events";
 import { playerID } from "../playerUtils";
+import { syncClientGameState } from "../core";
 
 const registerListeners = (
   io: SocketIO.Server,
@@ -14,15 +15,9 @@ const registerListeners = (
       return;
     }
 
-    const oldName = gameState.players.get(playerID(socket)).Name;
-    gameState.players.set(playerID(socket), { Name: playerName });
+    gameState.players[playerID(socket)] = { Name: playerName };
 
-    // Emit event
-    io.to(gameState.room).emit(E.PlayerRenamed, <EType[E.PlayerRenamed]>{
-      playerID: playerID(socket),
-      oldPlayerName: oldName,
-      newPlayerName: playerName,
-    });
+    syncClientGameState(io, gameState);
   });
 };
 

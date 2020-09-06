@@ -1,13 +1,13 @@
 import PhaserLogo from "../objects/phaserLogo";
 import { SceneEnum } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
+import { ClientGameState } from "../../../shared/models";
 
 const key = SceneEnum.SetupScene;
 
 export default class SetupScene extends Phaser.Scene {
   socket: SocketIO.Socket;
-  id: number;
-  players: string[];
+  gameState: ClientGameState;
 
   constructor() {
     super({ key });
@@ -17,10 +17,8 @@ export default class SetupScene extends Phaser.Scene {
     this.load.image("phaser-logo", "assets/img/phaser-logo.png");
   }
 
-  init({ socket, id, players }): void {
+  init({ socket }): void {
     this.socket = socket;
-    this.id = id;
-    this.players = players;
   }
 
   create(): void {
@@ -35,13 +33,5 @@ export default class SetupScene extends Phaser.Scene {
       400
     ).setScale(0.25, 0.25);
     logo.on("pointerdown", () => this.socket.emit(E.NextScene));
-
-    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
-      this.scene.start(data.scene, {
-        socket: this.socket,
-        id: this.id,
-        players: this.players,
-      });
-    });
   }
 }

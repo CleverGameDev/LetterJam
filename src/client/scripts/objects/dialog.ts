@@ -115,7 +115,8 @@ export default class Dialog {
           if (button.text === "Cancel" && this.cancelFn) {
             this.cancelFn();
           } else if (button.text === "Submit" && this.submitFn) {
-            this.submitFn(dialog.getElement("content").text);
+            const text: string = dialog.getElement("content").text;
+            this.submitFn(text.trim());
           }
           dialog.setActive(false).setVisible(false);
         },
