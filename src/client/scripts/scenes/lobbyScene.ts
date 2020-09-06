@@ -4,9 +4,8 @@ import {
   MaxPlayers,
   DefaultPlayerName,
 } from "../../../shared/constants";
-import { E, EType } from "../../../shared/events";
+import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
-import { handleChangeScene } from "../lib/changeScene";
 
 export default class LobbyScene extends Phaser.Scene {
   socket: SocketIO.Socket;
@@ -25,14 +24,13 @@ export default class LobbyScene extends Phaser.Scene {
       "What is your player name?",
       null,
       (content: string) => {
-        this.socket.emit("setPlayerName", content);
+        this.socket.emit(E.SetPlayerName, content);
       }
     );
   }
 
-  init({ socket, gameState }): void {
+  init({ socket }): void {
     this.socket = socket;
-    this.gameState = gameState;
   }
 
   createButton = (scene: LobbyScene, text: string) => {
@@ -52,6 +50,8 @@ export default class LobbyScene extends Phaser.Scene {
   };
 
   create(): void {
+    this.gameState = this.registry.get("gameState");
+    console.log("CREATE LOBBY()");
     const buttons = this.rexUI.add
       .buttons({
         anchor: {
@@ -111,19 +111,16 @@ export default class LobbyScene extends Phaser.Scene {
       this.playerTexts.push(text);
     }
 
-    // Generic handler for any scene
-    this.socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
-      this.gameState = data;
-      this.refreshUI();
+    // Each scene should respond to updates to the gamestate
+    this.registry.events.on("changedata-gameState", (evt) => {
+      console.log("changedata-gameState", SceneEnum.LobbyScene);
+      this.gameState = this.registry.get("gameState");
     });
-
-    handleChangeScene(this.socket, this.gameState, this);
-    this.refreshUI();
   }
 
-  refreshUI() {
+  update() {
     // update player texts
-    const playerIDs = Object.keys(this.gameState.players).sort();
+    const playerIDs = Object.keys(this.gameState?.players || {}).sort();
     const numPlayers = playerIDs.length;
     for (let i = 0; i < MaxPlayers; i++) {
       const pt = this.playerTexts[i];
@@ -137,7 +134,7 @@ export default class LobbyScene extends Phaser.Scene {
         pt.setText(`player = ${playerName}${currentPlayerMarker}`);
       } else {
         pt.setVisible(false);
-        pt.setText("foo");
+        pt.setText("");
       }
     }
   }

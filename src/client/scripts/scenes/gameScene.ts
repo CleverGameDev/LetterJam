@@ -9,8 +9,7 @@ import { giveClue, vote } from "../lib/discuss";
 
 import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
 import { ClientGameState } from "../../../shared/models";
-import { E, EType } from "../../../shared/events";
-import { handleChangeScene } from "../lib/changeScene";
+import { E } from "../../../shared/events";
 
 const key = SceneEnum.GameScene;
 
@@ -102,6 +101,8 @@ export default class GameScene extends Phaser.Scene {
   };
 
   create(): void {
+    this.gameState = this.registry.get("gameState");
+
     // Scene title
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
@@ -113,7 +114,9 @@ export default class GameScene extends Phaser.Scene {
 
     // Game sub-state
     this.playStateText = new PlayStateText(this);
-    this.flower = new Flower(this, _.keys(this.gameState.players).length);
+    // TODO: re-render Flower UI when gameState is known
+    // this.flower = new Flower(this, _.keys(this.gameState.players).length);
+    this.flower = new Flower(this, 2);
     // TODO: add playerID and deck for self
     this.selfStand = new SelfStand(this, "playerID", 2);
 
@@ -137,8 +140,6 @@ export default class GameScene extends Phaser.Scene {
 
     this.activeClues = new ActiveClues(this);
     this.activeClues.setVisible(false);
-
-    this._drawVisibleLetters();
 
     const buttons = this.rexUI.add
       .buttons({
@@ -206,14 +207,15 @@ export default class GameScene extends Phaser.Scene {
         button.setInteractive({ useHandCursor: true });
       });
 
-    // Socket handlers
-    this.socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
-      this.gameState = data;
-      this.refreshUI();
+    // Each scene should respond to updates to the gamestate
+    this.registry.events.on("changedata-gameState", () => {
+      console.log("changedata-gameState", SceneEnum.GameScene);
+      this.gameState = this.registry.get("gameState");
+      // TODO: I think this is getting called after the scene is shut down
+      // this.refreshUI();
     });
 
-    handleChangeScene(this.socket, this.gameState, this);
-    this.refreshUI();
+    // this.refreshUI();
   }
 
   _refreshWinningVoteText() {
@@ -234,12 +236,15 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  refreshUI(): void {
+  update(): void {
+    // console.log({gameState: this.gameState});
+
     this.playStateText.update(this.gameState.playState);
     this.flower.update();
     this._clearVisibleLetters();
     this._drawVisibleLetters();
     this._refreshWinningVoteText();
+    this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
 
     switch (this.gameState.playState) {
       case PlayStateEnum.DISCUSS:

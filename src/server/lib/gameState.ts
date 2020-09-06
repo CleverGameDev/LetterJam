@@ -6,6 +6,7 @@ import {
   PlayerType,
   Stand,
   ClientGameState,
+  GuessingSheet,
 } from "../../shared/models";
 import {
   BaseNPCCards,
@@ -13,7 +14,6 @@ import {
   MaxPlayers,
   NPCCardGrowth,
   Scenes,
-  PlayStateEnum,
   PlayStates,
 } from "../../shared/constants";
 
@@ -44,9 +44,11 @@ export class ServerGameState {
   greenTokens: number;
   greenTokensLocked: number;
 
+  // TODO: consider using PlayerID type alias instead of string
   clues: { [playerID: string]: FullClue };
   votes: { [playerID: string]: number };
   clueWords: { [playerID: string]: string };
+  guessingSheet: { [playerID: string]: GuessingSheet };
   playStateIndex: number;
   playersReady: Set<string>;
 
@@ -61,6 +63,7 @@ export class ServerGameState {
     this.clues = {};
     this.votes = {};
     this.clueWords = {};
+    this.guessingSheet = {};
     this.playStateIndex = 0;
     this.playersReady = new Set();
   }
@@ -122,23 +125,80 @@ export class ServerGameState {
     return visibleLetters;
   }
 
+  getGuessingSheet(playerID: string) {
+    return (
+      this.guessingSheet[playerID] || {
+        hints: [],
+        notes: [],
+      }
+    );
+  }
+
+  provideHint() {
+    // Get the hint word from the player with the most votes
+    this.getPlayerIDs().forEach((playerID) => {
+      // add hint
+
+      // let out: string[][] = [];
+      // const letters = [];
+      // const visibleLetters = this.getVisibleLetters(playerID);
+      // for (const playerName of letterordering) {
+      //   if (playerName === "*") {
+      //     letters.push("*");
+      //     continue;
+      //   }
+      //   let found = false;
+      //   for (const stand of this.visibleLetters) {
+      //     if (stand.player === playerName) {
+      //       letters.push(stand.letter);
+      //       found = true;
+      //       break;
+      //     }
+      //   }
+      //   if (!found) {
+      //     letters.push("?");
+      //   }
+      // }
+
+      // return out;
+      this.guessingSheet[playerID].hints.push("abcdef");
+    });
+  }
+
   // setupNewGame is done separately from the constructor because
   // it requires us to know the number of connected players.
   //
   // (future) Consider isolating the per-game state from other server state.
   setupNewGame(): void {
+    // get players
     const playerIDs = this.getPlayerIDs();
+
+    // deal cards
     const { playerHands, npcHands, deck } = drawCards(playerIDs);
+    this.deck = deck;
+    this.letters = {
+      ...playerHands,
+      ...npcHands,
+    };
 
-    const numNPCs = MaxPlayers - playerIDs.length;
-    const visibleLetterIdx = {};
+    // determine visible letters
+    this.numNPCs = MaxPlayers - playerIDs.length;
     for (const key of playerIDs) {
-      visibleLetterIdx[key] = 0;
+      this.visibleLetterIdx[key] = 0;
     }
-    for (let i = 0; i < numNPCs; i++) {
-      visibleLetterIdx[`N${i + 1}`] = 0;
+    for (let i = 0; i < this.numNPCs; i++) {
+      this.visibleLetterIdx[`N${i + 1}`] = 0;
     }
 
+    // initialize guessingSheets
+    for (const key of playerIDs) {
+      this.guessingSheet[key] = {
+        hints: [],
+        notes: [],
+      };
+    }
+
+    // determine flower starting # of tokens
     switch (playerIDs.length) {
       case 2:
       case 3:
@@ -162,43 +222,8 @@ export class ServerGameState {
         this.greenTokensLocked = 1;
         break;
       default:
-      // TODO: throw some kind of error for invalid player number
+        throw Error("invalid number of players. 2-6 players supported");
     }
-    // Update gameState
-    this.numNPCs = numNPCs;
-    this.deck = deck;
-    this.letters = {
-      ...playerHands,
-      ...npcHands,
-    };
-    this.visibleLetterIdx = visibleLetterIdx;
-  }
-
-  getLetterOrdering(): string[] {
-    const maxVotePlayerName = _.maxBy(
-      Object.keys(this.votes),
-      (key) => this.votes[key]
-    );
-
-    const playerID = this.getPlayerIDFromName(maxVotePlayerName);
-    const visibleLetters = this.getVisibleLetters(playerID);
-    const normalizedWord = (this.clueWords[playerID] || "").toLowerCase();
-    const letterOrdering = [];
-
-    const letterToPlayerIDs = {};
-    for (const stand of visibleLetters) {
-      letterToPlayerIDs[stand.letter] =
-        letterToPlayerIDs[stand.letter] || stand.player;
-    }
-
-    for (const c of normalizedWord) {
-      if (letterToPlayerIDs[c]) {
-        letterOrdering.push(letterToPlayerIDs[c]);
-      } else {
-        letterOrdering.push("*");
-      }
-    }
-    return letterOrdering;
   }
 
   getScene() {
@@ -218,8 +243,8 @@ export class ServerGameState {
       visibleLetters: this.getVisibleLetters(playerID),
       playState: this.getPlayState(),
       clues: this.clues,
-      letterOrdering: this.getLetterOrdering(),
       votes: this.votes,
+      guessingSheet: this.getGuessingSheet(playerID),
     };
   }
 }

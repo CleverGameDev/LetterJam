@@ -3,12 +3,14 @@ import { Clue, FullClue, Stand, ClientGameState } from "../shared/models";
 
 // E is an Enum of the Event names
 export enum E {
-  // Preload Scene
-  ServerReady = "serverReady",
-
+  /* Events sent by Server */
   // General
   SyncGameState = "syncGameState",
-  ChangeScene = "changeScene",
+  ChangeScene = "changeScene", // when a new scene should be loaded by all clients
+  // TODO: Could replace ServeReady if sent to just new client
+
+  /* Events sent by Clients */
+  // General
   NextScene = "nextScene",
 
   // LobbyScene
@@ -27,38 +29,32 @@ export enum E {
 
 // EType is a lookup from Event Name to Event Type
 export type EType = {
-  [E.ServerReady]: ClientGameState;
-
+  // General
+  [E.ChangeScene]: {
+    sceneKey: string;
+  };
   [E.SyncGameState]: ClientGameState;
 
-  [E.ChangeScene]: {
-    scene: string;
-  };
-
+  // LobbyScene
   [E.PlayerJoined]: {
     playerID: string;
     playerName: string;
   };
-
   [E.PlayerLeft]: {
     playerID: string;
     playerName: string;
   };
-
   [E.SetPlayerName]: string;
 
+  // GameScene
   [E.ChangePlayState]: {
     playState: PlayStateEnum;
   };
-
   [E.NextVisibleLetter]: void;
-
   [E.UpdateClue]: FullClue;
-
   [E.Vote]: {
     senderID: string;
     votedID: string;
   };
-
   [E.PlayerReady]: void;
 };

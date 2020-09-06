@@ -1,6 +1,7 @@
 import { PlayStateEnum } from "./constants";
 import { Server } from "socket.io";
 import { ServerGameState } from "../server/lib/gameState";
+import e from "express";
 
 export type Stand = {
   player: string;
@@ -43,6 +44,13 @@ export enum PlayerType {
   Bonus = "bonus",
 }
 
+export type GuessingSheet = {
+  // after a clue is agreed upon, this stores each player's view of the clue
+  hints: string[];
+  notes: string[];
+};
+
+// TODO: separate client models, server models, and shared models
 export type ClientGameState = {
   //
   // Common properties, shared across scenes
@@ -57,8 +65,8 @@ export type ClientGameState = {
   visibleLetters: Stand[];
   playState: PlayStateEnum;
   clues: { [playerID: string]: Clue };
-  letterOrdering: string[];
   votes: { [playerID: string]: number };
+  guessingSheet: GuessingSheet;
 };
 
 export type Clue = {

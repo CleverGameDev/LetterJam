@@ -55,11 +55,13 @@ const registerListeners = (
     gameState.playStateIndex %= PlayStates.length;
     gameState.resetPlayersReady();
 
-    // TODO: Track who is ready and show it
+    // Disallow moving to this state if hint isn't given
 
     if (PlayStates[gameState.playStateIndex] === PlayStateEnum.PROVIDE_HINT) {
-      // No action needed
+      // update game state with the hint
+      gameState.provideHint();
     }
+
     if (
       PlayStates[gameState.playStateIndex] === PlayStateEnum.CHECK_END_CONDITION
     ) {

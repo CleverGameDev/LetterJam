@@ -31,12 +31,5 @@ export default class EndScene extends Phaser.Scene {
       400
     ).setScale(0.25, 0.25);
     logo.on("pointerdown", () => this.socket.emit(E.NextScene));
-
-    this.socket.on(E.ChangeScene, (data: EType[E.ChangeScene]) => {
-      this.scene.start(data.scene, {
-        socket: this.socket,
-        gameState: this.gameState,
-      });
-    });
   }
 }

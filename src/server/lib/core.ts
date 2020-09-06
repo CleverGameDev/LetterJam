@@ -21,6 +21,7 @@ export const syncClientGameState = (
     const cgs = gameState.getClientGameState(pid);
     io.to(sid).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
   });
+  console.dir({ gameState }, { depth: null });
 };
 
 const handlePlayerJoined = (
@@ -35,9 +36,12 @@ const handlePlayerJoined = (
     gameState.players[id] = {
       Name: DefaultPlayerName,
     };
-
-    syncClientGameState(io, gameState);
   }
+
+  io.to(socket.id).emit(E.ChangeScene, <EType[E.ChangeScene]>{
+    sceneKey: gameState.getScene(),
+  });
+  syncClientGameState(io, gameState);
 };
 
 const loadActiveScene = (
@@ -47,10 +51,6 @@ const loadActiveScene = (
 ) => {
   // Add current scene listeners
   sceneHandlers(io, socket, Scenes[gameState.sceneIndex]).setup(gameState);
-
-  // A newly connected user starts at the PreloadScene, which listens for
-  const cgs = gameState.getClientGameState(playerID(socket));
-  io.to(socket.id).emit(E.ServerReady, <EType[E.ServerReady]>cgs);
 };
 
 export const setupSocketIO = (
@@ -80,24 +80,23 @@ const registerListeners = (
   });
 
   socket.on(E.NextScene, () => {
-    const prevSceneHandler = sceneHandlers(io, socket, gameState.getScene());
-
-    // Remove previous listeners
-    prevSceneHandler.teardown(gameState);
+    // Remove listeners for current scene
+    sceneHandlers(io, socket, gameState.getScene()).teardown(gameState);
 
     // Update game state
     gameState.sceneIndex++;
     gameState.sceneIndex %= Scenes.length;
     gameState.resetVotesAndClues();
 
-    // Add new listeners
-    const nextSceneHandler = sceneHandlers(io, socket, gameState.getScene());
-    nextSceneHandler.setup(gameState);
+    // Add listeners for new scene
+    sceneHandlers(io, socket, gameState.getScene()).setup(gameState);
 
     // Emit event
     io.to(gameState.room).emit(E.ChangeScene, <EType[E.ChangeScene]>{
-      scene: gameState.getScene(),
+      sceneKey: gameState.getScene(),
     });
+
+    // Sync client state after changing scene
     syncClientGameState(io, gameState);
   });
 };

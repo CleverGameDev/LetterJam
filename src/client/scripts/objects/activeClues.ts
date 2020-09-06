@@ -46,8 +46,9 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
   }
 
   clueToArray = (clue: Clue): string[] => {
+    const playerName = this.scene.gameState.players[clue.playerID].Name;
     const out = [
-      clue.playerID.substr(0, 6),
+      playerName,
       `${clue.wordLength}`,
       `${clue.numPlayers}`,
       `${clue.numNPCs}`,
