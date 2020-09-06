@@ -7,6 +7,7 @@ import {
   Stand,
   ClientGameState,
   GuessingSheet,
+  Flower,
 } from "../../shared/models";
 import {
   BaseNPCCards,
@@ -39,10 +40,7 @@ export class ServerGameState {
   };
   deck: Letter[];
 
-  // flower
-  redTokens: number;
-  greenTokens: number;
-  greenTokensLocked: number;
+  flower: Flower;
 
   // TODO: consider using PlayerID type alias instead of string
   clues: { [playerID: string]: FullClue };
@@ -66,6 +64,11 @@ export class ServerGameState {
     this.guessingSheet = {};
     this.playStateIndex = 0;
     this.playersReady = new Set();
+    this.flower = {
+      red: 0,
+      green: 0,
+      greenLocked: 0,
+    };
   }
 
   getPlayerIDs(): string[] {
@@ -202,24 +205,24 @@ export class ServerGameState {
     switch (playerIDs.length) {
       case 2:
       case 3:
-        this.redTokens = 6;
-        this.greenTokens = 2;
-        this.greenTokensLocked = 3;
+        this.flower.red = 6;
+        this.flower.green = 2;
+        this.flower.greenLocked = 3;
         break;
       case 4:
-        this.redTokens = 4;
-        this.greenTokens = 6;
-        this.greenTokensLocked = 1;
+        this.flower.red = 4;
+        this.flower.green = 6;
+        this.flower.greenLocked = 1;
         break;
       case 5:
-        this.redTokens = 5;
-        this.greenTokens = 5;
-        this.greenTokensLocked = 1;
+        this.flower.red = 5;
+        this.flower.green = 5;
+        this.flower.greenLocked = 1;
         break;
       case 6:
-        this.redTokens = 6;
-        this.greenTokens = 4;
-        this.greenTokensLocked = 1;
+        this.flower.red = 6;
+        this.flower.green = 4;
+        this.flower.greenLocked = 1;
         break;
       default:
         throw Error("invalid number of players. 2-6 players supported");
@@ -245,8 +248,36 @@ export class ServerGameState {
       clues: this.clues,
       votes: this.votes,
       guessingSheet: this.getGuessingSheet(playerID),
+      flower: this.flower,
     };
   }
+
+  // TODO: Update flower (turn counter) during the vote / provide hint phase
+  // // Perform the logic to take turns
+  // // Returns true if successful, false otherwise
+  // public takeTurnToken(playerID: integer): boolean {
+  //   // Perform logic to take turns
+  //   // If this is the first time a player has offered a clue, take a red token
+  //   if (!this.playersTakenTurns.includes(playerID)) {
+  //     this.playersTakenTurns.push(playerID);
+  //     this.redTokens--;
+  //   } else if (this.greenTokens > 0) {
+  //     this.greenTokens--;
+  //   } else {
+  //     // With no more tokens available, the game is over?
+  //     return false;
+  //   }
+  //   this.unlockGreenTokens();
+  //   return true;
+  // }
+
+  // // Unlocks the green tokens if all the red tokens have been taken
+  // private unlockGreenTokens() {
+  //   if (this.redTokens == 0) {
+  //     this.greenTokens += this.greenTokensLocked;
+  //     this.greenTokensLocked = 0;
+  //   }
+  // }
 }
 
 const getFullDeck = () => {

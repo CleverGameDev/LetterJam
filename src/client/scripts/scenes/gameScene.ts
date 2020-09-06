@@ -116,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
     this.playStateText = new PlayStateText(this);
     // TODO: re-render Flower UI when gameState is known
     // this.flower = new Flower(this, _.keys(this.gameState.players).length);
-    this.flower = new Flower(this, 2);
+    this.flower = new Flower(this);
     // TODO: add playerID and deck for self
     this.selfStand = new SelfStand(this, "playerID", 2);
 
@@ -211,11 +211,7 @@ export default class GameScene extends Phaser.Scene {
     this.registry.events.on("changedata-gameState", () => {
       console.log("changedata-gameState", SceneEnum.GameScene);
       this.gameState = this.registry.get("gameState");
-      // TODO: I think this is getting called after the scene is shut down
-      // this.refreshUI();
     });
-
-    // this.refreshUI();
   }
 
   _refreshWinningVoteText() {
@@ -237,10 +233,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(): void {
-    // console.log({gameState: this.gameState});
-
     this.playStateText.update(this.gameState.playState);
+
+    this.flower.setFlowerData(this.gameState.flower);
     this.flower.update();
+
     this._clearVisibleLetters();
     this._drawVisibleLetters();
     this._refreshWinningVoteText();

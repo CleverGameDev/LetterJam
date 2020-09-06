@@ -67,6 +67,13 @@ export type ClientGameState = {
   clues: { [playerID: string]: Clue };
   votes: { [playerID: string]: number };
   guessingSheet: GuessingSheet;
+  flower: Flower;
+};
+
+export type Flower = {
+  red: number;
+  green: number;
+  greenLocked: number;
 };
 
 export type Clue = {
