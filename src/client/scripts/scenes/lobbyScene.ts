@@ -51,7 +51,6 @@ export default class LobbyScene extends Phaser.Scene {
 
   create(): void {
     this.gameState = this.registry.get("gameState");
-    console.log("CREATE LOBBY()");
     const buttons = this.rexUI.add
       .buttons({
         anchor: {

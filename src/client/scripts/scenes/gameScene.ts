@@ -253,7 +253,6 @@ export default class GameScene extends Phaser.Scene {
         // If player IS the hint provider
         // Player takes a clue token.
         // Player prompted with UI to give the hint
-        // If hint is invalid, allow retrying or exiting
         // If exit => go to DISCUSS
         // If hint is valid
         // Player now assigns tokens to letters
