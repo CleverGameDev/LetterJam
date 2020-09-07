@@ -196,6 +196,12 @@ export class ServerGameState {
     }
   }
 
+  advanceScene(): void {
+    this.sceneIndex++;
+    this.sceneIndex %= Scenes.length;
+    this.resetVotesAndClues();
+  }
+
   advancePlayState(): void {
     // Check if it's valid to advance to the next state
     const playerID = this.getPlayerWhoWonVote();
