@@ -7,7 +7,9 @@ export default class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    const socket = io();
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get("room");
+    const socket = io({ query: `room=${room}` });
 
     // Sync changes to gamestate to the registry, a datastore which is shared
     // across all scenes.

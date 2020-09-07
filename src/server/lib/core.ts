@@ -34,6 +34,8 @@ const handlePlayerJoined = (
 ) => {
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
   const id = playerID(socket);
+  const room = socket.handshake.query.room;
+  console.log({ room });
   if (!gameState.players[id]) {
     // Update game state
     gameState.players[id] = {
