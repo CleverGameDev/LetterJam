@@ -87,9 +87,7 @@ const registerListeners = (
     sceneHandlers(io, socket, gameState.getScene()).teardown(gameState);
 
     // Update game state
-    gameState.sceneIndex++;
-    gameState.sceneIndex %= Scenes.length;
-    gameState.resetVotesAndClues();
+    gameState.advanceScene();
 
     // Add listeners for new scene
     sceneHandlers(io, socket, gameState.getScene()).setup(gameState);

@@ -51,7 +51,6 @@ export default class LobbyScene extends Phaser.Scene {
 
   create(): void {
     this.gameState = this.registry.get("gameState");
-    console.log("CREATE LOBBY()");
     const buttons = this.rexUI.add
       .buttons({
         anchor: {
@@ -110,15 +109,10 @@ export default class LobbyScene extends Phaser.Scene {
       text.setVisible(false);
       this.playerTexts.push(text);
     }
-
-    // Each scene should respond to updates to the gamestate
-    this.registry.events.on("changedata-gameState", (evt) => {
-      console.log("changedata-gameState", SceneEnum.LobbyScene);
-      this.gameState = this.registry.get("gameState");
-    });
   }
 
   update() {
+    this.gameState = this.registry.get("gameState");
     // update player texts
     const playerIDs = Object.keys(this.gameState?.players || {}).sort();
     const numPlayers = playerIDs.length;

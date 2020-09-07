@@ -114,8 +114,6 @@ export default class GameScene extends Phaser.Scene {
 
     // Game sub-state
     this.playStateText = new PlayStateText(this);
-    // TODO: re-render Flower UI when gameState is known
-    // this.flower = new Flower(this, _.keys(this.gameState.players).length);
     this.flower = new Flower(this);
     // TODO: add playerID and deck for self
     this.selfStand = new SelfStand(this, "playerID", 2);
@@ -206,12 +204,6 @@ export default class GameScene extends Phaser.Scene {
         }
         button.setInteractive({ useHandCursor: true });
       });
-
-    // Each scene should respond to updates to the gamestate
-    this.registry.events.on("changedata-gameState", () => {
-      console.log("changedata-gameState", SceneEnum.GameScene);
-      this.gameState = this.registry.get("gameState");
-    });
   }
 
   _refreshWinningVoteText() {
@@ -233,6 +225,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(): void {
+    this.gameState = this.registry.get("gameState");
     this.playStateText.update(this.gameState.playState);
 
     this.flower.setFlowerData(this.gameState.flower);
@@ -258,7 +251,6 @@ export default class GameScene extends Phaser.Scene {
         // If player IS the hint provider
         // Player takes a clue token.
         // Player prompted with UI to give the hint
-        // If hint is invalid, allow retrying or exiting
         // If exit => go to DISCUSS
         // If hint is valid
         // Player now assigns tokens to letters
