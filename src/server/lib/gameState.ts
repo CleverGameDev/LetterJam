@@ -50,6 +50,7 @@ export class ServerGameState {
   guessingSheet: { [playerID: string]: GuessingSheet };
   playStateIndex: number;
   playersReady: Set<string>;
+  isGameOver: boolean;
 
   constructor() {
     this.sceneIndex = 0;
@@ -69,6 +70,7 @@ export class ServerGameState {
       green: 0,
       greenLocked: 0,
     };
+    this.isGameOver = false;
   }
 
   getPlayerIDs(): string[] {
@@ -137,38 +139,124 @@ export class ServerGameState {
     );
   }
 
-  provideHint() {
-    // Are we in the right play state?
-    if (this.getPlayState() != PlayStateEnum.PROVIDE_HINT) {
-      console.warn(`cannot provideHint in playState: ${this.getPlayState()}`);
-      return;
-    }
-
-    // Does someone have a winning clue?
+  getPlayerWhoWonVote() {
+    // TODO: handle ties, right now it just returns one of the tied players
     const playerID = _.maxBy(Object.keys(this.votes), (key) => this.votes[key]);
     const maxVotes = this.votes[playerID];
     if (maxVotes == 0) {
-      console.warn(`cannot provide hint because no clue has >0 votes`);
-      return;
+      return null;
     }
 
+    return playerID;
+  }
+
+  provideHint() {
+    const winningPlayerID = this.getPlayerWhoWonVote();
+    const winningClue = this.clues[winningPlayerID];
+
+    // The player who provided the hint takes a turn token
+    this.takeTurnToken(winningPlayerID);
+
     // Update each player's GuessingSheet with the winningClue from their perspective
-    const winningClue = this.clues[playerID];
-    this.getPlayerIDs().forEach((playerID) => {
+    this.getPlayerIDs().forEach((p) => {
       let hintText = "";
       for (let i = 0; i < winningClue.assignedStands.length; i++) {
         const stand = winningClue.assignedStands[i];
-        if (this.getPlayerIDFromName(stand.player) == playerID) {
+        if (this.getPlayerIDFromName(stand.player) == p) {
           hintText += "?";
         } else {
           hintText += stand.letter;
         }
       }
-      this.guessingSheet[playerID].hints.push(hintText);
+      this.guessingSheet[p].hints.push(hintText);
     });
 
-    // TODO
-    // takeTurnToken(playerID)
+    // Advance NPC stands that were used in the clue
+    const npcStands = _.uniq(
+      winningClue.assignedStands.filter((s) => {
+        return s.playerType == PlayerType.NPC;
+      })
+    );
+    npcStands.forEach((s: Stand) => {
+      this.visibleLetterIdx[s.player] += 1;
+    });
+  }
+
+  takeTurnToken(playerID: string) {
+    // TODO: This logic is simplified. It needs to be updated
+    // to handle the requirements to unlock more green tokens
+    if (this.flower.red > 0) {
+      this.flower.red -= 1;
+    } else if (this.flower.green > 0) {
+      this.flower.green -= 1;
+    } else if (this.flower.greenLocked > 0) {
+      this.flower.greenLocked -= 1;
+    } else {
+      console.warn("invalid state: cannot take a turn token");
+    }
+  }
+
+  advancePlayState(): void {
+    // Check if it's valid to advance to the next state
+    const playerID = this.getPlayerWhoWonVote();
+    switch (PlayStates[this.playStateIndex]) {
+      case PlayStateEnum.DISCUSS:
+        // If there wasn'a clue that won the vote
+        if (!playerID) {
+          return;
+        }
+        if (!this.clues[playerID]) {
+          // there's no clue for that player
+          return;
+        }
+        // TODO: If the winningClue's player cannot take a clue token
+        break;
+    }
+
+    this.playStateIndex++;
+    this.playStateIndex %= PlayStates.length;
+    this.resetPlayersReady();
+
+    switch (PlayStates[this.playStateIndex]) {
+      case PlayStateEnum.DISCUSS:
+        this.resetVotesAndClues();
+        break;
+      case PlayStateEnum.PROVIDE_HINT:
+        this.provideHint();
+
+        // Step forward again, as there's no user interaction here.
+        this.advancePlayState();
+        break;
+      case PlayStateEnum.INTERPRET_HINT:
+        // Remind users that their sheet is updated (ex. cause the guessing sheet to pop-up)
+        // Players can jot down guesses
+
+        // DECIDE_TO_MOVE_ON -- not yet clear if this needs to be a different UI state
+        //
+        // Players can click "decide to move on" (aka "Now I know my letter") or not
+        // If yes
+        //   If player has more letters, they get their next letter.
+        //   If player is out of letters, go to "bonus letters" condition.
+        //
+        // When should player guess their final word? Probably as part of endScene
+        break;
+      case PlayStateEnum.CHECK_END_CONDITION:
+        // Game is over if
+        // (1) no clue tokens remain for the next round
+        if (
+          !(this.flower.green || this.flower.red || this.flower.greenLocked)
+        ) {
+          this.isGameOver = true;
+          return;
+        }
+
+        // (2) everyone decides they don’t need any more clues
+        // TODO
+
+        // Step forward again, as there's no user interaction here.
+        this.advancePlayState();
+        break;
+    }
   }
 
   // setupNewGame is done separately from the constructor because
@@ -254,33 +342,6 @@ export class ServerGameState {
       flower: this.flower,
     };
   }
-
-  // TODO: Update flower (turn counter) during the vote / provide hint phase
-  // // Perform the logic to take turns
-  // // Returns true if successful, false otherwise
-  // public takeTurnToken(playerID: integer): boolean {
-  //   // Perform logic to take turns
-  //   // If this is the first time a player has offered a clue, take a red token
-  //   if (!this.playersTakenTurns.includes(playerID)) {
-  //     this.playersTakenTurns.push(playerID);
-  //     this.redTokens--;
-  //   } else if (this.greenTokens > 0) {
-  //     this.greenTokens--;
-  //   } else {
-  //     // With no more tokens available, the game is over?
-  //     return false;
-  //   }
-  //   this.unlockGreenTokens();
-  //   return true;
-  // }
-
-  // // Unlocks the green tokens if all the red tokens have been taken
-  // private unlockGreenTokens() {
-  //   if (this.redTokens == 0) {
-  //     this.greenTokens += this.greenTokensLocked;
-  //     this.greenTokensLocked = 0;
-  //   }
-  // }
 }
 
 const getFullDeck = () => {
