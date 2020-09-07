@@ -20,7 +20,7 @@ import {
   PlayStateEnum,
 } from "../../shared/constants";
 
-// TODO: How to persist this across  restarts
+// TODO: How to persist this across server restarts
 export class ServerGameState {
   //
   // Common properties, shared across scenes
@@ -207,15 +207,15 @@ export class ServerGameState {
     const playerID = this.getPlayerWhoWonVote();
     switch (PlayStates[this.playStateIndex]) {
       case PlayStateEnum.DISCUSS:
-        // If there wasn'a clue that won the vote
+        // If there wasn't a player who won the vote
         if (!playerID) {
           return;
         }
         if (!this.clues[playerID]) {
-          // there's no clue for that player
+          // The winning player didn't submit a clue
           return;
         }
-        // TODO: If the winningClue's player cannot take a clue token
+        // TODO: The winning player cannot take a clue token
         break;
     }
 
@@ -256,8 +256,7 @@ export class ServerGameState {
           return;
         }
 
-        // (2) everyone decides they don’t need any more clues
-        // TODO
+        // TODO: (2) everyone decides they don’t need any more clues
 
         // Step forward again, as there's no user interaction here.
         this.advancePlayState();

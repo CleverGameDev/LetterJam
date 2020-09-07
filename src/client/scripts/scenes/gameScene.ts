@@ -114,8 +114,6 @@ export default class GameScene extends Phaser.Scene {
 
     // Game sub-state
     this.playStateText = new PlayStateText(this);
-    // TODO: re-render Flower UI when gameState is known
-    // this.flower = new Flower(this, _.keys(this.gameState.players).length);
     this.flower = new Flower(this);
     // TODO: add playerID and deck for self
     this.selfStand = new SelfStand(this, "playerID", 2);

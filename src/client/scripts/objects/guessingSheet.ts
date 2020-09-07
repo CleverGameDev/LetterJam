@@ -30,8 +30,6 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
     this.add(this.guessingSheetTitle);
     this.add(this.guessingSheetContent);
 
-    // TODO: render the gamestate into the guessing sheet
-    // ensure the state for each guessing sheet is correct for a given player
     this.matrix = [
       ["1", "2", "3", "4", "5", "6", "7", "8", "9...", "???       "],
     ];
