@@ -206,12 +206,6 @@ export default class GameScene extends Phaser.Scene {
         }
         button.setInteractive({ useHandCursor: true });
       });
-
-    // Each scene should respond to updates to the gamestate
-    this.registry.events.on("changedata-gameState", () => {
-      console.log("changedata-gameState", SceneEnum.GameScene);
-      this.gameState = this.registry.get("gameState");
-    });
   }
 
   _refreshWinningVoteText() {
@@ -233,6 +227,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(): void {
+    this.gameState = this.registry.get("gameState");
     this.playStateText.update(this.gameState.playState);
 
     this.flower.setFlowerData(this.gameState.flower);
