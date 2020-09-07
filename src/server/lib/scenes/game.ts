@@ -45,20 +45,8 @@ const registerListeners = (
     if (!gameState.areAllPlayersReady()) {
       return;
     }
-    gameState.playStateIndex++;
-    gameState.playStateIndex %= PlayStates.length;
-    gameState.resetPlayersReady();
 
-    // TODO: Disallow moving to this state if hint isn't given
-    if (PlayStates[gameState.playStateIndex] === PlayStateEnum.PROVIDE_HINT) {
-      gameState.provideHint();
-    }
-
-    if (
-      PlayStates[gameState.playStateIndex] === PlayStateEnum.CHECK_END_CONDITION
-    ) {
-      gameState.resetVotesAndClues();
-    }
+    gameState.advancePlayState();
 
     syncClientGameState(io, gameState);
   });

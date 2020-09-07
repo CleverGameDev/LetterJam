@@ -266,23 +266,8 @@ export default class GameScene extends Phaser.Scene {
         // Each person's "guessing sheet" can be automatically updated.
         break;
       case PlayStateEnum.INTERPRET_HINT:
-        // Remind users that their sheet is updated (ex. cause the guessing sheet to pop-up)
-        // Players can jot down guesses
-
-        // DECIDE_TO_MOVE_ON -- not yet clear if this needs to be a different UI state
-        //
-        // Players can click "decide to move on" (aka "Now I know my letter") or not
-        // If yes
-        //   If player has more letters, they get their next letter.
-        //   If player is out of letters, go to "bonus letters" condition.
-        //
-        // If NPC letter was used, it should also be updated.
-        //
-        // When should player guess their final word? Probably as part of endScene
         break;
       case PlayStateEnum.CHECK_END_CONDITION:
-        // (1) If you end a round with no clue tokens for the next round, the game is over
-        // OR (2) The game ends with leftover tokens if everyone decides they don’t need any more clues.
         break;
       default:
         break;
