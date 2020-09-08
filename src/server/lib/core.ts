@@ -11,15 +11,15 @@ export const syncClientGameState = (
   // TODO: Debounce this so we don't spam the client with updates
 
   // Send the right client game state to each socket
-  Object.keys(io.sockets.in(gameState.room).sockets).forEach((sid) => {
-    const pid = playerID(io.sockets.sockets[sid]);
+  Object.values(io.sockets.in(gameState.room).sockets).forEach((s) => {
+    const pid = playerID(s);
     if (!pid) {
-      console.warn("couldn't find a player for this socket ID");
+      console.warn("couldn't find a player for this socket");
       return;
     }
 
     const cgs = gameState.getClientGameState(pid);
-    io.to(sid).emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
+    s.emit(E.SyncGameState, <EType[E.SyncGameState]>cgs);
   });
   if (process.env.NODE_ENV !== "production") {
     console.log(`syncClientGameState ${new Date()} ... ServerGameState is:`);
