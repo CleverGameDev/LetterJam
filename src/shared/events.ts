@@ -54,7 +54,7 @@ export type EType = {
   [E.UpdateClue]: m.ClueV2;
   [E.Vote]: {
     senderID: string;
-    votedID: string;
+    votedName: string;
   };
   [E.PlayerReady]: void;
 };

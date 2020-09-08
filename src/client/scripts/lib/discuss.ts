@@ -83,11 +83,11 @@ const getLettersByPlayerType = (gameState: models.ClientGameState) => {
 export const vote = (
   socket: SocketIO.Socket,
   senderID: string,
-  votedID: string
+  votedName: string
 ): void => {
   const v: EType[E.Vote] = {
     senderID,
-    votedID,
+    votedName,
   };
   socket.emit(E.Vote, v);
 };

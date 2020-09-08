@@ -46,7 +46,7 @@ export class ServerGameState {
 
   // TODO: consider using PlayerID type alias instead of string
   clues: { [playerID: string]: ClueV2 };
-  votes: { [playerID: string]: number };
+  voteMap: { [playerID: string]: string }; // tracks who voted for who
   guessingSheet: { [playerID: string]: GuessingSheet };
   playStateIndex: number;
   playersReady: Set<string>;
@@ -61,7 +61,7 @@ export class ServerGameState {
     this.visibleLetterIdx = {};
     this.deck = [];
     this.clues = {};
-    this.votes = {};
+    this.voteMap = {};
     this.guessingSheet = {};
     this.playStateIndex = 0;
     this.playersReady = new Set();
@@ -92,7 +92,15 @@ export class ServerGameState {
 
   resetVotesAndClues(): void {
     this.clues = {};
-    this.votes = {};
+    this.voteMap = {};
+  }
+
+  vote(senderID: string, recipientID: string): void {
+    this.voteMap[senderID] = recipientID;
+  }
+
+  getVotes() {
+    return _.countBy(this.voteMap);
   }
 
   areAllPlayersReady(): boolean {
@@ -141,8 +149,9 @@ export class ServerGameState {
 
   getPlayerWhoWonVote() {
     // TODO: handle ties, right now it just returns one of the tied players
-    const playerID = _.maxBy(Object.keys(this.votes), (key) => this.votes[key]);
-    const maxVotes = this.votes[playerID];
+    const votes = this.getVotes();
+    const playerID = _.maxBy(Object.keys(votes), (key) => votes[key]);
+    const maxVotes = votes[playerID];
     if (maxVotes == 0) {
       return null;
     }
@@ -342,7 +351,7 @@ export class ServerGameState {
       visibleLetters: this.getVisibleLetters(playerID),
       playState: this.getPlayState(),
       clues: this.clues,
-      votes: this.votes,
+      votes: this.getVotes(),
       guessingSheet: this.getGuessingSheet(playerID),
       flower: this.flower,
     };
