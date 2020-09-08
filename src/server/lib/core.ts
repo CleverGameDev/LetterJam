@@ -84,13 +84,17 @@ const registerListeners = (
 
   socket.on(E.NextScene, () => {
     // Remove listeners for current scene
-    sceneHandlers(io, socket, gameState.getScene()).teardown(gameState);
+    Object.values(io.sockets.in(gameState.room).sockets).forEach((s) => {
+      sceneHandlers(io, s, gameState.getScene()).teardown(gameState);
+    });
 
     // Update game state
     gameState.advanceScene();
 
     // Add listeners for new scene
-    sceneHandlers(io, socket, gameState.getScene()).setup(gameState);
+    Object.values(io.sockets.in(gameState.room).sockets).forEach((s) => {
+      sceneHandlers(io, s, gameState.getScene()).setup(gameState);
+    });
 
     // Emit event
     io.to(gameState.room).emit(E.ChangeScene, <EType[E.ChangeScene]>{
