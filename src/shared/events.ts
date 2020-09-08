@@ -7,7 +7,6 @@ export enum E {
   // General
   SyncGameState = "syncGameState",
   ChangeScene = "changeScene", // when a new scene should be loaded by all clients
-  // TODO: Could replace ServeReady if sent to just new client
 
   /* Events sent by Clients */
   // General
