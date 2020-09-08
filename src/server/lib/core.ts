@@ -41,7 +41,7 @@ const handlePlayerJoined = (
     };
   }
 
-  io.to(socket.id).emit(E.ChangeScene, <EType[E.ChangeScene]>{
+  socket.emit(E.ChangeScene, <EType[E.ChangeScene]>{
     sceneKey: gameState.getScene(),
   });
   syncClientGameState(io, gameState);
