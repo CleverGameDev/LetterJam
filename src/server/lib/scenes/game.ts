@@ -19,18 +19,13 @@ const registerListeners = (
   // This voting system is like Medium, you can vote as many times as you'd like
   // We should actually track who voted for whom so we can actually change votes
   socket.on(E.Vote, (data: EType[E.Vote]) => {
-    // Update game state
-    if (gameState.getPlayerNames().indexOf(data.votedID) < 0) {
+    const playerID = gameState.getPlayerIDFromName(data.votedName);
+    if (!playerID) {
       // ignore vote if there's no player with that name
       return;
     }
 
-    const playerID = gameState.getPlayerIDFromName(data.votedID);
-
-    // store votes by playerID
-    gameState.votes[playerID]
-      ? gameState.votes[playerID]++
-      : (gameState.votes[playerID] = 1);
+    gameState.vote(data.senderID, playerID);
 
     syncClientGameState(io, gameState);
   });

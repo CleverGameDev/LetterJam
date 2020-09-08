@@ -9,6 +9,7 @@ const headers = [
   "NPCs used    ",
   "Bonuses used ",
   "Wildcard used",
+  "Votes",
 ];
 
 export default class ActiveClues extends Phaser.GameObjects.Container {
@@ -61,6 +62,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
       `${counts[PlayerType.NPC] || 0}`,
       `${counts[PlayerType.Bonus] || 0}`,
       `${counts[PlayerType.Wildcard] ? "Y" : "N"}`,
+      `${this.scene.gameState.votes[playerID] || 0}`,
     ];
 
     for (let i = 0; i < out.length; i++) {
