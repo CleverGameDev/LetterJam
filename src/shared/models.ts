@@ -4,9 +4,10 @@ import { ServerGameState } from "../server/lib/gameState";
 import e from "express";
 
 export type Stand = {
-  player: string;
-  playerType: PlayerType;
+  playerID: string;
   letter: Letter;
+  currentCardIdx: number;
+  totalCards: number;
 };
 
 // No J, Q, V, X, or Z
@@ -33,6 +34,7 @@ export enum Letter {
   W = "w",
   Y = "y",
   Wildcard = "*",
+  Hidden = "?",
 }
 
 export type PlayerProperties = {

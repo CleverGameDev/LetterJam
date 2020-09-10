@@ -8,7 +8,7 @@ import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
 
 import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
-import { ClientGameState } from "../../../shared/models";
+import { ClientGameState, Stand, Letter } from "../../../shared/models";
 import { E } from "../../../shared/events";
 
 const key = SceneEnum.GameScene;
@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
   selfStand: SelfStand;
   dialog: Dialog;
   voteDialog: Dialog;
-  board;
+  board: Phaser.GameObjects.GameObject[];
   winningVoteText: Phaser.GameObjects.Text;
 
   rexUI: any; // global plugin
@@ -69,19 +69,77 @@ export default class GameScene extends Phaser.Scene {
     this.board = [];
   };
 
+  getStandName(s: Stand) {
+    // get name for player or NPC
+    const player = this.gameState.players[s.playerID];
+    if (player) {
+      return player.Name; // Player
+    }
+
+    return s.playerID.replace("N", "NPC "); // NPC
+  }
+
   _drawVisibleLetters = (): void => {
+    const styleLarge = {
+      color: "#000000",
+      fontSize: 72,
+    };
+    const styleMedium = {
+      color: "#000000",
+      fontSize: 20,
+    };
+    const X_OFFSET = 50;
+    const Y_OFFSET = 200;
+    const WIDTH = 180;
+
     this.gameState.visibleLetters.forEach((stand, idx) => {
-      const label = this.add.text(100 + 200 * idx, 200, stand.player, {
-        color: "#000000",
-        fontSize: 36,
-      });
-      const letter = this.add.text(100 + 200 * idx, 250, stand.letter, {
-        color: "#000000",
-        fontSize: 36,
-      });
+      const letter = this.add.text(
+        X_OFFSET + WIDTH * idx,
+        Y_OFFSET,
+        stand.letter,
+        styleLarge
+      );
+      const label = this.add.text(
+        X_OFFSET + WIDTH * idx,
+        Y_OFFSET + 80,
+        this.getStandName(stand),
+        styleMedium
+      );
+      const counter = this.add.text(
+        X_OFFSET + WIDTH * idx,
+        Y_OFFSET + 112,
+        `${stand.currentCardIdx + 1}/${stand.totalCards}`,
+        styleMedium
+      );
+
       this.board.push(label);
       this.board.push(letter);
+      this.board.push(counter);
     });
+
+    // Draw a wildcard stand
+    const lastIdx = this.gameState.visibleLetters.length;
+    const letter = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET,
+      Letter.Wildcard,
+      styleLarge
+    );
+    const label = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET + 80,
+      "Wild",
+      styleMedium
+    );
+    const counter = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET + 112,
+      `-`,
+      styleMedium
+    );
+    this.board.push(label);
+    this.board.push(letter);
+    this.board.push(counter);
   };
 
   _createButton = (scene: GameScene, text: string) => {
@@ -115,8 +173,6 @@ export default class GameScene extends Phaser.Scene {
     // Game sub-state
     this.playStateText = new PlayStateText(this);
     this.flower = new Flower(this);
-    // TODO: add playerID and deck for self
-    this.selfStand = new SelfStand(this, "playerID", 2);
 
     // display the Phaser.VERSION
     this.add

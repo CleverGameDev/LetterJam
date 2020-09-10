@@ -51,7 +51,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     const wordLength = clue.word.length;
     const counts = _.countBy(
       _.uniq(clue.assignedStands),
-      (s: Stand) => s.playerType
+      (s: Stand) => this.scene.gameState.players[s.playerID]
     );
 
     const playerName = this.scene.gameState.players[playerID].Name;
