@@ -5,6 +5,7 @@ import GuessingSheet from "../objects/guessingSheet";
 import { SelfStand } from "../objects/stand";
 import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
+import Table from "../objects/table";
 import { giveClue, vote } from "../lib/discuss";
 
 import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
@@ -25,6 +26,8 @@ export default class GameScene extends Phaser.Scene {
   selfStand: SelfStand;
   dialog: Dialog;
   voteDialog: Dialog;
+  guessingSheetTable: Table;
+  activeCluesTable: Table;
   board;
   winningVoteText: Phaser.GameObjects.Text;
 
@@ -46,6 +49,27 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     );
+    this.guessingSheetTable = new Table(this, "Guessing Sheet", 10, [
+      { text: "1" },
+      { text: "2" },
+      { text: "3" },
+      { text: "4" },
+      { text: "5" },
+      { text: "6" },
+      { text: "7" },
+      { text: "8" },
+      { text: "9..." },
+      { text: "???" },
+    ]);
+    this.activeCluesTable = new Table(this, "Active Clues", 7, [
+      { text: "Player" },
+      { text: "Word Length" },
+      { text: "Players used" },
+      { text: "NPCs used" },
+      { text: "Bonuses used" },
+      { text: "Wildcard used" },
+      { text: "Votes" },
+    ]);
     this.voteDialog = new Dialog(
       this,
       " ",
@@ -135,8 +159,10 @@ export default class GameScene extends Phaser.Scene {
     // Discuss UI elements
     this.dialog.create();
     this.voteDialog.create();
+    // this.guessingSheetTable.create();
+    this.activeCluesTable.create();
 
-    this.activeClues = new ActiveClues(this);
+    this.activeClues = new ActiveClues(this, this.activeCluesTable);
     this.activeClues.setVisible(false);
 
     const buttons = this.rexUI.add

@@ -15,12 +15,14 @@ const headers = [
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
   content;
+  table;
   scene: GameScene;
 
-  constructor(scene: GameScene) {
+  constructor(scene: GameScene, table: any) {
     super(scene, 0, 0);
 
     this.scene = scene;
+    this.table = table;
 
     const background = scene.add
       .rectangle(
@@ -47,7 +49,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  clueToArray = (playerID: string, clue: ClueV2): string[] => {
+  clueToArray = (playerID: string, clue: ClueV2): { text: string }[] => {
     const wordLength = clue.word.length;
     const counts = _.countBy(
       _.uniq(clue.assignedStands),
@@ -56,18 +58,18 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
 
     const playerName = this.scene.gameState.players[playerID].Name;
     const out = [
-      playerName,
-      `${wordLength}`,
-      `${counts[PlayerType.Player] || 0}`,
-      `${counts[PlayerType.NPC] || 0}`,
-      `${counts[PlayerType.Bonus] || 0}`,
-      `${counts[PlayerType.Wildcard] ? "Y" : "N"}`,
-      `${this.scene.gameState.votes[playerID] || 0}`,
+      { text: playerName },
+      { text: `${wordLength}` },
+      { text: `${counts[PlayerType.Player] || 0}` },
+      { text: `${counts[PlayerType.NPC] || 0}` },
+      { text: `${counts[PlayerType.Bonus] || 0}` },
+      { text: `${counts[PlayerType.Wildcard] ? "Y" : "N"}` },
+      { text: `${this.scene.gameState.votes[playerID] || 0}` },
     ];
 
-    for (let i = 0; i < out.length; i++) {
-      out[i] = out[i].toString().padEnd(headers[i].length);
-    }
+    // for (let i = 0; i < out.length; i++) {
+    //   out[i] = out[i].toString().padEnd(headers[i].length);
+    // }
 
     return out;
   };
@@ -76,15 +78,19 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     let text = "No clues yet";
     if (this.scene.gameState.clues) {
       const matrix = [headers];
+      const contentItems = [];
       for (const player of Object.keys(this.scene.gameState.clues)) {
-        matrix.push(
-          this.clueToArray(player, this.scene.gameState.clues[player])
+        // matrix.push(
+        //   this.clueToArray(player, this.scene.gameState.clues[player])
+        // );
+        contentItems.push(
+          ...this.clueToArray(player, this.scene.gameState.clues[player])
         );
       }
 
       text = Phaser.Utils.Array.Matrix.MatrixToString(matrix);
+      this.table.setContentItems(contentItems);
     }
-
     this.content.setText(text);
   }
 }
