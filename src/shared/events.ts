@@ -18,7 +18,6 @@ export enum E {
   SetPlayerName = "setPlayerName",
 
   // GameScene
-  GetVisibleLetters = "getVisibleLetters",
   ChangePlayState = "changePlayState",
   NextVisibleLetter = "nextVisibleLetter",
   UpdateClue = "updateClue",

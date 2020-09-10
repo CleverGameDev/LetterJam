@@ -51,7 +51,6 @@ const deregisterListeners = (
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
-  socket.removeAllListeners(E.GetVisibleLetters);
   socket.removeAllListeners(E.UpdateClue);
   socket.removeAllListeners(E.Vote);
   socket.removeAllListeners(E.NextVisibleLetter);
