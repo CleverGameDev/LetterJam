@@ -7,7 +7,11 @@ import ActiveClues from "../objects/activeClues";
 import Dialog from "../objects/dialog";
 import { giveClue, vote } from "../lib/discuss";
 
-import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
+import {
+  PlayStateEnum,
+  SceneEnum,
+  WildcardPlayerName,
+} from "../../../shared/constants";
 import { ClientGameState, Stand, Letter } from "../../../shared/models";
 import { E } from "../../../shared/events";
 
@@ -76,7 +80,7 @@ export default class GameScene extends Phaser.Scene {
       return player.Name; // Player
     }
 
-    return s.playerID.replace("N", "NPC "); // NPC
+    return s.playerID; // NPC or wildcard
   }
 
   _drawVisibleLetters = (): void => {
@@ -128,7 +132,7 @@ export default class GameScene extends Phaser.Scene {
     const label = this.add.text(
       X_OFFSET + WIDTH * lastIdx,
       Y_OFFSET + 80,
-      "Wild",
+      WildcardPlayerName,
       styleMedium
     );
     const counter = this.add.text(

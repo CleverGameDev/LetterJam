@@ -1,5 +1,6 @@
 import * as models from "../../../shared/models";
 import { E, EType } from "../../../shared/events";
+import { WildcardStand, WildcardPlayerID } from "../../../shared/constants";
 
 // if false, clue is not valid
 export const giveClue = (
@@ -34,7 +35,7 @@ const generateClue = (
     const s = getBestStand(gameState, c);
 
     // wild card case
-    if (s.playerType == models.PlayerType.Wildcard) {
+    if (s.playerID == WildcardPlayerID) {
       if (wildcardLetter != "" && wildcardLetter != c) {
         // Wildcard can only be used for one letter
         return false;
@@ -59,24 +60,7 @@ const getBestStand = (
     }
   }
 
-  return {
-    player: "wildcard",
-    playerType: models.PlayerType.Wildcard,
-    letter: models.Letter.Wildcard,
-  };
-};
-
-// Helper function to separate visible letters by type of player
-const getLettersByPlayerType = (gameState: models.ClientGameState) => {
-  const playerTypeLetters = {
-    [models.PlayerType.Player]: [],
-    [models.PlayerType.NPC]: [],
-    [models.PlayerType.Bonus]: [],
-  };
-  for (const stand of gameState.visibleLetters) {
-    playerTypeLetters[stand.playerType].push(stand.letter);
-  }
-  return playerTypeLetters;
+  return WildcardStand;
 };
 
 // Send vote to server. PlayerID can be accessed from clue

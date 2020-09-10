@@ -18,6 +18,8 @@ import {
   Scenes,
   PlayStates,
   PlayStateEnum,
+  NPCPlayerIDPrefix,
+  WildcardPlayerID,
 } from "../../shared/constants";
 
 // TODO: How to persist this across server restarts
@@ -183,13 +185,15 @@ export class ServerGameState {
     });
   }
 
-  getPlayerType(playerID: string) {
+  getPlayerType = (playerID: string) => {
     if (this.players[playerID]) {
       return PlayerType.Player;
+    } else if (playerID == WildcardPlayerID) {
+      return PlayerType.Wildcard;
     } else {
       return PlayerType.NPC;
     }
-  }
+  };
 
   takeTurnToken(playerID: string) {
     // TODO: This logic is simplified. It needs to be updated
@@ -295,7 +299,7 @@ export class ServerGameState {
       this.visibleLetterIdx[key] = 0;
     }
     for (let i = 0; i < this.numNPCs; i++) {
-      this.visibleLetterIdx[`N${i + 1}`] = 0;
+      this.visibleLetterIdx[`${NPCPlayerIDPrefix}${i + 1}`] = 0;
     }
 
     // initialize guessingSheets
@@ -389,7 +393,10 @@ const drawCards = (playerIDs: string[]) => {
 
   // Take the remaining letters to populate NPC hands
   for (let i = 0; i < MaxPlayers - playerIDs.length; i++) {
-    npcHands[`N${i + 1}`] = deck.splice(0, BaseNPCCards + NPCCardGrowth * i);
+    npcHands[`${NPCPlayerIDPrefix}${i + 1}`] = deck.splice(
+      0,
+      BaseNPCCards + NPCCardGrowth * i
+    );
   }
 
   return {

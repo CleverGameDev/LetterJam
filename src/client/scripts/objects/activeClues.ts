@@ -1,6 +1,7 @@
 import * as _ from "lodash";
-import { Clue, ClueV2, Stand, PlayerType } from "../../../shared/models";
+import * as models from "../../../shared/models";
 import GameScene from "../scenes/gameScene";
+import { WildcardPlayerID } from "../../../shared/constants";
 
 const headers = [
   "Player       ",
@@ -47,21 +48,31 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  clueToArray = (playerID: string, clue: ClueV2): string[] => {
+  getPlayerType = (gameState: models.ClientGameState, playerID: string) => {
+    if (gameState.players[playerID]) {
+      return models.PlayerType.Player;
+    } else if (playerID == WildcardPlayerID) {
+      return models.PlayerType.Wildcard;
+    } else {
+      return models.PlayerType.NPC;
+    }
+  };
+
+  clueToArray = (playerID: string, clue: models.ClueV2): string[] => {
     const wordLength = clue.word.length;
-    const counts = _.countBy(
-      _.uniq(clue.assignedStands),
-      (s: Stand) => this.scene.gameState.players[s.playerID]
+    console.log({ clue });
+    const counts = _.countBy(_.uniq(clue.assignedStands), (s: models.Stand) =>
+      this.getPlayerType(this.scene.gameState, s.playerID)
     );
 
     const playerName = this.scene.gameState.players[playerID].Name;
     const out = [
       playerName,
       `${wordLength}`,
-      `${counts[PlayerType.Player] || 0}`,
-      `${counts[PlayerType.NPC] || 0}`,
-      `${counts[PlayerType.Bonus] || 0}`,
-      `${counts[PlayerType.Wildcard] ? "Y" : "N"}`,
+      `${counts[models.PlayerType.Player] || 0}`,
+      `${counts[models.PlayerType.NPC] || 0}`,
+      `${counts[models.PlayerType.Bonus] || 0}`,
+      `${counts[models.PlayerType.Wildcard] ? "Y" : "N"}`,
       `${this.scene.gameState.votes[playerID] || 0}`,
     ];
 
