@@ -61,8 +61,9 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
   clueToArray = (playerID: string, clue: models.ClueV2): string[] => {
     const wordLength = clue.word.length;
     console.log({ clue });
-    const counts = _.countBy(_.uniq(clue.assignedStands), (s: models.Stand) =>
-      this.getPlayerType(this.scene.gameState, s.playerID)
+    const counts = _.countBy(
+      _.uniqBy(clue.assignedStands, (s) => s.playerID),
+      (s: models.Stand) => this.getPlayerType(this.scene.gameState, s.playerID)
     );
 
     const playerName = this.scene.gameState.players[playerID].Name;
