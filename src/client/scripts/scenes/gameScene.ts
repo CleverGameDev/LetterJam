@@ -37,28 +37,6 @@ export default class GameScene extends Phaser.Scene {
   constructor() {
     super({ key });
     this.board = [];
-
-    this.dialog = new Dialog(
-      this,
-      "Enter clue here",
-      "What is your clue?",
-      null,
-      (content: string) => {
-        const validClue = giveClue(this.socket, content, this.gameState);
-        if (!validClue) {
-          // Let user know and prompt for another clue
-        }
-      }
-    );
-    this.voteDialog = new Dialog(
-      this,
-      " ",
-      "Who are you voting for?",
-      null,
-      (votedName: string) => {
-        vote(this.socket, this.gameState.playerID, votedName);
-      }
-    );
   }
 
   init({ socket, gameState }): void {
@@ -164,6 +142,29 @@ export default class GameScene extends Phaser.Scene {
 
   create(): void {
     this.gameState = this.registry.get("gameState");
+
+    // Dialogs
+    this.dialog = new Dialog(
+      this,
+      "Enter clue here",
+      "What is your clue?",
+      null,
+      (content: string) => {
+        const validClue = giveClue(this.socket, content, this.gameState);
+        if (!validClue) {
+          // Let user know and prompt for another clue
+        }
+      }
+    );
+    this.voteDialog = new Dialog(
+      this,
+      " ",
+      "Who are you voting for?",
+      null,
+      (votedName: string) => {
+        vote(this.socket, this.gameState.playerID, votedName);
+      }
+    );
 
     // Scene title
     this.add.text(0, 0, `${key}`, {
