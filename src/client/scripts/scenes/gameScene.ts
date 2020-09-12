@@ -8,11 +8,22 @@ import Dialog from "../objects/dialog";
 import { ActiveCluesTable, GuessingTable } from "../objects/table";
 import { giveClue, vote } from "../lib/discuss";
 
-import { PlayStateEnum, SceneEnum } from "../../../shared/constants";
-import { ClientGameState } from "../../../shared/models";
+import {
+  PlayStateEnum,
+  SceneEnum,
+  WildcardPlayerName,
+  MaxPlayers,
+} from "../../../shared/constants";
+import { ClientGameState, Stand, Letter } from "../../../shared/models";
 import { E } from "../../../shared/events";
 
 const key = SceneEnum.GameScene;
+
+type UIStand = {
+  letter: Phaser.GameObjects.Text;
+  label: Phaser.GameObjects.Text;
+  counter: Phaser.GameObjects.Text;
+};
 
 export default class GameScene extends Phaser.Scene {
   socket: SocketIO.Socket;
@@ -24,11 +35,11 @@ export default class GameScene extends Phaser.Scene {
   activeClues: ActiveClues;
   flower: Flower;
   selfStand: SelfStand;
-  dialog: Dialog;
+  clueDialog: Dialog;
   voteDialog: Dialog;
   guessingSheetTable: GuessingTable;
   activeCluesTable: ActiveCluesTable;
-  board;
+  board: UIStand[];
   winningVoteText: Phaser.GameObjects.Text;
 
   rexUI: any; // global plugin
@@ -36,28 +47,6 @@ export default class GameScene extends Phaser.Scene {
   constructor() {
     super({ key });
     this.board = [];
-
-    this.dialog = new Dialog(
-      this,
-      "Enter clue here",
-      "What is your clue?",
-      null,
-      (content: string) => {
-        const validClue = giveClue(this.socket, content, this.gameState);
-        if (!validClue) {
-          // Let user know and prompt for another clue
-        }
-      }
-    );
-    this.voteDialog = new Dialog(
-      this,
-      " ",
-      "Who are you voting for?",
-      null,
-      (votedName: string) => {
-        vote(this.socket, this.gameState.playerID, votedName);
-      }
-    );
   }
 
   init({ socket, gameState }): void {
@@ -65,25 +54,71 @@ export default class GameScene extends Phaser.Scene {
     this.gameState = gameState;
   }
 
-  _clearVisibleLetters = (): void => {
-    for (const text of this.board) {
-      text.destroy();
-    }
-    this.board = [];
-  };
+  _createVisibleLetters = (): void => {
+    // TODO: Move this and _refreshVisibleLetters to a separate file
+    const styleLarge = {
+      color: "#000000",
+      fontSize: 72,
+    };
+    const styleMedium = {
+      color: "#000000",
+      fontSize: 20,
+    };
+    const X_OFFSET = 50;
+    const Y_OFFSET = 200;
+    const WIDTH = 180;
 
-  _drawVisibleLetters = (): void => {
-    this.gameState.visibleLetters.forEach((stand, idx) => {
-      const label = this.add.text(100 + 200 * idx, 200, stand.player, {
-        color: "#000000",
-        fontSize: 36,
+    for (let i = 0; i < MaxPlayers; i++) {
+      const letter = this.add.text(
+        X_OFFSET + WIDTH * i,
+        Y_OFFSET,
+        "$",
+        styleLarge
+      );
+      const label = this.add.text(
+        X_OFFSET + WIDTH * i,
+        Y_OFFSET + 80,
+        "<Name>",
+        styleMedium
+      );
+      const counter = this.add.text(
+        X_OFFSET + WIDTH * i,
+        Y_OFFSET + 112,
+        "<Counter>",
+        styleMedium
+      );
+
+      this.board.push({
+        letter,
+        label,
+        counter,
       });
-      const letter = this.add.text(100 + 200 * idx, 250, stand.letter, {
-        color: "#000000",
-        fontSize: 36,
-      });
-      this.board.push(label);
-      this.board.push(letter);
+    }
+
+    // Draw a wildcard stand
+    const lastIdx = MaxPlayers;
+    const letter = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET,
+      Letter.Wildcard,
+      styleLarge
+    );
+    const label = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET + 80,
+      WildcardPlayerName,
+      styleMedium
+    );
+    const counter = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET + 112,
+      `-`,
+      styleMedium
+    );
+    this.board.push({
+      letter,
+      label,
+      counter,
     });
   };
 
@@ -137,6 +172,32 @@ export default class GameScene extends Phaser.Scene {
       ]
     );
 
+    // Dialogs
+    this.clueDialog = new Dialog(
+      this,
+      "Enter clue here",
+      "What is your clue?",
+      null,
+      (content: string) => {
+        const validClue = giveClue(this.socket, content, this.gameState);
+        if (!validClue) {
+          // Let user know and prompt for another clue
+        }
+      }
+    );
+    this.clueDialog.create();
+
+    this.voteDialog = new Dialog(
+      this,
+      " ",
+      "Who are you voting for?",
+      null,
+      (votedName: string) => {
+        vote(this.socket, this.gameState.playerID, votedName);
+      }
+    );
+    this.voteDialog.create();
+
     // Scene title
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
@@ -147,10 +208,10 @@ export default class GameScene extends Phaser.Scene {
     this.guessingSheet.setVisible(false);
 
     // Game sub-state
+    this._createVisibleLetters();
+
     this.playStateText = new PlayStateText(this);
     this.flower = new Flower(this);
-    // TODO: add playerID and deck for self
-    this.selfStand = new SelfStand(this, "playerID", 2);
 
     // display the Phaser.VERSION
     this.add
@@ -167,7 +228,7 @@ export default class GameScene extends Phaser.Scene {
     this.winningVoteText.visible = false;
 
     // Discuss UI elements
-    this.dialog.create();
+    this.clueDialog.create();
     this.voteDialog.create();
     this.guessingSheetTable.create();
     this.activeCluesTable.create();
@@ -207,7 +268,7 @@ export default class GameScene extends Phaser.Scene {
             this.activeCluesTable.open();
             break;
           case 3:
-            this.dialog.open();
+            this.clueDialog.open();
             break;
           case 4:
             this.voteDialog.open();
@@ -254,15 +315,35 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
+  getStandName(s: Stand) {
+    // get name for player or NPC
+    const player = this.gameState.players[s.playerID];
+    if (player) {
+      return player.Name; // Player
+    }
+
+    return s.playerID; // NPC or wildcard
+  }
+
+  _refreshVisibleLetters() {
+    this.gameState.visibleLetters.forEach((stand, idx) => {
+      this.board[idx].label.setText(this.getStandName(stand));
+      this.board[idx].letter.setText(stand.letter);
+      this.board[idx].counter.setText(
+        `${stand.currentCardIdx + 1}/${stand.totalCards}`
+      );
+    });
+
+    // No updates to Wildcard stand
+  }
+
   update(): void {
     this.gameState = this.registry.get("gameState");
     this.playStateText.update(this.gameState.playState);
 
     this.flower.setFlowerData(this.gameState.flower);
     this.flower.update();
-
-    this._clearVisibleLetters();
-    this._drawVisibleLetters();
+    this._refreshVisibleLetters();
     this._refreshWinningVoteText();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
 

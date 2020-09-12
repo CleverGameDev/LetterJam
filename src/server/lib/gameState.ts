@@ -18,6 +18,8 @@ import {
   Scenes,
   PlayStates,
   PlayStateEnum,
+  NPCPlayerIDPrefix,
+  WildcardPlayerID,
 } from "../../shared/constants";
 
 // TODO: How to persist this across server restarts
@@ -111,27 +113,19 @@ export class ServerGameState {
     this.playersReady = new Set();
   }
 
-  getVisibleLetters(currentPlayerID: string): Stand[] {
+  getStands(currentPlayerID: string): Stand[] {
     const visibleLetters = [];
-    for (const key of Object.keys(this.letters)) {
-      // If the letters belong to other players
-      if (key !== currentPlayerID) {
-        let stand: Stand;
-        // Is it a human player?
-        if (this.players[key]) {
-          stand = {
-            player: this.players[key].Name,
-            playerType: PlayerType.Player,
-            letter: this.letters[key][this.visibleLetterIdx[key]],
-          };
-        } else {
-          // It's an NPC deck
-          stand = {
-            player: key,
-            playerType: PlayerType.NPC,
-            letter: this.letters[key][this.visibleLetterIdx[key]],
-          };
-        }
+    for (const playerID of Object.keys(this.letters)) {
+      const stand = {
+        playerID: playerID,
+        letter: this.letters[playerID][this.visibleLetterIdx[playerID]],
+        totalCards: this.letters[playerID].length,
+        currentCardIdx: this.visibleLetterIdx[playerID],
+      };
+      if (playerID === currentPlayerID) {
+        stand.letter = Letter.Hidden;
+        visibleLetters.unshift(stand);
+      } else {
         visibleLetters.push(stand);
       }
     }
@@ -171,7 +165,7 @@ export class ServerGameState {
       let hintText = "";
       for (let i = 0; i < winningClue.assignedStands.length; i++) {
         const stand = winningClue.assignedStands[i];
-        if (this.getPlayerIDFromName(stand.player) == p) {
+        if (stand.playerID == p) {
           hintText += "?";
         } else {
           hintText += stand.letter;
@@ -183,13 +177,23 @@ export class ServerGameState {
     // Advance NPC stands that were used in the clue
     const npcStands = _.uniq(
       winningClue.assignedStands.filter((s) => {
-        return s.playerType == PlayerType.NPC;
+        return this.getPlayerType(s.playerID) == PlayerType.NPC;
       })
     );
     npcStands.forEach((s: Stand) => {
-      this.visibleLetterIdx[s.player] += 1;
+      this.visibleLetterIdx[s.playerID] += 1;
     });
   }
+
+  getPlayerType = (playerID: string) => {
+    if (this.players[playerID]) {
+      return PlayerType.Player;
+    } else if (playerID == WildcardPlayerID) {
+      return PlayerType.Wildcard;
+    } else {
+      return PlayerType.NPC;
+    }
+  };
 
   takeTurnToken(playerID: string) {
     // TODO: This logic is simplified. It needs to be updated
@@ -295,7 +299,7 @@ export class ServerGameState {
       this.visibleLetterIdx[key] = 0;
     }
     for (let i = 0; i < this.numNPCs; i++) {
-      this.visibleLetterIdx[`N${i + 1}`] = 0;
+      this.visibleLetterIdx[`${NPCPlayerIDPrefix}${i + 1}`] = 0;
     }
 
     // initialize guessingSheets
@@ -348,7 +352,7 @@ export class ServerGameState {
       scene: this.getScene(),
       players: this.players,
 
-      visibleLetters: this.getVisibleLetters(playerID),
+      visibleLetters: this.getStands(playerID),
       playState: this.getPlayState(),
       clues: this.clues,
       votes: this.getVotes(),
@@ -389,7 +393,10 @@ const drawCards = (playerIDs: string[]) => {
 
   // Take the remaining letters to populate NPC hands
   for (let i = 0; i < MaxPlayers - playerIDs.length; i++) {
-    npcHands[`N${i + 1}`] = deck.splice(0, BaseNPCCards + NPCCardGrowth * i);
+    npcHands[`${NPCPlayerIDPrefix}${i + 1}`] = deck.splice(
+      0,
+      BaseNPCCards + NPCCardGrowth * i
+    );
   }
 
   return {
