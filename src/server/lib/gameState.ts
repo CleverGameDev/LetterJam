@@ -105,14 +105,21 @@ export class ServerGameState {
   }
 
   setPlayerToReady(playerID: string) {
-    this.playersReady[playerID] = true;
+    this.playersReady[playerID] = !this.playersReady[playerID];
     if (this.areAllPlayersReady()) {
       this.advancePlayState();
     }
   }
 
   areAllPlayersReady(): boolean {
-    const readyPlayers = Array.from(Object.keys(this.playersReady)).length;
+    // flatten into array of bool (true/false),
+    // then convert to numbers (1/0) so we can reduce()
+    const readyPlayersArr = Array.from(
+      Object.values(this.playersReady)
+    ).map((b) => Number(b));
+    const readyPlayers = readyPlayersArr.reduce((a, b) => {
+      return a + b;
+    });
     const totalPlayers = this.getPlayerIDs().length;
     return readyPlayers >= totalPlayers;
   }
