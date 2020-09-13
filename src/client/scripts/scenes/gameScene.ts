@@ -35,7 +35,6 @@ export default class GameScene extends Phaser.Scene {
   flower: Flower;
   selfStand: SelfStand;
   clueDialog: Dialog;
-  voteDialog: Dialog;
   board: UIStand[];
   winningVoteText: Phaser.GameObjects.Text;
 
@@ -153,17 +152,6 @@ export default class GameScene extends Phaser.Scene {
     );
     this.clueDialog.create();
 
-    this.voteDialog = new Dialog(
-      this,
-      " ",
-      "Who are you voting for?",
-      null,
-      (votedName: string) => {
-        vote(this.socket, this.gameState.playerID, votedName);
-      }
-    );
-    this.voteDialog.create();
-
     // Scene title
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
@@ -171,7 +159,6 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.guessingSheet = new GuessingSheet(this);
-    this.guessingSheet.setVisible(false);
 
     // Game sub-state
     this._createVisibleLetters();
@@ -193,8 +180,10 @@ export default class GameScene extends Phaser.Scene {
     });
     this.winningVoteText.visible = false;
 
+    // Discuss UI elements
+    this.clueDialog.create();
+
     this.activeClues = new ActiveClues(this);
-    this.activeClues.setVisible(false);
 
     const buttons = this.rexUI.add
       .buttons({
@@ -204,11 +193,10 @@ export default class GameScene extends Phaser.Scene {
         },
         orientation: "x",
         buttons: [
-          this._createButton(this, "Guessing Sheet"),
           this._createButton(this, "Next Scene"),
+          this._createButton(this, "Guessing Sheet"),
           this._createButton(this, "Active Clues"),
           this._createButton(this, "Give Clue"),
-          this._createButton(this, "Vote for a Clue"),
           this._createButton(this, "Go to next letter"),
           this._createButton(this, "I am ready"),
         ],
@@ -220,24 +208,29 @@ export default class GameScene extends Phaser.Scene {
       .on("button.click", (button, index: number) => {
         switch (index) {
           case 0:
-            this.guessingSheet.setVisible(!this.guessingSheet.visible);
-            break;
-          case 1:
             this.socket.emit(E.NextScene);
             break;
+          case 1:
+            if (this.guessingSheet.isActive()) {
+              this.guessingSheet.close();
+            } else {
+              this.guessingSheet.open();
+            }
+            break;
           case 2:
-            this.activeClues.setVisible(!this.activeClues.visible);
+            if (this.activeClues.isActive()) {
+              this.activeClues.close();
+            } else {
+              this.activeClues.open();
+            }
             break;
           case 3:
             this.clueDialog.open();
             break;
           case 4:
-            this.voteDialog.open();
-            break;
-          case 5:
             this.socket.emit(E.NextVisibleLetter);
             break;
-          case 6:
+          case 5:
             this.socket.emit(E.PlayerReady);
             break;
           default:

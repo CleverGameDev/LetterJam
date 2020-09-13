@@ -1,6 +1,9 @@
 import * as _ from "lodash";
+import { vote } from "../lib/discuss";
+import { Table } from "./table";
+import { COLOR_HOVER, COLOR_SECONDARY } from "../../../shared/constants";
 import * as models from "../../../shared/models";
-import GameScene from "../scenes/gameScene";
+
 import { WildcardPlayerID } from "../../../shared/constants";
 
 const headers = [
@@ -15,35 +18,58 @@ const headers = [
 
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
-  content;
-  scene: GameScene;
+  table: Table;
+  scene: any;
+  prevClues;
 
-  constructor(scene: GameScene) {
+  constructor(scene) {
     super(scene, 0, 0);
 
     this.scene = scene;
-
-    const background = scene.add
-      .rectangle(
-        0,
-        0,
-        scene.cameras.main.width,
-        scene.cameras.main.height / 2,
-        10
-      )
-      .setOrigin(0, 0);
-    const title = scene.add.text(20, 20, "Active Clues", {
-      fontSize: 32,
-      fill: "#ffffff",
-    });
-    this.content = scene.add.text(20, 80, "", {
-      font: "16px Courier",
-      fill: "#ffffff",
-    });
-
-    this.add(background);
-    this.add(title);
-    this.add(this.content);
+    const numColumns = 8;
+    const cellOver = function (cellContainer, cellIndex, pointer) {
+      if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
+        cellContainer.getElement("background").setFillStyle(2, COLOR_SECONDARY);
+      }
+    };
+    const cellOut = function (cellContainer, cellIndex, pointer) {
+      if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
+        cellContainer.getElement("background").setFillStyle(2, COLOR_HOVER);
+      }
+    };
+    const cellClick = function (cellContainer, cellIndex, pointer) {
+      if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
+        vote(
+          scene.socket,
+          scene.gameState.playerID,
+          this.gridTable.items[cellIndex - numColumns + 1].text
+        );
+        cellContainer.getElement("background").setFillStyle(2, COLOR_HOVER);
+      }
+    };
+    this.table = new Table(
+      scene,
+      {
+        title: "Active Clues",
+        numColumns,
+        headerRow: [
+          { text: "Player" },
+          { text: "Word Length" },
+          { text: "Players used" },
+          { text: "NPCs used" },
+          { text: "Bonuses used" },
+          { text: "Wildcard used" },
+          { text: "Votes" },
+          { text: "" },
+        ],
+      },
+      {
+        cellOver,
+        cellOut,
+        cellClick,
+      }
+    );
+    this.table.create();
 
     scene.add.existing(this);
   }
@@ -58,7 +84,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     }
   };
 
-  clueToArray = (playerID: string, clue: models.ClueV2): string[] => {
+  clueToArray = (playerID: string, clue: models.ClueV2): { text: string }[] => {
     const wordLength = clue.word.length;
     const counts = _.countBy(
       _.uniqBy(clue.assignedStands, (s) => s.playerID),
@@ -67,35 +93,42 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
 
     const playerName = this.scene.gameState.players[playerID].Name;
     const out = [
-      playerName,
-      `${wordLength}`,
-      `${counts[models.PlayerType.Player] || 0}`,
-      `${counts[models.PlayerType.NPC] || 0}`,
-      `${counts[models.PlayerType.Bonus] || 0}`,
-      `${counts[models.PlayerType.Wildcard] ? "Y" : "N"}`,
-      `${this.scene.gameState.votes[playerID] || 0}`,
+      { text: playerName },
+      { text: `${wordLength}` },
+      { text: `${counts[models.PlayerType.Player] || 0}` },
+      { text: `${counts[models.PlayerType.NPC] || 0}` },
+      { text: `${counts[models.PlayerType.Bonus] || 0}` },
+      { text: `${counts[models.PlayerType.Wildcard] ? "Y" : "N"}` },
+      { text: `${this.scene.gameState.votes[playerID] || 0}` },
+      { text: "Vote" },
     ];
-
-    for (let i = 0; i < out.length; i++) {
-      out[i] = out[i].toString().padEnd(headers[i].length);
-    }
 
     return out;
   };
 
   update(): void {
-    let text = "No clues yet";
+    // if (!_.isEqual(this.prevClues, this.scene.gameState.clues)) {
     if (this.scene.gameState.clues) {
-      const matrix = [headers];
+      this.prevClues = this.scene.gameState.clues;
+      const contentItems = [];
       for (const player of Object.keys(this.scene.gameState.clues)) {
-        matrix.push(
-          this.clueToArray(player, this.scene.gameState.clues[player])
+        contentItems.push(
+          ...this.clueToArray(player, this.scene.gameState.clues[player])
         );
       }
-
-      text = Phaser.Utils.Array.Matrix.MatrixToString(matrix);
+      this.table.setContentItems(contentItems);
     }
-
-    this.content.setText(text);
   }
+
+  isActive = (): boolean => {
+    return this.table.isActive();
+  };
+
+  open = (): void => {
+    this.table.open();
+  };
+
+  close = (): void => {
+    this.table.close();
+  };
 }
