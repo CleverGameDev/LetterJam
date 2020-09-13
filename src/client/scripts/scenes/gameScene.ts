@@ -13,7 +13,6 @@ import Dialog from "../objects/dialog";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
 import PlayStateText from "../objects/playStateText";
-import { SelfStand } from "../objects/stand";
 
 const key = SceneEnum.GameScene;
 
@@ -28,12 +27,10 @@ export default class GameScene extends Phaser.Scene {
   socket: SocketIO.Socket;
   gameState: ClientGameState;
 
-  fpsText: Phaser.GameObjects.Text;
   playStateText: Phaser.GameObjects.Text;
   guessingSheet: GuessingSheet;
   activeClues: ActiveClues;
   flower: Flower;
-  selfStand: SelfStand;
   clueDialog: Dialog;
   board: UIStand[];
   winningVoteText: Phaser.GameObjects.Text;

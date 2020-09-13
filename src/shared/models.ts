@@ -51,7 +51,7 @@ export type GuessingSheet = {
   notes: string[];
 };
 
-// TODO: separate client models, server models, and shared models
+// TODO: Figure out how to organize Client/Server gameState so that we can share logic (e.g. 'is this a valid clue for player X?' is needed in both client and server)
 export type ClientGameState = {
   //
   // Common properties, shared across scenes

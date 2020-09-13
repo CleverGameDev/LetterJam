@@ -1,7 +1,7 @@
 import { SceneEnum } from "../../../shared/constants";
 import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
-import PhaserLogo from "../objects/phaserLogo";
+import GameLogo from "../objects/gameLogo";
 
 const key = SceneEnum.SetupScene;
 
@@ -27,7 +27,7 @@ export default class SetupScene extends Phaser.Scene {
       fontSize: 36,
     });
 
-    const logo = new PhaserLogo(
+    const logo = new GameLogo(
       this,
       this.cameras.main.width / 2 - 100,
       400

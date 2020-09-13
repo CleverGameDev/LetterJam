@@ -8,7 +8,11 @@ export const syncClientGameState = (
   io: SocketIO.Server,
   gameState: ServerGameState
 ) => {
-  // TODO: Debounce this so we don't spam the client with updates
+  // TODO: Don't send no-ops
+  // (e.g. if a player votes for same person they've already voted for, this is a no-op; there's no need to send unchanged state to clients)
+  // Possible solution: save a reference to previous client/server state and only send if there was a delta
+  //
+  // TODO: Debounce this so we don't spam the client with updates: https://lodash.com/docs/4.17.15#debounce
 
   // Send the right client game state to each socket
   Object.values(io.sockets.in(gameState.room).sockets).forEach((s) => {
@@ -27,6 +31,7 @@ export const syncClientGameState = (
   }
 };
 
+// TODO: https://trello.com/c/iVMLYsPM/98-letterjam-handle-case-where-users-join-mid-game
 const handlePlayerJoined = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,

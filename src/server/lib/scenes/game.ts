@@ -14,6 +14,7 @@ const registerListeners = (
   });
 
   socket.on(E.Vote, (data: EType[E.Vote]) => {
+    // TODO: pass the ID from the front-end instead of the name
     const playerID = gameState.getPlayerIDFromName(data.votedName);
     if (!playerID) {
       // ignore vote if there's no player with that name

@@ -13,7 +13,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
   table: Table;
   scene: GameScene;
-  prevClues;
+  prevClues: { [playerID: string]: models.ClueV2 };
 
   constructor(scene: GameScene) {
     super(scene, 0, 0);

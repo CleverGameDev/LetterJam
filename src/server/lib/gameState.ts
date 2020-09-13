@@ -97,6 +97,7 @@ export class ServerGameState {
   }
 
   vote(senderID: string, recipientID: string): void {
+    // TODO: ignore the vote if there's not a clue yet from that player
     this.voteMap[senderID] = recipientID;
   }
 
