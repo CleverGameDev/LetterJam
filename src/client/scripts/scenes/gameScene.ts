@@ -292,10 +292,17 @@ export default class GameScene extends Phaser.Scene {
       this.board[idx].counter.setText(
         `${stand.currentCardIdx + 1}/${stand.totalCards}`
       );
-      const readyText = this.gameState.playersReady[stand.playerID]
+      const isPlayer = this.gameState.players[stand.playerID];
+      let readyText = this.gameState.playersReady[stand.playerID]
         ? "ready!"
-        : "";
+        : "not ready";
+      if (!isPlayer) {
+        readyText = "";
+      }
       this.board[idx].ready.setText(readyText);
+      this.gameState.playersReady[stand.playerID]
+        ? this.board[idx].ready.setColor("green")
+        : this.board[idx].ready.setColor("red");
     });
 
     // No updates to Wildcard stand
