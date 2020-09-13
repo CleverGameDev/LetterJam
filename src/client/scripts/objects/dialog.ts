@@ -1,6 +1,9 @@
+// If we use "", then the BBCodeEdit plugin renders nothing.
+// So " " is the way to render a TextInput, and we trim whatever the user writes to remove whitespace.
+const empty = " ";
+
 export default class Dialog {
   scene: any;
-  placeholderTxt: string;
   title: string;
   cancelFn: () => void;
   submitFn: (content) => void;
@@ -8,13 +11,11 @@ export default class Dialog {
 
   constructor(
     scene,
-    placeholderTxt: string,
     title: string,
     cancelFn: () => void,
     submitFn: (content) => void
   ) {
     this.scene = scene;
-    this.placeholderTxt = placeholderTxt;
     this.title = title;
     this.cancelFn = cancelFn;
     this.submitFn = submitFn;
@@ -72,7 +73,7 @@ export default class Dialog {
         }),
 
         content: this.scene.rexUI.add
-          .BBCodeText(400, 300, this.placeholderTxt, {
+          .BBCodeText(400, 300, empty, {
             color: "white",
             fontSize: "24px",
             fixedWidth: 200,
@@ -117,6 +118,7 @@ export default class Dialog {
           } else if (button.text === "Submit" && this.submitFn) {
             const text: string = dialog.getElement("content").text;
             this.submitFn(text.trim());
+            dialog.getElement("content").text = empty;
           }
           dialog.setActive(false).setVisible(false);
         },
