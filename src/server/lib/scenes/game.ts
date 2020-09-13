@@ -3,7 +3,7 @@ import * as _ from "lodash";
 import { ServerGameState } from "../../lib/gameState";
 import { PlayStateEnum, PlayStates } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
-import { playerID } from "../playerUtils";
+import { getPlayerID } from "../playerUtils";
 import { syncClientGameState } from "../core";
 
 const registerListeners = (
@@ -12,7 +12,7 @@ const registerListeners = (
   gameState: ServerGameState
 ) => {
   socket.on(E.UpdateClue, (clue: EType[E.UpdateClue]) => {
-    gameState.clues[playerID(socket)] = clue;
+    gameState.clues[getPlayerID(socket)] = clue;
     syncClientGameState(io, gameState);
   });
 
@@ -30,12 +30,12 @@ const registerListeners = (
   });
 
   socket.on(E.NextVisibleLetter, () => {
-    gameState.visibleLetterIdx[playerID(socket)]++;
+    gameState.visibleLetterIdx[getPlayerID(socket)]++;
     syncClientGameState(io, gameState);
   });
 
   socket.on(E.PlayerReady, () => {
-    gameState.setPlayerToReady(playerID(socket));
+    gameState.setPlayerToReady(getPlayerID(socket));
     syncClientGameState(io, gameState);
   });
 };

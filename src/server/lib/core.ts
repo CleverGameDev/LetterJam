@@ -1,7 +1,7 @@
 import { Scenes, DefaultPlayerName } from "../../shared/constants";
 import { ServerGameState } from "../lib/gameState";
 import { E, EType } from "../../shared/events";
-import { playerID } from "./playerUtils";
+import { getPlayerID } from "./playerUtils";
 import sceneHandlers from "./scenes";
 
 export const syncClientGameState = (
@@ -12,7 +12,7 @@ export const syncClientGameState = (
 
   // Send the right client game state to each socket
   Object.values(io.sockets.in(gameState.room).sockets).forEach((s) => {
-    const pid = playerID(s);
+    const pid = getPlayerID(s);
     if (!pid) {
       console.warn("couldn't find a player for this socket");
       return;
@@ -33,7 +33,7 @@ const handlePlayerJoined = (
   gameState: ServerGameState
 ) => {
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
-  const id = playerID(socket);
+  const id = getPlayerID(socket);
   if (!gameState.players[id]) {
     // Update game state
     gameState.players[id] = {
