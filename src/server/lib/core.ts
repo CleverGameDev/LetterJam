@@ -1,18 +1,22 @@
-import { Scenes, DefaultPlayerName } from "../../shared/constants";
-import { ServerGameState } from "../lib/gameState";
+import { DefaultPlayerName, Scenes } from "../../shared/constants";
 import { E, EType } from "../../shared/events";
-import { playerID } from "./playerUtils";
+import { ServerGameState } from "../lib/gameState";
+import { getPlayerID } from "./playerUtils";
 import sceneHandlers from "./scenes";
 
 export const syncClientGameState = (
   io: SocketIO.Server,
   gameState: ServerGameState
 ) => {
-  // TODO: Debounce this so we don't spam the client with updates
+  // TODO: Don't send no-ops
+  // (e.g. if a player votes for same person they've already voted for, this is a no-op; there's no need to send unchanged state to clients)
+  // Possible solution: save a reference to previous client/server state and only send if there was a delta
+  //
+  // TODO: Debounce this so we don't spam the client with updates: https://lodash.com/docs/4.17.15#debounce
 
   // Send the right client game state to each socket
   Object.values(io.sockets.in(gameState.room).sockets).forEach((s) => {
-    const pid = playerID(s);
+    const pid = getPlayerID(s);
     if (!pid) {
       console.warn("couldn't find a player for this socket");
       return;
@@ -27,13 +31,14 @@ export const syncClientGameState = (
   }
 };
 
+// TODO: https://trello.com/c/iVMLYsPM/98-letterjam-handle-case-where-users-join-mid-game
 const handlePlayerJoined = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
   // TODO: This creates a race condition if you have multiple browser windows open as server starts
-  const id = playerID(socket);
+  const id = getPlayerID(socket);
   if (!gameState.players[id]) {
     // Update game state
     gameState.players[id] = {

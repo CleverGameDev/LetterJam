@@ -1,2 +1,2 @@
-export const playerID = (socket: SocketIO.Socket): string =>
+export const getPlayerID = (socket: SocketIO.Socket): string =>
   socket.handshake.session.id;

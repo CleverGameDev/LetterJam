@@ -4,7 +4,7 @@ export default class Dialog {
   title: string;
   cancelFn: () => void;
   submitFn: (content) => void;
-  dialog;
+  dialog; // rexUI.dialog
 
   constructor(
     scene,

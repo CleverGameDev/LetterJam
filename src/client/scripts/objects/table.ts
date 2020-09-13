@@ -1,8 +1,9 @@
 import {
-  COLOR_PRIMARY,
   COLOR_HOVER,
+  COLOR_PRIMARY,
   COLOR_SECONDARY,
 } from "../../../shared/constants";
+import GameScene from "../scenes/gameScene";
 
 export type TableOptions = {
   title: string;
@@ -22,8 +23,8 @@ export type TableEventHandlers = {
 };
 
 export class Table {
-  scene: any;
-  gridTable;
+  scene: GameScene;
+  gridTable; // RexUI.gridTable
 
   // options
   title: string;
@@ -56,8 +57,6 @@ export class Table {
   }
 
   create(): void {
-    const numColumns = this.numColumns;
-
     const secondaryBackground = () => {
       return this.scene.rexUI.add.roundRectangle(
         0,
@@ -153,8 +152,7 @@ export class Table {
           const scene = cell.scene,
             width = cell.width,
             height = cell.height,
-            item = cell.item,
-            index = cell.index;
+            item = cell.item;
           if (
             cellContainer === null ||
             cellContainer.getElement("text").text !== item.text

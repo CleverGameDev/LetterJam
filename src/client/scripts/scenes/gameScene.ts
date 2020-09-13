@@ -1,20 +1,17 @@
 import * as _ from "lodash";
-import PlayStateText from "../objects/playStateText";
-import Flower from "../objects/flower";
-import GuessingSheet from "../objects/guessingSheet";
-import { SelfStand } from "../objects/stand";
-import ActiveClues from "../objects/activeClues";
-import Dialog from "../objects/dialog";
-import { giveClue, vote } from "../lib/discuss";
-
 import {
-  PlayStateEnum,
+  MaxPlayers,
   SceneEnum,
   WildcardPlayerName,
-  MaxPlayers,
 } from "../../../shared/constants";
-import { ClientGameState, Stand, Letter } from "../../../shared/models";
 import { E } from "../../../shared/events";
+import { ClientGameState, Letter, Stand } from "../../../shared/models";
+import { giveClue } from "../lib/discuss";
+import ActiveClues from "../objects/activeClues";
+import Dialog from "../objects/dialog";
+import Flower from "../objects/flower";
+import GuessingSheet from "../objects/guessingSheet";
+import PlayStateText from "../objects/playStateText";
 
 const key = SceneEnum.GameScene;
 
@@ -29,12 +26,10 @@ export default class GameScene extends Phaser.Scene {
   socket: SocketIO.Socket;
   gameState: ClientGameState;
 
-  fpsText: Phaser.GameObjects.Text;
   playStateText: Phaser.GameObjects.Text;
   guessingSheet: GuessingSheet;
   activeClues: ActiveClues;
   flower: Flower;
-  selfStand: SelfStand;
   clueDialog: Dialog;
   board: UIStand[];
   winningVoteText: Phaser.GameObjects.Text;
@@ -319,34 +314,6 @@ export default class GameScene extends Phaser.Scene {
     this._refreshStands();
     this._refreshWinningVoteText();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
-
-    switch (this.gameState.playState) {
-      case PlayStateEnum.DISCUSS:
-        // Concluded when one player's hint is chosen.
-        // Chosen via voting in game, and then clicking continue once there's agreement (could also have timer)
-        if (this.activeClues) {
-          this.activeClues.update();
-        }
-        break;
-      case PlayStateEnum.PROVIDE_HINT:
-        // If player IS NOT the hint provider
-        // Wait to receive the hint
-
-        // If player IS the hint provider
-        // Player takes a clue token.
-        // Player prompted with UI to give the hint
-        // If exit => go to DISCUSS
-        // If hint is valid
-        // Player now assigns tokens to letters
-        // Recall: Letters can be player letters, NPC letters, or wildcard
-        // Each person's "guessing sheet" can be automatically updated.
-        break;
-      case PlayStateEnum.INTERPRET_HINT:
-        break;
-      case PlayStateEnum.CHECK_END_CONDITION:
-        break;
-      default:
-        break;
-    }
+    this.activeClues.update();
   }
 }

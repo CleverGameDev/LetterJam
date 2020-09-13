@@ -2,11 +2,6 @@ import * as _ from "lodash";
 import { Table } from "../objects/table";
 
 export default class GuessingSheet extends Phaser.GameObjects.Container {
-  gameState: GuessingSheet;
-  container: Phaser.GameObjects.Container;
-  guessingSheetTitle: Phaser.GameObjects.Text;
-  guessingSheetContent: Phaser.GameObjects.Text;
-  matrix: string[][];
   table: Table;
 
   constructor(scene: Phaser.Scene) {

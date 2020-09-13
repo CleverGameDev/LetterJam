@@ -1,7 +1,7 @@
-import { ServerGameState } from "../../lib/gameState";
 import { E, EType } from "../../../shared/events";
-import { playerID } from "../playerUtils";
+import { ServerGameState } from "../../lib/gameState";
 import { syncClientGameState } from "../core";
+import { getPlayerID } from "../playerUtils";
 
 const registerListeners = (
   io: SocketIO.Server,
@@ -15,7 +15,7 @@ const registerListeners = (
       return;
     }
 
-    gameState.players[playerID(socket)] = { Name: playerName };
+    gameState.players[getPlayerID(socket)] = { Name: playerName };
 
     syncClientGameState(io, gameState);
   });

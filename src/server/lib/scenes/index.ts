@@ -1,10 +1,9 @@
-import { ServerGameState } from "../../lib/gameState";
 import { SceneEnum } from "../../../shared/constants";
-
+import { ServerGameState } from "../../lib/gameState";
+import * as end from "./end";
+import * as game from "./game";
 import * as lobby from "./lobby";
 import * as setup from "./setup";
-import * as game from "./game";
-import * as end from "./end";
 
 const scenes = {
   [SceneEnum.LobbyScene]: lobby,

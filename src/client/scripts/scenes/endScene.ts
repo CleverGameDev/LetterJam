@@ -1,7 +1,7 @@
-import PhaserLogo from "../objects/phaserLogo";
 import { SceneEnum } from "../../../shared/constants";
-import { E, EType } from "../../../shared/events";
+import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
+import GameLogo from "../objects/gameLogo";
 
 export default class EndScene extends Phaser.Scene {
   socket: SocketIO.Socket;
@@ -25,7 +25,7 @@ export default class EndScene extends Phaser.Scene {
       color: "#000000",
       fontSize: 36,
     });
-    const logo = new PhaserLogo(
+    const logo = new GameLogo(
       this,
       this.cameras.main.width / 2 - 100,
       400

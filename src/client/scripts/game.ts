@@ -1,11 +1,10 @@
 import "phaser";
-import GameScene from "./scenes/gameScene";
-import PreloadScene from "./scenes/preloadScene";
-import LobbyScene from "./scenes/lobbyScene";
-import EndScene from "./scenes/endScene";
-import SetupScene from "./scenes/setupScene";
-
 import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin";
+import EndScene from "./scenes/endScene";
+import GameScene from "./scenes/gameScene";
+import LobbyScene from "./scenes/lobbyScene";
+import PreloadScene from "./scenes/preloadScene";
+import SetupScene from "./scenes/setupScene";
 
 const DEFAULT_WIDTH = 1280;
 const DEFAULT_HEIGHT = 720;

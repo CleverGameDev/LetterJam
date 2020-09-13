@@ -1,10 +1,7 @@
-import * as _ from "lodash";
-
-import { ServerGameState } from "../../lib/gameState";
-import { PlayStateEnum, PlayStates } from "../../../shared/constants";
 import { E, EType } from "../../../shared/events";
-import { playerID } from "../playerUtils";
+import { ServerGameState } from "../../lib/gameState";
 import { syncClientGameState } from "../core";
+import { getPlayerID } from "../playerUtils";
 
 const registerListeners = (
   io: SocketIO.Server,
@@ -12,11 +9,12 @@ const registerListeners = (
   gameState: ServerGameState
 ) => {
   socket.on(E.UpdateClue, (clue: EType[E.UpdateClue]) => {
-    gameState.clues[playerID(socket)] = clue;
+    gameState.clues[getPlayerID(socket)] = clue;
     syncClientGameState(io, gameState);
   });
 
   socket.on(E.Vote, (data: EType[E.Vote]) => {
+    // TODO: pass the ID from the front-end instead of the name
     const playerID = gameState.getPlayerIDFromName(data.votedName);
     if (!playerID) {
       // ignore vote if there's no player with that name
@@ -30,12 +28,12 @@ const registerListeners = (
   });
 
   socket.on(E.NextVisibleLetter, () => {
-    gameState.visibleLetterIdx[playerID(socket)]++;
+    gameState.visibleLetterIdx[getPlayerID(socket)]++;
     syncClientGameState(io, gameState);
   });
 
   socket.on(E.PlayerReady, () => {
-    gameState.setPlayerToReady(playerID(socket));
+    gameState.setPlayerToReady(getPlayerID(socket));
     syncClientGameState(io, gameState);
   });
 };
