@@ -5,6 +5,7 @@ import { COLOR_HOVER, COLOR_SECONDARY } from "../../../shared/constants";
 import * as models from "../../../shared/models";
 
 import { WildcardPlayerID } from "../../../shared/constants";
+import GameScene from "../scenes/gameScene";
 
 const headers = [
   "Player       ",
@@ -22,7 +23,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
   scene: any;
   prevClues;
 
-  constructor(scene) {
+  constructor(scene: GameScene) {
     super(scene, 0, 0);
 
     this.scene = scene;

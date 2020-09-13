@@ -3,6 +3,7 @@ import {
   COLOR_HOVER,
   COLOR_SECONDARY,
 } from "../../../shared/constants";
+import GameScene from "../scenes/gameScene";
 
 export type TableOptions = {
   title: string;
@@ -22,8 +23,8 @@ export type TableEventHandlers = {
 };
 
 export class Table {
-  scene: any;
-  gridTable;
+  scene: GameScene;
+  gridTable; // RexUI.gridTable
 
   // options
   title: string;
