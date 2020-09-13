@@ -150,7 +150,6 @@ export default class GameScene extends Phaser.Scene {
     // Dialogs
     this.clueDialog = new Dialog(
       this,
-      "Enter clue here",
       "What is your clue?",
       null,
       (content: string) => {
@@ -191,8 +190,6 @@ export default class GameScene extends Phaser.Scene {
     this.winningVoteText.visible = false;
 
     // Discuss UI elements
-    this.clueDialog.create();
-
     this.activeClues = new ActiveClues(this);
 
     const buttons = this.rexUI.add

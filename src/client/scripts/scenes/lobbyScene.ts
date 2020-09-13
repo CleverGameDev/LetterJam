@@ -20,7 +20,6 @@ export default class LobbyScene extends Phaser.Scene {
     this.playerTexts = [];
     this.dialog = new Dialog(
       this,
-      " ",
       "What is your player name?",
       null,
       (content: string) => {
