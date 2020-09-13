@@ -105,6 +105,14 @@ export class ServerGameState {
   }
 
   setPlayerToReady(playerID: string) {
+    if (
+      this.getPlayState() == PlayStateEnum.DISCUSS &&
+      !this.getWinningClue()
+    ) {
+      // need a winning clue before it makes sense to be ready
+      return;
+    }
+
     this.playersReady[playerID] = !this.playersReady[playerID];
     if (this.areAllPlayersReady()) {
       this.advancePlayState();
@@ -169,8 +177,8 @@ export class ServerGameState {
   }
 
   provideHint() {
-    const winningPlayerID = this.getPlayerWhoWonVote();
-    const winningClue = this.clues[winningPlayerID];
+    const { playerID, clue } = this.getWinningClue();
+    const [winningPlayerID, winningClue] = [playerID, clue];
 
     // The player who provided the hint takes a turn token
     this.takeTurnToken(winningPlayerID);
@@ -200,7 +208,7 @@ export class ServerGameState {
     });
   }
 
-  getPlayerType = (playerID: string) => {
+  getPlayerType(playerID: string) {
     if (this.players[playerID]) {
       return PlayerType.Player;
     } else if (playerID == WildcardPlayerID) {
@@ -208,7 +216,7 @@ export class ServerGameState {
     } else {
       return PlayerType.NPC;
     }
-  };
+  }
 
   takeTurnToken(playerID: string) {
     // TODO: This logic is simplified. It needs to be updated
@@ -230,21 +238,26 @@ export class ServerGameState {
     this.resetVotesAndClues();
   }
 
+  getWinningClue() {
+    const playerID = this.getPlayerWhoWonVote();
+    if (
+      // If there wasn't a player who won the vote
+      !playerID ||
+      // The winning player didn't submit a clue
+      !this.clues[playerID]
+      // TODO: The winning player cannot take a clue token
+    ) {
+      return null;
+    }
+    return { playerID, clue: this.clues[playerID] };
+  }
+
   advancePlayState(): void {
     // Check if it's valid to advance to the next state
-    const playerID = this.getPlayerWhoWonVote();
     switch (PlayStates[this.playStateIndex]) {
       case PlayStateEnum.DISCUSS:
-        if (
-          // If there wasn't a player who won the vote
-          !playerID ||
-          // The winning player didn't submit a clue
-          !this.clues[playerID]
-          // TODO: The winning player cannot take a clue token
-        ) {
-          console.warn(
-            "advancePlayState(): resetting players ready because in an invalid state"
-          );
+        if (!this.getWinningClue()) {
+          console.warn("advancePlayState(): unable to determine winning clue");
           this.resetPlayersReady();
           return;
         }
