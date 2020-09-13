@@ -1,6 +1,9 @@
 import * as _ from "lodash";
+import { vote } from "../lib/discuss";
+import { Table } from "./table";
+import { COLOR_HOVER, COLOR_SECONDARY } from "../../../shared/constants";
 import * as models from "../../../shared/models";
-import GameScene from "../scenes/gameScene";
+
 import { WildcardPlayerID } from "../../../shared/constants";
 
 const headers = [
@@ -15,16 +18,58 @@ const headers = [
 
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
-  content;
-  table;
-  scene: GameScene;
+  table: Table;
+  scene: any;
   prevClues;
 
-  constructor(scene: GameScene, table: any) {
+  constructor(scene) {
     super(scene, 0, 0);
 
     this.scene = scene;
-    this.table = table;
+    const numColumns = 8;
+    const cellOver = function (cellContainer, cellIndex, pointer) {
+      if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
+        cellContainer.getElement("background").setFillStyle(2, COLOR_SECONDARY);
+      }
+    };
+    const cellOut = function (cellContainer, cellIndex, pointer) {
+      if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
+        cellContainer.getElement("background").setFillStyle(2, COLOR_HOVER);
+      }
+    };
+    const cellClick = function (cellContainer, cellIndex, pointer) {
+      if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
+        vote(
+          scene.socket,
+          scene.gameState.playerID,
+          this.gridTable.items[cellIndex - numColumns + 1].text
+        );
+        cellContainer.getElement("background").setFillStyle(2, COLOR_HOVER);
+      }
+    };
+    this.table = new Table(
+      scene,
+      {
+        title: "Active Clues",
+        numColumns,
+        headerRow: [
+          { text: "Player" },
+          { text: "Word Length" },
+          { text: "Players used" },
+          { text: "NPCs used" },
+          { text: "Bonuses used" },
+          { text: "Wildcard used" },
+          { text: "Votes" },
+          { text: "" },
+        ],
+      },
+      {
+        cellOver,
+        cellOut,
+        cellClick,
+      }
+    );
+    this.table.create();
 
     scene.add.existing(this);
   }
@@ -74,4 +119,16 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
       this.table.setContentItems(contentItems);
     }
   }
+
+  isActive = (): boolean => {
+    return this.table.isActive();
+  };
+
+  open = (): void => {
+    this.table.open();
+  };
+
+  close = (): void => {
+    this.table.close();
+  };
 }

@@ -1,5 +1,9 @@
 import { Letter } from "./models";
 
+export const COLOR_PRIMARY = 0x1565c0;
+export const COLOR_HOVER = 0xfffff;
+export const COLOR_SECONDARY = 0x003c8f;
+
 export const LetterDistribution = {
   [Letter.A]: 4,
   [Letter.B]: 2,
