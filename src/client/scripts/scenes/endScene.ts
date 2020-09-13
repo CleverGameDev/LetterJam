@@ -1,7 +1,7 @@
-import PhaserLogo from "../objects/phaserLogo";
 import { SceneEnum } from "../../../shared/constants";
-import { E, EType } from "../../../shared/events";
+import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
+import PhaserLogo from "../objects/phaserLogo";
 
 export default class EndScene extends Phaser.Scene {
   socket: SocketIO.Socket;

@@ -1,6 +1,6 @@
-import { Scenes, DefaultPlayerName } from "../../shared/constants";
-import { ServerGameState } from "../lib/gameState";
+import { DefaultPlayerName, Scenes } from "../../shared/constants";
 import { E, EType } from "../../shared/events";
+import { ServerGameState } from "../lib/gameState";
 import { getPlayerID } from "./playerUtils";
 import sceneHandlers from "./scenes";
 

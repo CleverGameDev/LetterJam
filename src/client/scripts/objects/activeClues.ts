@@ -12,7 +12,7 @@ import { Table } from "./table";
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;
   table: Table;
-  scene: any;
+  scene: GameScene;
   prevClues;
 
   constructor(scene: GameScene) {

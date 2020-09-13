@@ -1,20 +1,19 @@
 import * as _ from "lodash";
-import PlayStateText from "../objects/playStateText";
-import Flower from "../objects/flower";
-import GuessingSheet from "../objects/guessingSheet";
-import { SelfStand } from "../objects/stand";
-import ActiveClues from "../objects/activeClues";
-import Dialog from "../objects/dialog";
-import { giveClue, vote } from "../lib/discuss";
-
 import {
+  MaxPlayers,
   PlayStateEnum,
   SceneEnum,
   WildcardPlayerName,
-  MaxPlayers,
 } from "../../../shared/constants";
-import { ClientGameState, Stand, Letter } from "../../../shared/models";
 import { E } from "../../../shared/events";
+import { ClientGameState, Letter, Stand } from "../../../shared/models";
+import { giveClue } from "../lib/discuss";
+import ActiveClues from "../objects/activeClues";
+import Dialog from "../objects/dialog";
+import Flower from "../objects/flower";
+import GuessingSheet from "../objects/guessingSheet";
+import PlayStateText from "../objects/playStateText";
+import { SelfStand } from "../objects/stand";
 
 const key = SceneEnum.GameScene;
 

@@ -1,11 +1,11 @@
-import Dialog from "../objects/dialog";
 import {
-  SceneEnum,
-  MaxPlayers,
   DefaultPlayerName,
+  MaxPlayers,
+  SceneEnum,
 } from "../../../shared/constants";
 import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
+import Dialog from "../objects/dialog";
 
 export default class LobbyScene extends Phaser.Scene {
   socket: SocketIO.Socket;
