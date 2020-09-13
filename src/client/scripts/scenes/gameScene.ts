@@ -22,6 +22,7 @@ type UIStand = {
   letter: Phaser.GameObjects.Text;
   label: Phaser.GameObjects.Text;
   counter: Phaser.GameObjects.Text;
+  ready: Phaser.GameObjects.Text;
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -83,11 +84,18 @@ export default class GameScene extends Phaser.Scene {
         "<Counter>",
         styleMedium
       );
+      const ready = this.add.text(
+        X_OFFSET + WIDTH * i,
+        Y_OFFSET + 144,
+        "<Ready>",
+        styleMedium
+      );
 
       this.board.push({
         letter,
         label,
         counter,
+        ready,
       });
     }
 
@@ -111,10 +119,17 @@ export default class GameScene extends Phaser.Scene {
       `-`,
       styleMedium
     );
+    const ready = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET + 144,
+      ``,
+      styleMedium
+    );
     this.board.push({
       letter,
       label,
       counter,
+      ready,
     });
   };
 
@@ -286,6 +301,10 @@ export default class GameScene extends Phaser.Scene {
       this.board[idx].counter.setText(
         `${stand.currentCardIdx + 1}/${stand.totalCards}`
       );
+      const readyText = this.gameState.playersReady[stand.playerID]
+        ? "ready!"
+        : "";
+      this.board[idx].ready.setText(readyText);
     });
 
     // No updates to Wildcard stand

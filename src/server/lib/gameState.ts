@@ -1,6 +1,5 @@
 import * as _ from "lodash";
 import {
-  FullClue,
   Letter,
   PlayerProperties,
   PlayerType,
@@ -51,7 +50,7 @@ export class ServerGameState {
   voteMap: { [playerID: string]: string }; // tracks who voted for who
   guessingSheet: { [playerID: string]: GuessingSheet };
   playStateIndex: number;
-  playersReady: Set<string>;
+  playersReady: { [playerID: string]: boolean };
   isGameOver: boolean;
 
   constructor() {
@@ -66,7 +65,7 @@ export class ServerGameState {
     this.voteMap = {};
     this.guessingSheet = {};
     this.playStateIndex = 0;
-    this.playersReady = new Set();
+    this.playersReady = {};
     this.flower = {
       red: 0,
       green: 0,
@@ -105,12 +104,21 @@ export class ServerGameState {
     return _.countBy(this.voteMap);
   }
 
+  setPlayerToReady(playerID: string) {
+    this.playersReady[playerID] = true;
+    if (this.areAllPlayersReady()) {
+      this.advancePlayState();
+    }
+  }
+
   areAllPlayersReady(): boolean {
-    return this.playersReady.size >= this.getPlayerIDs().length;
+    const readyPlayers = Array.from(Object.keys(this.playersReady)).length;
+    const totalPlayers = this.getPlayerIDs().length;
+    return readyPlayers >= totalPlayers;
   }
 
   resetPlayersReady(): void {
-    this.playersReady = new Set();
+    this.playersReady = {};
   }
 
   getStands(currentPlayerID: string): Stand[] {
@@ -220,15 +228,19 @@ export class ServerGameState {
     const playerID = this.getPlayerWhoWonVote();
     switch (PlayStates[this.playStateIndex]) {
       case PlayStateEnum.DISCUSS:
-        // If there wasn't a player who won the vote
-        if (!playerID) {
-          return;
-        }
-        if (!this.clues[playerID]) {
+        if (
+          // If there wasn't a player who won the vote
+          !playerID ||
           // The winning player didn't submit a clue
+          !this.clues[playerID]
+          // TODO: The winning player cannot take a clue token
+        ) {
+          console.warn(
+            "advancePlayState(): resetting players ready because in an invalid state"
+          );
+          this.resetPlayersReady();
           return;
         }
-        // TODO: The winning player cannot take a clue token
         break;
     }
 
@@ -358,6 +370,7 @@ export class ServerGameState {
       votes: this.getVotes(),
       guessingSheet: this.getGuessingSheet(playerID),
       flower: this.flower,
+      playersReady: this.playersReady,
     };
   }
 }

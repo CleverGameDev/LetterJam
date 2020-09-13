@@ -72,6 +72,7 @@ export type ClientGameState = {
   votes: { [playerID: string]: number };
   guessingSheet: GuessingSheet;
   flower: Flower;
+  playersReady: { [playerID: string]: boolean };
 };
 
 export type Flower = {
