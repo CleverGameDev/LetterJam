@@ -12,6 +12,7 @@ import Dialog from "../objects/dialog";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
 import PlayStateText from "../objects/playStateText";
+import { toggleOpenClose } from "../objects/util";
 
 const key = SceneEnum.GameScene;
 
@@ -218,21 +219,19 @@ export default class GameScene extends Phaser.Scene {
             this.socket.emit(E.NextScene);
             break;
           case 1:
-            if (this.guessingSheet.isActive()) {
-              this.guessingSheet.close();
-            } else {
-              this.guessingSheet.open();
-            }
+            this.clueDialog.close();
+            this.activeClues.close();
+            toggleOpenClose(this.guessingSheet);
             break;
           case 2:
-            if (this.activeClues.isActive()) {
-              this.activeClues.close();
-            } else {
-              this.activeClues.open();
-            }
+            this.clueDialog.close();
+            this.guessingSheet.close();
+            toggleOpenClose(this.activeClues);
             break;
           case 3:
-            this.clueDialog.open();
+            this.activeClues.close();
+            this.guessingSheet.close();
+            toggleOpenClose(this.clueDialog);
             break;
           case 4:
             this.socket.emit(E.NextVisibleLetter);

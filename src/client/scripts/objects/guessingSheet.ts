@@ -45,7 +45,7 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
     }
   };
 
-  isActive = (): boolean => {
+  isOpen = (): boolean => {
     return this.table.isActive();
   };
 

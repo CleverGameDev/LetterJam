@@ -6,6 +6,7 @@ import {
 import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
 import Dialog from "../objects/dialog";
+import { toggleOpenClose } from "../objects/util";
 
 export default class LobbyScene extends Phaser.Scene {
   socket: SocketIO.Socket;
@@ -68,7 +69,7 @@ export default class LobbyScene extends Phaser.Scene {
     buttons
       .on("button.click", (button, index) => {
         if (index == 0) {
-          this.dialog.open();
+          toggleOpenClose(this.dialog);
         } else if (index == 1) {
           this.socket.emit(E.NextScene);
         }
