@@ -1,14 +1,13 @@
 import * as _ from "lodash";
-import { vote } from "../lib/discuss";
-import { Table } from "./table";
 import {
   COLOR_HOVER,
   COLOR_SECONDARY,
   WildcardPlayerID,
 } from "../../../shared/constants";
 import * as models from "../../../shared/models";
-
+import { vote } from "../lib/discuss";
 import GameScene from "../scenes/gameScene";
+import { Table } from "./table";
 
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;

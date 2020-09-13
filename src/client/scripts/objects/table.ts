@@ -1,6 +1,6 @@
 import {
-  COLOR_PRIMARY,
   COLOR_HOVER,
+  COLOR_PRIMARY,
   COLOR_SECONDARY,
 } from "../../../shared/constants";
 import GameScene from "../scenes/gameScene";
