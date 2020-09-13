@@ -1,7 +1,6 @@
 import * as _ from "lodash";
 import {
   MaxPlayers,
-  PlayStateEnum,
   SceneEnum,
   WildcardPlayerName,
 } from "../../../shared/constants";
@@ -315,13 +314,6 @@ export default class GameScene extends Phaser.Scene {
     this._refreshStands();
     this._refreshWinningVoteText();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
-
-    switch (this.gameState.playState) {
-      case PlayStateEnum.DISCUSS:
-        if (this.activeClues) {
-          this.activeClues.update();
-        }
-        break;
-    }
+    this.activeClues.update();
   }
 }
