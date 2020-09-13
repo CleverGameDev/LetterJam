@@ -50,8 +50,8 @@ export default class GameScene extends Phaser.Scene {
     this.gameState = gameState;
   }
 
-  _createVisibleLetters = (): void => {
-    // TODO: Move this and _refreshVisibleLetters to a separate file
+  _createStands = (): void => {
+    // TODO: Move this and _refreshStands to a separate file
     const styleLarge = {
       color: "#000000",
       fontSize: 72,
@@ -161,7 +161,7 @@ export default class GameScene extends Phaser.Scene {
     this.guessingSheet = new GuessingSheet(this);
 
     // Game sub-state
-    this._createVisibleLetters();
+    this._createStands();
 
     this.playStateText = new PlayStateText(this);
     this.flower = new Flower(this);
@@ -279,7 +279,7 @@ export default class GameScene extends Phaser.Scene {
     return s.playerID; // NPC or wildcard
   }
 
-  _refreshVisibleLetters() {
+  _refreshStands() {
     this.gameState.visibleLetters.forEach((stand, idx) => {
       this.board[idx].label.setText(this.getStandName(stand));
       this.board[idx].letter.setText(stand.letter);
@@ -297,7 +297,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.flower.setFlowerData(this.gameState.flower);
     this.flower.update();
-    this._refreshVisibleLetters();
+    this._refreshStands();
     this._refreshWinningVoteText();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
 
