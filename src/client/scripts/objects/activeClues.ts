@@ -1,21 +1,14 @@
 import * as _ from "lodash";
 import { vote } from "../lib/discuss";
 import { Table } from "./table";
-import { COLOR_HOVER, COLOR_SECONDARY } from "../../../shared/constants";
+import {
+  COLOR_HOVER,
+  COLOR_SECONDARY,
+  WildcardPlayerID,
+} from "../../../shared/constants";
 import * as models from "../../../shared/models";
 
-import { WildcardPlayerID } from "../../../shared/constants";
 import GameScene from "../scenes/gameScene";
-
-const headers = [
-  "Player       ",
-  "Word Length  ",
-  "Players used ",
-  "NPCs used    ",
-  "Bonuses used ",
-  "Wildcard used",
-  "Votes",
-];
 
 export default class ActiveClues extends Phaser.GameObjects.Container {
   container: Phaser.GameObjects.Container;

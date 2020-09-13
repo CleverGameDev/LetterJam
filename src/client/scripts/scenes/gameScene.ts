@@ -322,30 +322,9 @@ export default class GameScene extends Phaser.Scene {
 
     switch (this.gameState.playState) {
       case PlayStateEnum.DISCUSS:
-        // Concluded when one player's hint is chosen.
-        // Chosen via voting in game, and then clicking continue once there's agreement (could also have timer)
         if (this.activeClues) {
           this.activeClues.update();
         }
-        break;
-      case PlayStateEnum.PROVIDE_HINT:
-        // If player IS NOT the hint provider
-        // Wait to receive the hint
-
-        // If player IS the hint provider
-        // Player takes a clue token.
-        // Player prompted with UI to give the hint
-        // If exit => go to DISCUSS
-        // If hint is valid
-        // Player now assigns tokens to letters
-        // Recall: Letters can be player letters, NPC letters, or wildcard
-        // Each person's "guessing sheet" can be automatically updated.
-        break;
-      case PlayStateEnum.INTERPRET_HINT:
-        break;
-      case PlayStateEnum.CHECK_END_CONDITION:
-        break;
-      default:
         break;
     }
   }

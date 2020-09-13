@@ -57,8 +57,6 @@ export class Table {
   }
 
   create(): void {
-    const numColumns = this.numColumns;
-
     const secondaryBackground = () => {
       return this.scene.rexUI.add.roundRectangle(
         0,
@@ -154,8 +152,7 @@ export class Table {
           const scene = cell.scene,
             width = cell.width,
             height = cell.height,
-            item = cell.item,
-            index = cell.index;
+            item = cell.item;
           if (
             cellContainer === null ||
             cellContainer.getElement("text").text !== item.text
