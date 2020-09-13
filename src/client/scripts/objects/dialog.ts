@@ -114,6 +114,7 @@ export default class Dialog {
           } else if (button.text === "Submit" && this.submitFn) {
             const text: string = dialog.getElement("content").text;
             this.submitFn(text.trim());
+            dialog.getElement("content").text = "";
           }
           dialog.setActive(false).setVisible(false);
         },
