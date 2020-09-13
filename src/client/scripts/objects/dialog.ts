@@ -1,6 +1,5 @@
 export default class Dialog {
   scene: any;
-  placeholderTxt: string;
   title: string;
   cancelFn: () => void;
   submitFn: (content) => void;
@@ -8,13 +7,11 @@ export default class Dialog {
 
   constructor(
     scene,
-    placeholderTxt: string,
     title: string,
     cancelFn: () => void,
     submitFn: (content) => void
   ) {
     this.scene = scene;
-    this.placeholderTxt = placeholderTxt;
     this.title = title;
     this.cancelFn = cancelFn;
     this.submitFn = submitFn;
@@ -72,7 +69,7 @@ export default class Dialog {
         }),
 
         content: this.scene.rexUI.add
-          .BBCodeText(400, 300, this.placeholderTxt, {
+          .BBCodeText(400, 300, "", {
             color: "white",
             fontSize: "24px",
             fixedWidth: 200,
