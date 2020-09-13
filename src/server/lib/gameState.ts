@@ -279,6 +279,7 @@ export class ServerGameState {
         this.advancePlayState();
         break;
       case PlayStateEnum.INTERPRET_HINT:
+        this.resetVotesAndClues();
         // Remind users that their sheet is updated (ex. cause the guessing sheet to pop-up)
         // Players can jot down guesses
 
