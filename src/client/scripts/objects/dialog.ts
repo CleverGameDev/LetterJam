@@ -2,12 +2,18 @@
 // So " " is the way to render a TextInput, and we trim whatever the user writes to remove whitespace.
 const empty = " ";
 
+interface RexUIDialog {
+  setActive(bool): RexUIDialog;
+  setVisible(bool): RexUIDialog;
+  active: boolean;
+}
+
 export default class Dialog {
   scene: any;
   title: string;
   cancelFn: () => void;
   submitFn: (content) => void;
-  dialog; // rexUI.dialog
+  dialog: RexUIDialog;
 
   constructor(
     scene,
@@ -133,6 +139,10 @@ export default class Dialog {
     dialog.setActive(false).setVisible(false);
 
     this.dialog = dialog;
+  }
+
+  isOpen() {
+    return this.dialog.active;
   }
 
   open(): void {

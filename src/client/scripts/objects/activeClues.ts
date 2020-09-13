@@ -113,7 +113,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     }
   }
 
-  isActive = (): boolean => {
+  isOpen = (): boolean => {
     return this.table.isActive();
   };
 
