@@ -1,6 +1,5 @@
 import * as _ from "lodash";
 import {
-  FullClue,
   Letter,
   PlayerProperties,
   PlayerType,
@@ -51,7 +50,7 @@ export class ServerGameState {
   voteMap: { [playerID: string]: string }; // tracks who voted for who
   guessingSheet: { [playerID: string]: GuessingSheet };
   playStateIndex: number;
-  playersReady: Set<string>;
+  playersReady: { [playerID: string]: boolean };
   isGameOver: boolean;
 
   constructor() {
@@ -66,7 +65,7 @@ export class ServerGameState {
     this.voteMap = {};
     this.guessingSheet = {};
     this.playStateIndex = 0;
-    this.playersReady = new Set();
+    this.playersReady = {};
     this.flower = {
       red: 0,
       green: 0,
@@ -105,12 +104,36 @@ export class ServerGameState {
     return _.countBy(this.voteMap);
   }
 
+  setPlayerToReady(playerID: string) {
+    if (
+      this.getPlayState() == PlayStateEnum.DISCUSS &&
+      !this.getWinningClue()
+    ) {
+      // need a winning clue before it makes sense to be ready
+      return;
+    }
+
+    this.playersReady[playerID] = !this.playersReady[playerID];
+    if (this.areAllPlayersReady()) {
+      this.advancePlayState();
+    }
+  }
+
   areAllPlayersReady(): boolean {
-    return this.playersReady.size >= this.getPlayerIDs().length;
+    // flatten into array of bool (true/false),
+    // then convert to numbers (1/0) so we can reduce()
+    const readyPlayersArr = Array.from(
+      Object.values(this.playersReady)
+    ).map((b) => Number(b));
+    const readyPlayers = readyPlayersArr.reduce((a, b) => {
+      return a + b;
+    });
+    const totalPlayers = this.getPlayerIDs().length;
+    return readyPlayers >= totalPlayers;
   }
 
   resetPlayersReady(): void {
-    this.playersReady = new Set();
+    this.playersReady = {};
   }
 
   getStands(currentPlayerID: string): Stand[] {
@@ -154,8 +177,8 @@ export class ServerGameState {
   }
 
   provideHint() {
-    const winningPlayerID = this.getPlayerWhoWonVote();
-    const winningClue = this.clues[winningPlayerID];
+    const { playerID, clue } = this.getWinningClue();
+    const [winningPlayerID, winningClue] = [playerID, clue];
 
     // The player who provided the hint takes a turn token
     this.takeTurnToken(winningPlayerID);
@@ -185,7 +208,7 @@ export class ServerGameState {
     });
   }
 
-  getPlayerType = (playerID: string) => {
+  getPlayerType(playerID: string) {
     if (this.players[playerID]) {
       return PlayerType.Player;
     } else if (playerID == WildcardPlayerID) {
@@ -193,7 +216,7 @@ export class ServerGameState {
     } else {
       return PlayerType.NPC;
     }
-  };
+  }
 
   takeTurnToken(playerID: string) {
     // TODO: This logic is simplified. It needs to be updated
@@ -215,20 +238,29 @@ export class ServerGameState {
     this.resetVotesAndClues();
   }
 
+  getWinningClue() {
+    const playerID = this.getPlayerWhoWonVote();
+    if (
+      // If there wasn't a player who won the vote
+      !playerID ||
+      // The winning player didn't submit a clue
+      !this.clues[playerID]
+      // TODO: The winning player cannot take a clue token
+    ) {
+      return null;
+    }
+    return { playerID, clue: this.clues[playerID] };
+  }
+
   advancePlayState(): void {
     // Check if it's valid to advance to the next state
-    const playerID = this.getPlayerWhoWonVote();
     switch (PlayStates[this.playStateIndex]) {
       case PlayStateEnum.DISCUSS:
-        // If there wasn't a player who won the vote
-        if (!playerID) {
+        if (!this.getWinningClue()) {
+          console.warn("advancePlayState(): unable to determine winning clue");
+          this.resetPlayersReady();
           return;
         }
-        if (!this.clues[playerID]) {
-          // The winning player didn't submit a clue
-          return;
-        }
-        // TODO: The winning player cannot take a clue token
         break;
     }
 
@@ -247,6 +279,7 @@ export class ServerGameState {
         this.advancePlayState();
         break;
       case PlayStateEnum.INTERPRET_HINT:
+        this.resetVotesAndClues();
         // Remind users that their sheet is updated (ex. cause the guessing sheet to pop-up)
         // Players can jot down guesses
 
@@ -358,6 +391,7 @@ export class ServerGameState {
       votes: this.getVotes(),
       guessingSheet: this.getGuessingSheet(playerID),
       flower: this.flower,
+      playersReady: this.playersReady,
     };
   }
 }

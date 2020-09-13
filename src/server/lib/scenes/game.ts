@@ -35,13 +35,7 @@ const registerListeners = (
   });
 
   socket.on(E.PlayerReady, () => {
-    gameState.playersReady.add(playerID(socket));
-    if (!gameState.areAllPlayersReady()) {
-      return;
-    }
-
-    gameState.advancePlayState();
-
+    gameState.setPlayerToReady(playerID(socket));
     syncClientGameState(io, gameState);
   });
 };

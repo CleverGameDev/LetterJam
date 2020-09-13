@@ -22,6 +22,7 @@ type UIStand = {
   letter: Phaser.GameObjects.Text;
   label: Phaser.GameObjects.Text;
   counter: Phaser.GameObjects.Text;
+  ready: Phaser.GameObjects.Text;
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -50,8 +51,8 @@ export default class GameScene extends Phaser.Scene {
     this.gameState = gameState;
   }
 
-  _createVisibleLetters = (): void => {
-    // TODO: Move this and _refreshVisibleLetters to a separate file
+  _createStands = (): void => {
+    // TODO: Move this and _refreshStands to a separate file
     const styleLarge = {
       color: "#000000",
       fontSize: 72,
@@ -83,11 +84,18 @@ export default class GameScene extends Phaser.Scene {
         "<Counter>",
         styleMedium
       );
+      const ready = this.add.text(
+        X_OFFSET + WIDTH * i,
+        Y_OFFSET + 144,
+        "<Ready>",
+        styleMedium
+      );
 
       this.board.push({
         letter,
         label,
         counter,
+        ready,
       });
     }
 
@@ -111,10 +119,17 @@ export default class GameScene extends Phaser.Scene {
       `-`,
       styleMedium
     );
+    const ready = this.add.text(
+      X_OFFSET + WIDTH * lastIdx,
+      Y_OFFSET + 144,
+      ``,
+      styleMedium
+    );
     this.board.push({
       letter,
       label,
       counter,
+      ready,
     });
   };
 
@@ -161,7 +176,7 @@ export default class GameScene extends Phaser.Scene {
     this.guessingSheet = new GuessingSheet(this);
 
     // Game sub-state
-    this._createVisibleLetters();
+    this._createStands();
 
     this.playStateText = new PlayStateText(this);
     this.flower = new Flower(this);
@@ -279,13 +294,17 @@ export default class GameScene extends Phaser.Scene {
     return s.playerID; // NPC or wildcard
   }
 
-  _refreshVisibleLetters() {
+  _refreshStands() {
     this.gameState.visibleLetters.forEach((stand, idx) => {
       this.board[idx].label.setText(this.getStandName(stand));
       this.board[idx].letter.setText(stand.letter);
       this.board[idx].counter.setText(
         `${stand.currentCardIdx + 1}/${stand.totalCards}`
       );
+      const readyText = this.gameState.playersReady[stand.playerID]
+        ? "ready!"
+        : "";
+      this.board[idx].ready.setText(readyText);
     });
 
     // No updates to Wildcard stand
@@ -297,7 +316,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.flower.setFlowerData(this.gameState.flower);
     this.flower.update();
-    this._refreshVisibleLetters();
+    this._refreshStands();
     this._refreshWinningVoteText();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
 
