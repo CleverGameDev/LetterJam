@@ -13,6 +13,7 @@ export type TableOptions = {
   height?: number;
   x?: number;
   y?: number;
+  footer?: () => Phaser.GameObjects.GameObject;
 };
 
 export type TableEventHandlers = {
@@ -25,6 +26,7 @@ export type TableEventHandlers = {
 export class Table {
   scene: GameScene;
   gridTable; // RexUI.gridTable
+  overrideValues: { text: string; keep?: boolean }[];
 
   // options
   title: string;
@@ -34,6 +36,7 @@ export class Table {
   height: number;
   x: number;
   y: number;
+  footer: () => Phaser.GameObjects.GameObject;
 
   // event handlers
   cellOver?: (cellContainer, cellIndex, pointer) => void;
@@ -50,10 +53,12 @@ export class Table {
     this.height = options.height || 300;
     this.x = options.x || 650;
     this.y = options.y || 500;
+    this.footer = options.footer || null;
     this.cellOver = eventHandlers.cellOver;
     this.cellOut = eventHandlers.cellOut;
     this.cellClick = eventHandlers.cellClick;
     this.cell1Tap = eventHandlers.cell1Tap;
+    this.overrideValues = [];
   }
 
   create(): void {
@@ -136,6 +141,7 @@ export class Table {
         },
 
         header: header(),
+        footer: this.footer && this.footer(),
 
         space: {
           left: 20,
@@ -153,10 +159,7 @@ export class Table {
             width = cell.width,
             height = cell.height,
             item = cell.item;
-          if (
-            cellContainer === null ||
-            cellContainer.getElement("text").text !== item.text
-          ) {
+          if (cellContainer === null) {
             cellContainer = scene.rexUI.add.label({
               width: width,
               height: height,
@@ -173,6 +176,11 @@ export class Table {
                 top: 0,
               },
             });
+          } else if (
+            cellContainer.getElement("text").text !== item.text &&
+            !item.keep
+          ) {
+            cellContainer.setText(item.text);
           }
 
           cellContainer.setMinSize(width, height);
@@ -194,6 +202,15 @@ export class Table {
 
   setContentItems(rows: { text: string }[]): void {
     const allItems = [...this.headerRow, ...rows];
+    if (this.gridTable.items.length > this.overrideValues.length) {
+      const sizeDiff = this.gridTable.items.length - this.overrideValues.length;
+      this.overrideValues.push(...new Array(sizeDiff).fill(""));
+    }
+    for (let i = 0; i < this.overrideValues.length; i++) {
+      if (this.overrideValues[i]) {
+        allItems[i] = this.overrideValues[i];
+      }
+    }
     this.gridTable.setItems(allItems);
     this.gridTable.layout().setDepth(1);
   }
