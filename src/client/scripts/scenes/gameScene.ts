@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import {
   MaxPlayers,
   SceneEnum,
@@ -33,7 +32,6 @@ export default class GameScene extends Phaser.Scene {
   flower: Flower;
   clueDialog: Dialog;
   board: UIStand[];
-  winningVoteText: Phaser.GameObjects.Text;
 
   rexUI: any; // global plugin
 
@@ -184,12 +182,6 @@ export default class GameScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    this.winningVoteText = this.add.text(400, 500, "", {
-      color: "#000000",
-      fontSize: 36,
-    });
-    this.winningVoteText.visible = false;
-
     // Discuss UI elements
     this.activeClues = new ActiveClues(this);
 
@@ -257,24 +249,6 @@ export default class GameScene extends Phaser.Scene {
       });
   }
 
-  _refreshWinningVoteText() {
-    const playerID = _.maxBy(
-      Object.keys(this.gameState.votes),
-      (key) => this.gameState.votes[key]
-    );
-    const maxVotes = this.gameState.votes[playerID];
-    if (maxVotes > 0) {
-      const playerName = this.gameState.players[playerID].Name;
-      this.winningVoteText.setText(
-        `${playerName} has most votes with ${maxVotes} votes`
-      );
-      this.winningVoteText.setVisible(true);
-    } else {
-      this.winningVoteText.setText("");
-      this.winningVoteText.setVisible(false);
-    }
-  }
-
   getStandName(s: Stand) {
     // get name for player or NPC
     const player = this.gameState.players[s.playerID];
@@ -292,10 +266,17 @@ export default class GameScene extends Phaser.Scene {
       this.board[idx].counter.setText(
         `${stand.currentCardIdx + 1}/${stand.totalCards}`
       );
-      const readyText = this.gameState.playersReady[stand.playerID]
+      const isPlayer = this.gameState.players[stand.playerID];
+      let readyText = this.gameState.playersReady[stand.playerID]
         ? "ready!"
-        : "";
+        : "not ready";
+      if (!isPlayer) {
+        readyText = "";
+      }
       this.board[idx].ready.setText(readyText);
+      this.gameState.playersReady[stand.playerID]
+        ? this.board[idx].ready.setColor("green")
+        : this.board[idx].ready.setColor("red");
     });
 
     // No updates to Wildcard stand
@@ -308,7 +289,6 @@ export default class GameScene extends Phaser.Scene {
     this.flower.setFlowerData(this.gameState.flower);
     this.flower.update();
     this._refreshStands();
-    this._refreshWinningVoteText();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
     this.activeClues.update();
   }
