@@ -99,15 +99,34 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
     return out;
   };
 
+  _getWinningPlayer(): string {
+    const playerID = _.maxBy(
+      Object.keys(this.scene.gameState.votes),
+      (key) => this.scene.gameState.votes[key]
+    );
+    const maxVotes = this.scene.gameState.votes[playerID];
+    if (maxVotes > 0) {
+      const playerName = this.scene.gameState.players[playerID].Name;
+      return playerName;
+    }
+    return "";
+  }
+
   update(): void {
     // if (!_.isEqual(this.prevClues, this.scene.gameState.clues)) {
     if (this.scene.gameState.clues) {
       this.prevClues = this.scene.gameState.clues;
+      const winningPlayer = this._getWinningPlayer();
       const contentItems = [];
       for (const player of Object.keys(this.scene.gameState.clues)) {
-        contentItems.push(
-          ...this.clueToArray(player, this.scene.gameState.clues[player])
+        const clueArray = this.clueToArray(
+          player,
+          this.scene.gameState.clues[player]
         );
+        if (clueArray[0].text === winningPlayer) {
+          clueArray[6].text += "*";
+        }
+        contentItems.push(...clueArray);
       }
       this.table.setContentItems(contentItems);
     }
