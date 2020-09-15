@@ -92,13 +92,6 @@ export default class LobbyScene extends Phaser.Scene {
       fontSize: 36,
     });
 
-    this.dialog.create();
-    if (
-      this.gameState.players[this.gameState.playerID].Name == DefaultPlayerName
-    ) {
-      this.dialog.open();
-    }
-
     for (let i = 0; i < MaxPlayers; i++) {
       const text = this.add
         .text(this.cameras.main.width - 15, 100 * i, "", {
@@ -108,6 +101,13 @@ export default class LobbyScene extends Phaser.Scene {
         .setOrigin(1, 0);
       text.setVisible(false);
       this.playerTexts.push(text);
+    }
+
+    this.dialog.create();
+    if (
+      this.gameState.players[this.gameState.playerID].Name == DefaultPlayerName
+    ) {
+      this.dialog.open();
     }
   }
 
