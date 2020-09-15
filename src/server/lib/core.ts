@@ -44,15 +44,6 @@ const handlePlayerJoined = (
   syncClientGameState(io, gameState);
 };
 
-const loadActiveScene = (
-  io: SocketIO.Server,
-  socket: SocketIO.Socket,
-  gameState: ServerGameState
-) => {
-  // Add current scene listeners
-  sceneHandlers(io, socket, Scenes[gameState.sceneIndex]).setup(gameState);
-};
-
 export const setupSocketIO = (
   io: SocketIO.Server,
   gameState: ServerGameState
@@ -61,7 +52,7 @@ export const setupSocketIO = (
     socket.join(gameState.room);
     handlePlayerJoined(io, socket, gameState);
     registerListeners(io, socket, gameState);
-    loadActiveScene(io, socket, gameState);
+    sceneHandlers(io, socket, Scenes[gameState.sceneIndex]).setup(gameState);
   });
 };
 
