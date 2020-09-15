@@ -31,13 +31,11 @@ export const syncClientGameState = (
   }
 };
 
-const handlePlayerJoined = (
+const loadGame = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
-  gameState.tryAddPlayer(getPlayerID(socket));
-
   socket.emit(E.ChangeScene, <EType[E.ChangeScene]>{
     sceneKey: gameState.getScene(),
   });
@@ -49,10 +47,20 @@ export const setupSocketIO = (
   gameState: ServerGameState
 ): void => {
   io.on("connection", (socket: SocketIO.Socket) => {
+    // Subscribe the socket to events in the current room
     socket.join(gameState.room);
-    handlePlayerJoined(io, socket, gameState);
+
+    // Add general purpose server listeners
     registerListeners(io, socket, gameState);
+
+    // Add current scene listeners
     sceneHandlers(io, socket, Scenes[gameState.sceneIndex]).setup(gameState);
+
+    // Add the player
+    gameState.tryAddPlayer(getPlayerID(socket));
+
+    // Load the game
+    loadGame(io, socket, gameState);
   });
 };
 
