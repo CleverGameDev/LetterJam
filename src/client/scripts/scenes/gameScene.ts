@@ -146,20 +146,6 @@ export default class GameScene extends Phaser.Scene {
   create(): void {
     this.gameState = this.registry.get("gameState");
 
-    // Dialogs
-    this.clueDialog = new Dialog(
-      this,
-      "What is your clue?",
-      null,
-      (content: string) => {
-        const validClue = giveClue(this.socket, content, this.gameState);
-        if (!validClue) {
-          // Let user know and prompt for another clue
-        }
-      }
-    );
-    this.clueDialog.create();
-
     // Scene title
     this.add.text(0, 0, `${key}`, {
       color: "#000000",
@@ -247,6 +233,20 @@ export default class GameScene extends Phaser.Scene {
         }
         button.setInteractive({ useHandCursor: true });
       });
+
+    // Dialogs
+    this.clueDialog = new Dialog(
+      this,
+      "What is your clue?",
+      null,
+      (content: string) => {
+        const validClue = giveClue(this.socket, content, this.gameState);
+        if (!validClue) {
+          // Let user know and prompt for another clue
+        }
+      }
+    );
+    this.clueDialog.create();
   }
 
   getStandName(s: Stand) {
