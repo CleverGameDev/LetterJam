@@ -1,4 +1,4 @@
-import { DefaultPlayerName, Scenes } from "../../shared/constants";
+import { Scenes } from "../../shared/constants";
 import { E, EType } from "../../shared/events";
 import { ServerGameState } from "../lib/gameState";
 import { getPlayerID } from "./playerUtils";
@@ -31,20 +31,12 @@ export const syncClientGameState = (
   }
 };
 
-// TODO: https://trello.com/c/iVMLYsPM/98-letterjam-handle-case-where-users-join-mid-game
 const handlePlayerJoined = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ) => {
-  // TODO: This creates a race condition if you have multiple browser windows open as server starts
-  const id = getPlayerID(socket);
-  if (!gameState.players[id]) {
-    // Update game state
-    gameState.players[id] = {
-      Name: DefaultPlayerName,
-    };
-  }
+  gameState.tryAddPlayer(getPlayerID(socket));
 
   socket.emit(E.ChangeScene, <EType[E.ChangeScene]>{
     sceneKey: gameState.getScene(),

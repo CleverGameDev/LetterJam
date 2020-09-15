@@ -1,12 +1,14 @@
 import * as _ from "lodash";
 import {
   BaseNPCCards,
+  DefaultPlayerName,
   LetterDistribution,
   MaxPlayers,
   NPCCardGrowth,
   NPCPlayerIDPrefix,
   PlayStateEnum,
   PlayStates,
+  SceneEnum,
   Scenes,
   WildcardPlayerID,
 } from "../../shared/constants";
@@ -209,6 +211,16 @@ export class ServerGameState {
     });
   }
 
+  tryAddPlayer(playerID: string) {
+    // If it's lobby scene, then add that player to the players list
+    if (this.getScene() === SceneEnum.LobbyScene) {
+      if (!this.players[playerID]) {
+        this.players[playerID] = {
+          Name: DefaultPlayerName,
+        };
+      }
+    }
+  }
   getPlayerType(playerID: string) {
     if (this.players[playerID]) {
       return PlayerType.Player;
