@@ -160,14 +160,6 @@ export default class GameScene extends Phaser.Scene {
     this.playStateText = new PlayStateText(this);
     this.flower = new Flower(this);
 
-    // display the Phaser.VERSION
-    this.add
-      .text(this.cameras.main.width - 15, 15, `Phaser v${Phaser.VERSION}`, {
-        color: "#000000",
-        fontSize: 24,
-      })
-      .setOrigin(1, 0);
-
     // Discuss UI elements
     this.activeClues = new ActiveClues(this);
 
