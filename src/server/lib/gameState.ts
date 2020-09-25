@@ -168,15 +168,22 @@ export class ServerGameState {
   }
 
   getPlayerWhoWonVote() {
-    // TODO: handle ties, right now it just returns one of the tied players
     const votes = this.getVotes();
-    const playerID = _.maxBy(Object.keys(votes), (key) => votes[key]);
-    const maxVotes = votes[playerID];
-    if (maxVotes == 0) {
+    const sortedPlayers = _.sortBy(Object.keys(votes), (key) => votes[key]);
+
+    const [first, second] = [sortedPlayers[0], sortedPlayers[1]];
+
+    // if 0 votes, no one has won yet
+    if (votes[first] == 0) {
       return null;
     }
 
-    return playerID;
+    // if it's a tie, no one won
+    if (votes[first] == votes[second]) {
+      return null;
+    }
+
+    return first;
   }
 
   provideHint() {

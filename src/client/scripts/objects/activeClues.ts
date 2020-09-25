@@ -100,16 +100,23 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
   };
 
   _getWinningPlayer(): string {
-    const playerID = _.maxBy(
-      Object.keys(this.scene.gameState.votes),
-      (key) => this.scene.gameState.votes[key]
-    );
-    const maxVotes = this.scene.gameState.votes[playerID];
-    if (maxVotes > 0) {
-      const playerName = this.scene.gameState.players[playerID].Name;
-      return playerName;
+    const { votes, players } = this.scene.gameState;
+
+    const sortedPlayers = _.sortBy(Object.keys(votes), (key) => votes[key]);
+
+    const [first, second] = [sortedPlayers[0], sortedPlayers[1]];
+
+    // if 0 votes, no one has won yet
+    if (votes[first] == 0) {
+      return null;
     }
-    return "";
+
+    // if it's a tie, no one won
+    if (votes[first] == votes[second]) {
+      return null;
+    }
+
+    return players[first].Name;
   }
 
   update(): void {
