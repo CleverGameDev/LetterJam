@@ -1,5 +1,6 @@
 import {
   MaxPlayers,
+  PlayStateEnum,
   SceneEnum,
   WildcardPlayerName,
 } from "../../../shared/constants";
@@ -32,6 +33,7 @@ export default class GameScene extends Phaser.Scene {
   flower: Flower;
   clueDialog: Dialog;
   board: UIStand[];
+  previousPlayState: PlayStateEnum;
 
   rexUI: any; // global plugin
 
@@ -189,18 +191,15 @@ export default class GameScene extends Phaser.Scene {
             this.socket.emit(E.NextScene);
             break;
           case 1:
-            this.clueDialog.close();
-            this.activeClues.close();
+            this._closeAll();
             toggleOpenClose(this.guessingSheet);
             break;
           case 2:
-            this.clueDialog.close();
-            this.guessingSheet.close();
+            this._closeAll();
             toggleOpenClose(this.activeClues);
             break;
           case 3:
-            this.activeClues.close();
-            this.guessingSheet.close();
+            this._closeAll();
             toggleOpenClose(this.clueDialog);
             break;
           case 4:
@@ -274,6 +273,12 @@ export default class GameScene extends Phaser.Scene {
     // No updates to Wildcard stand
   }
 
+  _closeAll() {
+    this.clueDialog.close();
+    this.activeClues.close();
+    this.guessingSheet.close();
+  }
+
   update(): void {
     this.gameState = this.registry.get("gameState");
     this.playStateText.update(this.gameState.playState);
@@ -283,5 +288,25 @@ export default class GameScene extends Phaser.Scene {
     this._refreshStands();
     this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
     this.activeClues.update();
+
+    if (this.previousPlayState !== this.gameState.playState) {
+      switch (this.gameState.playState) {
+        case PlayStateEnum.DISCUSS:
+          if (this.activeClues) {
+            this._closeAll();
+            this.activeClues.open();
+          }
+          break;
+        case PlayStateEnum.INTERPRET_HINT:
+          if (this.guessingSheet) {
+            this._closeAll();
+            this.guessingSheet.open();
+          }
+          break;
+        default:
+          break;
+      }
+      this.previousPlayState = this.gameState.playState;
+    }
   }
 }
