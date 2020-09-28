@@ -26,28 +26,24 @@ import {
   Stand,
 } from "../../shared/models";
 
-let wordTree = trie([]);
+const wordTree = prepareWordTrie();
 
-// We can provide more word sets and allow users to choose
-// if we want themed games
-fs.readFile(
-  path.join(__dirname, "../wordLists/words_alpha.txt"),
-  "utf8",
-  (err, data) => {
-    if (err) {
-      console.error(err);
-      return;
+function prepareWordTrie() {
+  // We can provide more word sets and allow users to choose
+  // if we want themed games
+  const data = fs.readFileSync(
+    path.join(__dirname, "../wordLists/words_alpha.txt"),
+    "utf8"
+  );
+  const allWords = data.split("\r\n");
+  const validWords = [];
+  for (const word of allWords) {
+    if (word.length >= 5) {
+      validWords.push(word);
     }
-    const allWords = data.split("\r\n");
-    const validWords = [];
-    for (const word of allWords) {
-      if (word.length >= 5) {
-        validWords.push(word);
-      }
-    }
-    wordTree = trie(validWords);
   }
-);
+  return trie(validWords);
+}
 
 // TODO: How to persist this across server restarts
 export class ServerGameState {
@@ -384,12 +380,23 @@ export class ServerGameState {
     }
 
     // deal cards
-    const { playerHands, npcHands, deck } = drawCards(playerIDs);
-    this.deck = deck;
-    this.letters = {
-      ...playerHands,
-      ...npcHands,
-    };
+    const MAX_ATTEMPTS = 100;
+    for (let i = 0; i <= MAX_ATTEMPTS; i++) {
+      try {
+        const { playerHands, npcHands, deck } = drawCards(playerIDs);
+        this.deck = deck;
+        this.letters = {
+          ...playerHands,
+          ...npcHands,
+        };
+        break;
+      } catch (err) {
+        if (i == MAX_ATTEMPTS) {
+          throw Error("failed to generate starting words for players");
+        }
+        // keep trying ...
+      }
+    }
 
     // determine visible letters
     this.numNPCs = MaxPlayers - playerIDs.length;
@@ -478,8 +485,8 @@ const drawCards = (playerIDs: string[]) => {
   const npcHands = {}; // map from NPC ID to their stack of letters
   const deck = [];
 
-  // This part should be handled by player interaction
-  // For now, just assign players 5 random letters each
+  // Assign a word to each player
+  // Someday, handled by player interaction: https://trello.com/c/nH9z61yi/130-setupscene-create-a-word-for-your-neighbor
   const fullDeck = getFullDeck();
   const chunks = _.chunk(
     _.shuffle(fullDeck),
@@ -497,7 +504,7 @@ const drawCards = (playerIDs: string[]) => {
       }
     }
     if (possibleWords.length === 0) {
-      console.error(`No words found for player ${i}`);
+      throw Error(`No words found for player ${i}`);
     }
     playerHands[playerIDs[i]] = possibleWords[0];
 

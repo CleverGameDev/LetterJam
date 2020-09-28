@@ -1,6 +1,7 @@
 # JS files used in automation
 .eslintrc.js
 webpack
+jest.config.js
 
 # HTML
 index.html
