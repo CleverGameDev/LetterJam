@@ -26,28 +26,24 @@ import {
   Stand,
 } from "../../shared/models";
 
-let wordTree = trie([]);
+const wordTree = prepareWordTrie();
 
-// We can provide more word sets and allow users to choose
-// if we want themed games
-fs.readFile(
-  path.join(__dirname, "../wordLists/words_alpha.txt"),
-  "utf8",
-  (err, data) => {
-    if (err) {
-      console.error(err);
-      return;
+function prepareWordTrie() {
+  // We can provide more word sets and allow users to choose
+  // if we want themed games
+  const data = fs.readFileSync(
+    path.join(__dirname, "../wordLists/words_alpha.txt"),
+    "utf8"
+  );
+  const allWords = data.split("\r\n");
+  const validWords = [];
+  for (const word of allWords) {
+    if (word.length >= 5) {
+      validWords.push(word);
     }
-    const allWords = data.split("\r\n");
-    const validWords = [];
-    for (const word of allWords) {
-      if (word.length >= 5) {
-        validWords.push(word);
-      }
-    }
-    wordTree = trie(validWords);
   }
-);
+  return trie(validWords);
+}
 
 // TODO: How to persist this across server restarts
 export class ServerGameState {
