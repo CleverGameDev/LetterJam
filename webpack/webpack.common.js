@@ -20,6 +20,12 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
+        // test: function (modulePath) {
+        //   return (
+        //     (modulePath.endsWith(".ts") || modulePath.endsWith(".tsx")) &&
+        //     !modulePath.endsWith("test.ts")
+        //   );
+        // },
         include: path.join(__dirname, "../src"),
         loader: "ts-loader",
       },
