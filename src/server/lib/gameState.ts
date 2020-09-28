@@ -241,6 +241,22 @@ export class ServerGameState {
     );
     npcStands.forEach((s: Stand) => {
       this.visibleLetterIdx[s.playerID] += 1;
+
+      // When the last card in NPC stack is drawn, earn a green clue token
+      if (
+        this.visibleLetterIdx[s.playerID] ==
+        this.letters[s.playerID].length - 1
+      ) {
+        this.flower.green += 1;
+      }
+
+      // Once its stack is empty, the nonplayer stand draws its new cards from the deck
+      if (
+        this.visibleLetterIdx[s.playerID] >
+        this.letters[s.playerID].length - 1
+      ) {
+        this.letters[s.playerID].push(this.drawCardFromDeck());
+      }
     });
   }
 
@@ -442,6 +458,10 @@ export class ServerGameState {
       flower: this.flower,
       playersReady: this.playersReady,
     };
+  }
+
+  drawCardFromDeck(): Letter {
+    return this.deck.pop();
   }
 }
 
