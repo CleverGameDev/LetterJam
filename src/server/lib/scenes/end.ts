@@ -24,6 +24,7 @@ export const setup = (
   registerListeners(io, socket, gameState);
 };
 
+// We should reset server state either here or setup start
 export const teardown = (
   io: SocketIO.Server,
   socket: SocketIO.Socket,

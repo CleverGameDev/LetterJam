@@ -1,4 +1,7 @@
+import * as fs from "fs";
 import * as _ from "lodash";
+import path from "path";
+import trie from "trie-prefix-tree";
 import {
   BaseNPCCards,
   DefaultPlayerName,
@@ -22,6 +25,29 @@ import {
   PlayerType,
   Stand,
 } from "../../shared/models";
+
+let wordTree = trie([]);
+
+// We can provide more word sets and allow users to choose
+// if we want themed games
+fs.readFile(
+  path.join(__dirname, "../wordLists/words_alpha.txt"),
+  "utf8",
+  (err, data) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const allWords = data.split("\r\n");
+    const validWords = [];
+    for (const word of allWords) {
+      if (word.length >= 5) {
+        validWords.push(word);
+      }
+    }
+    wordTree = trie(validWords);
+  }
+);
 
 // TODO: How to persist this across server restarts
 export class ServerGameState {
@@ -334,9 +360,12 @@ export class ServerGameState {
   // it requires us to know the number of connected players.
   //
   // (future) Consider isolating the per-game state from other server state.
-  setupNewGame(): void {
+  setupNewGame(force?: boolean): void {
     // get players
     const playerIDs = this.getPlayerIDs();
+    if (this.deck.length > 0 && !force) {
+      return;
+    }
 
     // deal cards
     const { playerHands, npcHands, deck } = drawCards(playerIDs);
@@ -437,9 +466,24 @@ const drawCards = (playerIDs: string[]) => {
     fullDeck.length / playerIDs.length
   );
   for (let i = 0; i < playerIDs.length; i++) {
-    // Take 5 letters from the chunk and assign it to the player
-    const word = chunks[i].splice(0, 5);
-    playerHands[playerIDs[i]] = word;
+    // We really just need one word; getting anagrams gets all valid
+    // word permutations and can be costly for long lists of characters
+    // Cut down the size of the chunk
+    let possibleWords = [];
+    for (let j = 5; j < chunks[i].length; j++) {
+      possibleWords = wordTree.getSubAnagrams(chunks[i].slice(j - 5, j).join());
+      if (possibleWords.length !== 0) {
+        break;
+      }
+    }
+    if (possibleWords.length === 0) {
+      console.error(`No words found for player ${i}`);
+    }
+    playerHands[playerIDs[i]] = possibleWords[0];
+
+    for (const letter of playerHands[playerIDs[i]]) {
+      chunks[i].splice(chunks[i].indexOf(letter), 1);
+    }
 
     // Take the remaining letters from the chunk and add back to the deck
     deck.push(...chunks[i]);
