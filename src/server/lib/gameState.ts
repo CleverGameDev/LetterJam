@@ -215,6 +215,13 @@ export class ServerGameState {
     );
     npcStands.forEach((s: Stand) => {
       this.visibleLetterIdx[s.playerID] += 1;
+      if (
+        this.visibleLetterIdx[s.playerID] ==
+        this.letters[s.playerID].length - 1
+      ) {
+        // When the last card in NPC stack is drawn, earn a green clue token
+        this.flower.green += 1;
+      }
     });
   }
 
