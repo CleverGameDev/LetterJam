@@ -380,12 +380,23 @@ export class ServerGameState {
     }
 
     // deal cards
-    const { playerHands, npcHands, deck } = drawCards(playerIDs);
-    this.deck = deck;
-    this.letters = {
-      ...playerHands,
-      ...npcHands,
-    };
+    const MAX_ATTEMPTS = 100;
+    for (let i = 0; i <= MAX_ATTEMPTS; i++) {
+      try {
+        const { playerHands, npcHands, deck } = drawCards(playerIDs);
+        this.deck = deck;
+        this.letters = {
+          ...playerHands,
+          ...npcHands,
+        };
+        break;
+      } catch (err) {
+        if (i == MAX_ATTEMPTS) {
+          throw Error("failed to generate starting words for players");
+        }
+        // keep trying ...
+      }
+    }
 
     // determine visible letters
     this.numNPCs = MaxPlayers - playerIDs.length;
@@ -474,8 +485,8 @@ const drawCards = (playerIDs: string[]) => {
   const npcHands = {}; // map from NPC ID to their stack of letters
   const deck = [];
 
-  // This part should be handled by player interaction
-  // For now, just assign players 5 random letters each
+  // Assign a word to each player
+  // Someday, handled by player interaction: https://trello.com/c/nH9z61yi/130-setupscene-create-a-word-for-your-neighbor
   const fullDeck = getFullDeck();
   const chunks = _.chunk(
     _.shuffle(fullDeck),
@@ -493,7 +504,7 @@ const drawCards = (playerIDs: string[]) => {
       }
     }
     if (possibleWords.length === 0) {
-      console.error(`No words found for player ${i}`);
+      throw Error(`No words found for player ${i}`);
     }
     playerHands[playerIDs[i]] = possibleWords[0];
 
