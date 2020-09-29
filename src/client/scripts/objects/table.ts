@@ -154,6 +154,8 @@ export class Table {
           footer: 10,
         },
 
+        scroller: false,
+
         createCellContainerCallback: function (cell, cellContainer) {
           const scene = cell.scene,
             width = cell.width,
