@@ -67,6 +67,7 @@ export type ClientGameState = {
   playState: PlayStateEnum;
   clues: { [playerID: string]: ClueV2 }; // TODO: Currently, this leaks info to client
   votes: { [playerID: string]: number };
+  myVote: string;
   guessingSheet: GuessingSheet;
   flower: Flower;
   playersReady: { [playerID: string]: boolean };
