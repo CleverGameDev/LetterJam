@@ -122,16 +122,17 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
   update(): void {
     // if (!_.isEqual(this.prevClues, this.scene.gameState.clues)) {
     if (this.scene.gameState.clues) {
-      this.prevClues = this.scene.gameState.clues;
+      const { clues, myVote, players } = this.scene.gameState;
+      this.prevClues = clues;
       const winningPlayer = this._getWinningPlayer();
       const contentItems = [];
-      for (const player of Object.keys(this.scene.gameState.clues)) {
-        const clueArray = this.clueToArray(
-          player,
-          this.scene.gameState.clues[player]
-        );
+      for (const player of Object.keys(clues)) {
+        const clueArray = this.clueToArray(player, clues[player]);
         if (clueArray[0].text === winningPlayer) {
           clueArray[6].text += "*";
+        }
+        if (clueArray[0].text === players[myVote].Name) {
+          clueArray[7].text += " ✓";
         }
         contentItems.push(...clueArray);
       }
