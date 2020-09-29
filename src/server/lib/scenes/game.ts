@@ -36,6 +36,11 @@ const registerListeners = (
     gameState.setPlayerToReady(getPlayerID(socket));
     syncClientGameState(io, gameState);
   });
+
+  socket.on(E.UpdateClueNote, (data: EType[E.UpdateClueNote]) => {
+    gameState.updateClueNote(getPlayerID(socket), data.clueIdx, data.note);
+    syncClientGameState(io, gameState);
+  });
 };
 
 const deregisterListeners = (
@@ -47,6 +52,7 @@ const deregisterListeners = (
   socket.removeAllListeners(E.Vote);
   socket.removeAllListeners(E.NextVisibleLetter);
   socket.removeAllListeners(E.PlayerReady);
+  socket.removeAllListeners(E.UpdateClueNote);
 };
 
 export const setup = (

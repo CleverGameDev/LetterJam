@@ -305,7 +305,7 @@ export default class GameScene extends Phaser.Scene {
     this.flower.setFlowerData(this.gameState.flower);
     this.flower.update();
     this._refreshStands();
-    this.guessingSheet.setClueWords(this.gameState.guessingSheet.hints);
+    this.guessingSheet.setGameState(this.gameState.guessingSheet);
     this.activeClues.update();
 
     if (this.previousPlayState !== this.gameState.playState) {
