@@ -461,6 +461,7 @@ export class ServerGameState {
       playState: this.getPlayState(),
       clues: this.clues,
       votes: this.getVotes(),
+      myVote: this.voteMap[playerID],
       guessingSheet: this.getGuessingSheet(playerID),
       flower: this.flower,
       playersReady: this.playersReady,
