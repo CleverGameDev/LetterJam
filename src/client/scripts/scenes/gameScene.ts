@@ -229,12 +229,15 @@ export default class GameScene extends Phaser.Scene {
     this.clueDialog = new Dialog(
       this,
       "What is your clue?",
-      null,
+      () => {
+        this.activeClues.open();
+      },
       (content: string) => {
         const validClue = giveClue(this.socket, content, this.gameState);
         if (!validClue) {
           // Let user know and prompt for another clue
         }
+        this.activeClues.open();
       }
     );
     this.clueDialog.create();
