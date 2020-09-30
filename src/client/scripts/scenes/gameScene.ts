@@ -36,6 +36,7 @@ export default class GameScene extends Phaser.Scene {
   previousPlayState: PlayStateEnum;
 
   rexUI: any; // global plugin
+  buttons: any;
 
   constructor() {
     super({ key });
@@ -165,7 +166,7 @@ export default class GameScene extends Phaser.Scene {
     // Discuss UI elements
     this.activeClues = new ActiveClues(this);
 
-    const buttons = this.rexUI.add
+    this.buttons = this.rexUI.add
       .buttons({
         anchor: {
           centerX: "center",
@@ -184,7 +185,7 @@ export default class GameScene extends Phaser.Scene {
       })
       .layout();
 
-    buttons
+    this.buttons
       .on("button.click", (button, index: number) => {
         switch (index) {
           case 0:
@@ -199,6 +200,9 @@ export default class GameScene extends Phaser.Scene {
             toggleOpenClose(this.activeClues);
             break;
           case 3:
+            if (this.gameState.playState === PlayStateEnum.INTERPRET_HINT) {
+              break;
+            }
             this._closeAll();
             toggleOpenClose(this.clueDialog);
             break;
@@ -212,13 +216,25 @@ export default class GameScene extends Phaser.Scene {
             break;
         }
       })
-      .on("button.out", function (button, index) {
+      .on("button.out", (button, index) => {
+        if (
+          this.gameState.playState === PlayStateEnum.INTERPRET_HINT &&
+          index === 3
+        ) {
+          return;
+        }
         if (typeof button.getElement === "function") {
           button.getElement("background").setStrokeStyle();
         }
         button.setInteractive({ cursor: "default" });
       })
-      .on("button.over", function (button, index) {
+      .on("button.over", (button, index) => {
+        if (
+          this.gameState.playState === PlayStateEnum.INTERPRET_HINT &&
+          index === 3
+        ) {
+          return;
+        }
         if (typeof button.getElement === "function") {
           button.getElement("background").setStrokeStyle(3, 0xa23a47);
         }
@@ -295,12 +311,20 @@ export default class GameScene extends Phaser.Scene {
     if (this.previousPlayState !== this.gameState.playState) {
       switch (this.gameState.playState) {
         case PlayStateEnum.DISCUSS:
+          this.buttons
+            .getButton(3)
+            .getElement("background")
+            .setFillStyle(0xae3f4b, 1);
           if (this.activeClues) {
             this._closeAll();
             this.activeClues.open();
           }
           break;
         case PlayStateEnum.INTERPRET_HINT:
+          this.buttons
+            .getButton(3)
+            .getElement("background")
+            .setFillStyle(0x888888, 1);
           if (this.guessingSheet) {
             this._closeAll();
             this.guessingSheet.open();
