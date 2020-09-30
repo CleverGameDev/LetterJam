@@ -131,7 +131,7 @@ export default class ActiveClues extends Phaser.GameObjects.Container {
         if (clueArray[0].text === winningPlayer) {
           clueArray[6].text += "*";
         }
-        if (clueArray[0].text === players[myVote].Name) {
+        if (players[myVote] && clueArray[0].text === players[myVote].Name) {
           clueArray[7].text += " ✓";
         }
         contentItems.push(...clueArray);
