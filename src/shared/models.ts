@@ -49,6 +49,7 @@ export type GuessingSheet = {
   // after a clue is agreed upon, this stores each player's view of the clue
   hints: string[];
   notes: string[];
+  finalWord: string;
 };
 
 // TODO: Figure out how to organize Client/Server gameState so that we can share logic (e.g. 'is this a valid clue for player X?' is needed in both client and server)
