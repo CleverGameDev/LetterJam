@@ -1,8 +1,4 @@
-import {
-  DefaultPlayerName,
-  MaxPlayers,
-  SceneEnum,
-} from "../../../shared/constants";
+import { MaxPlayers, SceneEnum } from "../../../shared/constants";
 import { E } from "../../../shared/events";
 import { ClientGameState } from "../../../shared/models";
 import Dialog from "../objects/dialog";
@@ -104,11 +100,6 @@ export default class LobbyScene extends Phaser.Scene {
     }
 
     this.dialog.create();
-    if (
-      this.gameState.players[this.gameState.playerID].Name == DefaultPlayerName
-    ) {
-      this.dialog.open();
-    }
   }
 
   update() {
