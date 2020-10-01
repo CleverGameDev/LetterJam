@@ -23,6 +23,7 @@ export enum E {
   UpdateClue = "updateClue",
   Vote = "vote",
   PlayerReady = "playerReady",
+  UpdateClueNote = "updateClueNote",
 }
 
 // EType is a lookup from Event Name to Event Type
@@ -55,4 +56,8 @@ export type EType = {
     votedName: string;
   };
   [E.PlayerReady]: void;
+  [E.UpdateClueNote]: {
+    clueIdx: number;
+    note: string;
+  };
 };

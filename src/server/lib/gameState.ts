@@ -189,6 +189,10 @@ export class ServerGameState {
     );
   }
 
+  updateClueNote(playerID: string, clueIdx: number, note: string) {
+    this.guessingSheet[playerID].notes[clueIdx] = note;
+  }
+
   getPlayerWhoWonVote() {
     const votes = this.getVotes();
     const sortedPlayers = _.sortBy(Object.keys(votes), (key) => votes[key]);
@@ -227,6 +231,7 @@ export class ServerGameState {
         }
       }
       this.guessingSheet[p].hints.push(hintText);
+      this.guessingSheet[p].notes.push("");
     });
 
     // Advance NPC stands that were used in the clue

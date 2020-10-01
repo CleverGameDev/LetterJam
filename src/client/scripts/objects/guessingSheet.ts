@@ -1,11 +1,14 @@
 import * as _ from "lodash";
 import { COLOR_HOVER, COLOR_SECONDARY } from "../../../shared/constants";
+import { E, EType } from "../../../shared/events";
+import * as m from "../../../shared/models";
 import { Table } from "../objects/table";
+import GameScene from "../scenes/gameScene";
 
 export default class GuessingSheet extends Phaser.GameObjects.Container {
   table: Table;
 
-  constructor(scene) {
+  constructor(scene: GameScene) {
     super(scene, 0, 0);
 
     const numColumns = 10;
@@ -20,6 +23,7 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
       }
     };
     const cellClick = function (cellContainer, cellIndex, pointer) {
+      const row = Math.floor(cellIndex / numColumns);
       if (cellIndex > numColumns && cellIndex % numColumns === numColumns - 1) {
         const edit = this.scene.rexUI.edit(cellContainer.getElement("text"));
         edit.open({}, (textObject) => {
@@ -27,6 +31,12 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
             text: textObject.text,
             keep: true,
           };
+
+          // Save to backend
+          scene.socket.emit(E.UpdateClueNote, <EType[E.UpdateClueNote]>{
+            clueIdx: row - 1, // 0th clue is in the 1st table row.
+            note: textObject.text,
+          });
         });
       }
     };
@@ -72,13 +82,16 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
     this.table.create();
   }
 
-  setClueWords = (guessingSheet: string[]): void => {
+  setGameState = (guessingSheet: m.GuessingSheet): void => {
     const contentItems = _.flattenDeep(
-      guessingSheet.map((item) => {
+      guessingSheet.hints.map((item, mIdx) => {
         const word = new Array(10).fill("");
         Array.from(item.substr(0, 10)).forEach((val, idx) => {
           word[idx] = { text: val };
         });
+
+        // put player's notes for this clue in the last position
+        word[word.length - 1] = { text: guessingSheet.notes[mIdx] };
 
         return word;
       })
@@ -99,8 +112,4 @@ export default class GuessingSheet extends Phaser.GameObjects.Container {
   close = (): void => {
     this.table.close();
   };
-
-  // TODO: add operations to update the guessing sheet based on: player notes for the ??? section
-
-  // TODO: add functionality relating to guessing the final word, too
 }
