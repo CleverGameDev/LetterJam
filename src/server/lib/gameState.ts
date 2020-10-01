@@ -185,12 +185,17 @@ export class ServerGameState {
       this.guessingSheet[playerID] || {
         hints: [],
         notes: [],
+        finalWord: "",
       }
     );
   }
 
   updateClueNote(playerID: string, clueIdx: number, note: string) {
     this.guessingSheet[playerID].notes[clueIdx] = note;
+  }
+
+  updateFinalWord(playerID: string, word: string) {
+    this.guessingSheet[playerID].finalWord = word;
   }
 
   getPlayerWhoWonVote() {
@@ -417,6 +422,7 @@ export class ServerGameState {
       this.guessingSheet[key] = {
         hints: [],
         notes: [],
+        finalWord: "",
       };
     }
 
