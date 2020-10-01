@@ -4,7 +4,7 @@ import path from "path";
 import trie from "trie-prefix-tree";
 import {
   BaseNPCCards,
-  DefaultPlayerName,
+  DefaultPlayerNames,
   LetterDistribution,
   MaxPlayers,
   NPCCardGrowth,
@@ -271,11 +271,28 @@ export class ServerGameState {
     if (this.getScene() === SceneEnum.LobbyScene) {
       if (!this.players[playerID]) {
         this.players[playerID] = {
-          Name: DefaultPlayerName,
+          Name: this.getRandomPlayerName(),
         };
       }
     }
   }
+
+  getRandomPlayerName() {
+    const currentPlayers = this.getPlayerNames();
+
+    // choose a unique player name from the default player names
+    const names = _.shuffle(DefaultPlayerNames);
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      if (currentPlayers.indexOf(name) < 0) {
+        return name;
+      }
+    }
+
+    // uh, this shouldn't happen but just in case!
+    return "Player";
+  }
+
   getPlayerType(playerID: string) {
     if (this.players[playerID]) {
       return PlayerType.Player;
