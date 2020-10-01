@@ -2,7 +2,7 @@ import { PlayStateEnum } from "../../../shared/constants";
 
 export default class PlayStateText extends Phaser.GameObjects.Text {
   constructor(scene: Phaser.Scene) {
-    super(scene, 0, 100, "", { color: "black", fontSize: "28px" });
+    super(scene, 0, 50, "", { color: "black", fontSize: "28px" });
     scene.add.existing(this);
     this.setOrigin(0);
   }

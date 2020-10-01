@@ -59,7 +59,7 @@ export default class GameScene extends Phaser.Scene {
       fontSize: 20,
     };
     const X_OFFSET = 50;
-    const Y_OFFSET = 200;
+    const Y_OFFSET = 150;
     const WIDTH = 180;
 
     for (let i = 0; i < MaxPlayers; i++) {
