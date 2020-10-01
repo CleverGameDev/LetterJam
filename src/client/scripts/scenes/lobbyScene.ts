@@ -9,6 +9,7 @@ export default class LobbyScene extends Phaser.Scene {
   gameState: ClientGameState;
 
   playerTexts: Phaser.GameObjects.Text[];
+  playerName: Phaser.GameObjects.Text;
   dialog: Dialog;
   rexUI: any; // global plugin
 
@@ -27,6 +28,10 @@ export default class LobbyScene extends Phaser.Scene {
 
   init({ socket }): void {
     this.socket = socket;
+  }
+
+  preload() {
+    this.load.svg("meeple", "assets/img/meeple.svg");
   }
 
   createButton = (scene: LobbyScene, text: string) => {
@@ -88,13 +93,32 @@ export default class LobbyScene extends Phaser.Scene {
       fontSize: 36,
     });
 
+    // You
+
+    const { width, height } = this.cameras.main;
+    const meeple = this.add.image(width / 2, height / 2, "meeple");
+    this.playerName = this.add
+      .text(width / 2, height / 2 + 100, "<Your Name>", {
+        color: "#000000",
+        fontSize: 36,
+      })
+      .setOrigin(0.5);
+    this.add.container(0, 0, [meeple, this.playerName]).setSize(512, 512);
+
+    // Player Names
+    this.add
+      .text(this.cameras.main.width - 300, 0, "Players", {
+        color: "#000000",
+        fontSize: 36,
+      })
+      .setOrigin(0, 0);
     for (let i = 0; i < MaxPlayers; i++) {
       const text = this.add
-        .text(this.cameras.main.width - 15, 100 * i, "", {
+        .text(this.cameras.main.width - 300, 50 * (i + 1), "", {
           color: "#000000",
-          fontSize: 36,
+          fontSize: 24,
         })
-        .setOrigin(1, 0);
+        .setOrigin(0, 0);
       text.setVisible(false);
       this.playerTexts.push(text);
     }
@@ -104,6 +128,7 @@ export default class LobbyScene extends Phaser.Scene {
 
   update() {
     this.gameState = this.registry.get("gameState");
+
     // update player texts
     const playerIDs = Object.keys(this.gameState?.players || {}).sort();
     const numPlayers = playerIDs.length;
@@ -116,11 +141,15 @@ export default class LobbyScene extends Phaser.Scene {
           currentPlayerMarker = " [*]";
         }
         pt.setVisible(true);
-        pt.setText(`player = ${playerName}${currentPlayerMarker}`);
+        pt.setText(`- ${playerName}${currentPlayerMarker}`);
       } else {
         pt.setVisible(false);
         pt.setText("");
       }
     }
+
+    // update player name
+    const pName = this.gameState.players[this.gameState.playerID].Name;
+    this.playerName.setText(pName);
   }
 }
