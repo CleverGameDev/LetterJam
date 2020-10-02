@@ -76,6 +76,7 @@ export class ServerGameState {
   playStateIndex: number;
   playersReady: { [playerID: string]: boolean };
   isGameOver: boolean;
+  clueTokens: { [playerID: string]: number }; // tracks how many clue tokens each player has taken
 
   constructor() {
     this.sceneIndex = 0;
@@ -95,6 +96,7 @@ export class ServerGameState {
       green: 0,
       greenLocked: 0,
     };
+    this.clueTokens = {};
     this.isGameOver = false;
   }
 
@@ -224,7 +226,7 @@ export class ServerGameState {
     const [winningPlayerID, winningClue] = [playerID, clue];
 
     // The player who provided the hint takes a turn token
-    this.takeTurnToken(winningPlayerID);
+    this.takeClueToken(winningPlayerID);
 
     // Update each player's GuessingSheet with the winningClue from their perspective
     this.getPlayerIDs().forEach((p) => {
@@ -305,18 +307,44 @@ export class ServerGameState {
     }
   }
 
-  takeTurnToken(playerID: string) {
-    // TODO: This logic is simplified. It needs to be updated
-    // to handle the requirements to unlock more green tokens
-    if (this.flower.red > 0) {
-      this.flower.red -= 1;
-    } else if (this.flower.green > 0) {
-      this.flower.green -= 1;
-    } else if (this.flower.greenLocked > 0) {
-      this.flower.greenLocked -= 1;
-    } else {
-      console.warn("invalid state: cannot take a turn token");
+  // TODO: canGiveClue() -- add a check to ensure it's possible to give a clue
+  // Returns false if failed to take a clueToken
+  takeClueToken(playerID: string): boolean {
+    const playerIDs = this.getPlayerIDs();
+    let redTokensPerPlayer = 1;
+    if (playerIDs.length === 3) {
+      redTokensPerPlayer = 2;
+    } else if (playerIDs.length === 2) {
+      redTokensPerPlayer = 3;
     }
+
+    if (this.clueTokens[playerID] < redTokensPerPlayer) {
+      // Take a red token
+      if (this.flower.red <= 0) {
+        // no red tokens remain -- this shoudn't never happen based on logic above and
+        // baseline number of red tokens
+        console.error("no red tokens remain, but player is trying to take one");
+        return false;
+      }
+      this.flower.red -= 1;
+
+      // Unlock more green tokens?
+      if (this.flower.red == 0) {
+        this.flower.green += this.flower.greenLocked;
+        this.flower.greenLocked = 0;
+      }
+    } else {
+      if (this.flower.green <= 0) {
+        // This could happen if some no green tokens remain but some red tokens remain,
+        // i.e. some players have given few or no hints.
+        // It could also happen if no clues remain in the game.
+        return false;
+      }
+      this.flower.green -= 1;
+    }
+
+    this.clueTokens[playerID] += 1;
+    return true;
   }
 
   advanceScene(): void {
@@ -427,7 +455,8 @@ export class ServerGameState {
       }
     }
 
-    // determine visible letters
+    // initialize visibleLetterIdx
+    // (reference the current card in each player's stack that is visible)
     this.numNPCs = MaxPlayers - playerIDs.length;
     for (const key of playerIDs) {
       this.visibleLetterIdx[key] = 0;
@@ -436,13 +465,15 @@ export class ServerGameState {
       this.visibleLetterIdx[`${NPCPlayerIDPrefix}${i + 1}`] = 0;
     }
 
-    // initialize guessingSheets
     for (const key of playerIDs) {
+      // initialize guessingSheets
       this.guessingSheet[key] = {
         hints: [],
         notes: [],
         finalWord: "",
       };
+      // initialize clueTokens counts
+      this.clueTokens[key] = 0;
     }
 
     // determine flower starting # of tokens
