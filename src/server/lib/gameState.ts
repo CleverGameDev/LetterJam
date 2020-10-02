@@ -200,7 +200,9 @@ export class ServerGameState {
 
   getPlayerWhoWonVote() {
     const votes = this.getVotes();
-    const sortedPlayers = _.sortBy(Object.keys(votes), (key) => votes[key]);
+    const sortedPlayers = _.reverse(
+      _.sortBy(Object.keys(votes), (key) => votes[key])
+    );
 
     const [first, second] = [sortedPlayers[0], sortedPlayers[1]];
 
