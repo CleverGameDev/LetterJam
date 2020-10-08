@@ -512,6 +512,35 @@ export class ServerGameState {
     return PlayStates[this.playStateIndex];
   }
 
+  getEndGame() {
+    if (this.getScene() == SceneEnum.EndScene) {
+      // Guess Vs Actual
+      const guessVsActual = {};
+      const playerIDs = this.getPlayerIDs();
+      for (const key of playerIDs) {
+        const guess = this.guessingSheet[key].finalWord;
+        const actual = this.letters[key];
+        guessVsActual[key] = {
+          guess,
+          actual,
+        };
+      }
+
+      // TODO Compute score
+      const score = 999;
+
+      return {
+        guessVsActual,
+        score,
+      };
+    } else {
+      return {
+        guessVsActual: {},
+        score: 0,
+      };
+    }
+  }
+
   getClientGameState(playerID: string): ClientGameState {
     return {
       playerID,
@@ -526,6 +555,7 @@ export class ServerGameState {
       guessingSheet: this.getGuessingSheet(playerID),
       flower: this.flower,
       playersReady: this.playersReady,
+      endGame: this.getEndGame(),
     };
   }
 
