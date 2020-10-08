@@ -72,6 +72,19 @@ export type ClientGameState = {
   guessingSheet: GuessingSheet;
   flower: Flower;
   playersReady: { [playerID: string]: boolean };
+
+  //
+  // EndScene properties
+  //
+  endGame: {
+    guessVsActual: {
+      [playerID: string]: {
+        guess: string;
+        actual: string;
+      };
+    };
+    score: number;
+  };
 };
 
 export type Flower = {
