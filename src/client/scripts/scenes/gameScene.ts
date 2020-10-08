@@ -8,6 +8,7 @@ import { E } from "../../../shared/events";
 import { ClientGameState, Letter, Stand } from "../../../shared/models";
 import { giveClue } from "../lib/discuss";
 import ActiveClues from "../objects/activeClues";
+import { Button } from "../objects/button";
 import Dialog from "../objects/dialog";
 import Flower from "../objects/flower";
 import GuessingSheet from "../objects/guessingSheet";
@@ -35,8 +36,13 @@ export default class GameScene extends Phaser.Scene {
   board: UIStand[];
   previousPlayState: PlayStateEnum;
 
-  rexUI: any; // global plugin
-  buttons: any;
+  // Buttons
+  giveClueButton: Button;
+  nextSceneButton: Button;
+  guessingSheetButton: Button;
+  activeCluesButton: Button;
+  nextLetterButton: Button;
+  iAmReadyButton: Button;
 
   constructor() {
     super({ key });
@@ -130,22 +136,6 @@ export default class GameScene extends Phaser.Scene {
     });
   };
 
-  _createButton = (scene: GameScene, text: string) => {
-    return scene.rexUI.add.label({
-      width: 100,
-      height: 40,
-      background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0xae3f4b),
-      text: scene.add.text(0, 0, text, {
-        fontSize: 18,
-      }),
-      space: {
-        left: 10,
-        right: 10,
-      },
-      align: "center",
-    });
-  };
-
   create(): void {
     this.gameState = this.registry.get("gameState");
 
@@ -166,80 +156,45 @@ export default class GameScene extends Phaser.Scene {
     // Discuss UI elements
     this.activeClues = new ActiveClues(this);
 
-    this.buttons = this.rexUI.add
-      .buttons({
-        anchor: {
-          centerX: "center",
-          bottom: "bottom-10",
-        },
-        orientation: "x",
-        buttons: [
-          this._createButton(this, "Next Scene"),
-          this._createButton(this, "Guessing Sheet"),
-          this._createButton(this, "Active Clues"),
-          this._createButton(this, "Give Clue"),
-          this._createButton(this, "Go to next letter"),
-          this._createButton(this, "I am ready"),
-        ],
-        space: { item: 8 },
-      })
-      .layout();
-
-    this.buttons
-      .on("button.click", (button, index: number) => {
-        switch (index) {
-          case 0:
-            this.socket.emit(E.NextScene);
-            break;
-          case 1:
-            this._closeAll();
-            toggleOpenClose(this.guessingSheet);
-            break;
-          case 2:
-            this._closeAll();
-            toggleOpenClose(this.activeClues);
-            break;
-          case 3:
-            if (this.gameState.playState === PlayStateEnum.INTERPRET_HINT) {
-              break;
-            }
-            this._closeAll();
-            toggleOpenClose(this.clueDialog);
-            break;
-          case 4:
-            this.socket.emit(E.NextVisibleLetter);
-            break;
-          case 5:
-            this.socket.emit(E.PlayerReady);
-            break;
-          default:
-            break;
-        }
-      })
-      .on("button.out", (button, index) => {
-        if (
-          this.gameState.playState === PlayStateEnum.INTERPRET_HINT &&
-          index === 3
-        ) {
-          return;
-        }
-        if (typeof button.getElement === "function") {
-          button.getElement("background").setStrokeStyle();
-        }
-        button.setInteractive({ cursor: "default" });
-      })
-      .on("button.over", (button, index) => {
-        if (
-          this.gameState.playState === PlayStateEnum.INTERPRET_HINT &&
-          index === 3
-        ) {
-          return;
-        }
-        if (typeof button.getElement === "function") {
-          button.getElement("background").setStrokeStyle(3, 0xa23a47);
-        }
-        button.setInteractive({ useHandCursor: true });
-      });
+    // Buttons
+    this.giveClueButton = new Button(this, 0, 0, "Give Clue", () => {
+      if (this.gameState.playState === PlayStateEnum.INTERPRET_HINT) {
+        return;
+      }
+      this._closeAll();
+      toggleOpenClose(this.clueDialog);
+    });
+    this.nextSceneButton = new Button(this, 0, 0, "Next Scene", () => {
+      this.socket.emit(E.NextScene);
+    });
+    this.guessingSheetButton = new Button(this, 0, 0, "Guessing Sheet", () => {
+      this._closeAll();
+      toggleOpenClose(this.guessingSheet);
+    });
+    this.activeCluesButton = new Button(this, 0, 0, "Active Clues", () => {
+      this._closeAll();
+      toggleOpenClose(this.activeClues);
+    });
+    this.nextLetterButton = new Button(this, 0, 0, "Go to Next Letter", () => {
+      this.socket.emit(E.NextVisibleLetter);
+    });
+    this.iAmReadyButton = new Button(this, 0, 0, "I'm Ready", () => {
+      this.socket.emit(E.PlayerReady);
+    });
+    const group = this.add.group([
+      this.giveClueButton,
+      this.nextSceneButton,
+      this.guessingSheetButton,
+      this.activeCluesButton,
+      this.nextLetterButton,
+      this.iAmReadyButton,
+    ]);
+    Phaser.Actions.GridAlign(group.getChildren(), {
+      cellWidth: this.nextSceneButton.width + 16,
+      cellHeight: this.nextSceneButton.height,
+      x: 32,
+      y: this.cameras.main.height - this.nextSceneButton.height - 16,
+    });
 
     // Dialogs
     this.clueDialog = new Dialog(
@@ -308,23 +263,21 @@ export default class GameScene extends Phaser.Scene {
     this.guessingSheet.setGameState(this.gameState.guessingSheet);
     this.activeClues.update();
 
+    if (this.gameState.playState == PlayStateEnum.DISCUSS) {
+      this.giveClueButton.setDisabled(false);
+    } else {
+      this.giveClueButton.setDisabled(true);
+    }
+
     if (this.previousPlayState !== this.gameState.playState) {
       switch (this.gameState.playState) {
         case PlayStateEnum.DISCUSS:
-          this.buttons
-            .getButton(3)
-            .getElement("background")
-            .setFillStyle(0xae3f4b, 1);
           if (this.activeClues) {
             this._closeAll();
             this.activeClues.open();
           }
           break;
         case PlayStateEnum.INTERPRET_HINT:
-          this.buttons
-            .getButton(3)
-            .getElement("background")
-            .setFillStyle(0x888888, 1);
           if (this.guessingSheet) {
             this._closeAll();
             this.guessingSheet.open();
