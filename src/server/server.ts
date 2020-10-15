@@ -36,6 +36,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../../dist/index.html"));
 });
 
+app.use("/client2", express.static(path.join(__dirname, "build")));
+
+app.get("/client2", function (req, res) {
+  res.sendFile(path.join(__dirname, "../../src/client2/build", "index.html"));
+});
+
 // Setup socketIO, including shared session with express server
 const io = socketIO(server);
 io.use(

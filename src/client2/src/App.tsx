@@ -1,8 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import io from "socket.io-client";
 import './App.css';
+import logo from './logo.svg';
 
 function App() {
+  const [socket, setSocket] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  // establish socket connection
+  useEffect(() => {
+    // TODO: this
+    const socket = io('http://localhost:3000')
+    // @ts-ignore
+    setSocket(socket);
+  }, []);
+
+ // subscribe to the socket event
+  useEffect(() => {
+    if (socket === null) return;
+
+    // @ts-ignore
+    socket.on('connect', () => {
+    // @ts-ignore
+      setSocketConnected(socket.connected);
+    // @ts-ignore
+      console.log(socket.id);
+    // @ts-ignore
+      console.log(socket.handshake);
+    });
+    // @ts-ignore
+    socket.on('disconnect', () => {
+
+    // @ts-ignore
+      setSocketConnected(socket.connected);
+    });
+
+  }, [socket]);
+
+  // manage socket connection
+  const handleSocketConnection = () => {
+    if (socketConnected) {
+    // @ts-ignore
+      socket.disconnect();
+    } else {
+    // @ts-ignore
+      socket.connect();
+    }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -18,6 +63,14 @@ function App() {
         >
           Learn React
         </a>
+      <div>
+        <b>Connection status:</b> {socketConnected ? 'Connected' : 'Disconnected'}
+      </div>
+      <input
+        type="button"
+        style={{ marginTop: 10 }}
+        value={socketConnected ? 'Disconnect' : 'Connect'}
+        onClick={handleSocketConnection} />
       </header>
     </div>
   );
