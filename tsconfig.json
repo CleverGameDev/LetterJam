@@ -10,5 +10,10 @@
     "strictPropertyInitialization": false,
     "lib": ["dom", "es6", "esnext"],
     "types": ["@types/jest"]
-  }
+  },
+  "include": [
+    "src/client/",
+    "src/server/",
+    "src/shared/"
+  ]
 }
