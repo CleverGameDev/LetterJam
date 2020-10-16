@@ -9,5 +9,10 @@
     "sourceMap": true,
     "strictPropertyInitialization": false,
     "lib": ["dom", "es6", "esnext"]
-  }
+  },
+  "include": [
+    "src/client/",
+    "src/server/",
+    "src/shared/"
+  ]
 }
