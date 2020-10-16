@@ -10,8 +10,8 @@
     "startDev": "./run_local.sh",
     "startProd": "NODE_ENV=production ./node_modules/.bin/ts-node src/server/server.ts",
     "lint": "eslint . --ext .ts",
-    "test": "jest",
-    "testw": "jest --watch"
+    "test": "jest --testPathIgnorePatterns src/client2",
+    "testw": "jest --watch --testPathIgnorePatterns src/client2"
   },
   "keywords": [
     "Phaser",

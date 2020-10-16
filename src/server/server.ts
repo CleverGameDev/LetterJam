@@ -29,11 +29,20 @@ const session = expressSession({
 });
 app.use(session);
 
-// Routes
+// Phaser client
 app.use("/", express.static(path.join(__dirname, "../../dist")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../../dist/index.html"));
+});
+
+// React client
+// NOTE: You must also be running the react client, via:
+// cd src/client2 && npm start
+app.use("/v2", express.static(path.join(__dirname, "build")));
+
+app.get("/v2", function (req, res) {
+  res.sendFile(path.join(__dirname, "../../src/client2/build", "index.html"));
 });
 
 // Setup socketIO, including shared session with express server
