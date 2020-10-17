@@ -11,3 +11,4 @@ src/client2/node_modules/
 node_modules
 __build
 dist
+.vscode/
