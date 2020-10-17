@@ -12,7 +12,6 @@ import { ClientGameState } from "./shared/models";
 
 function App() {
   const [socket, setSocket] = useState(null);
-  const [socketConnected, setSocketConnected] = useState(false);
   const [gameState, setGameState] = useState({});
 
   // establish socket connection
