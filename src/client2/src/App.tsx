@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import './App.css';
-import logo from './logo.svg';
+import "./App.css";
+import logo from "./logo.svg";
 // TODO: For the moment, I've directly copied the files under shared/, since create-react-app has a (reasonable) restriction on importing anything outside of src/
 import { E, EType } from "./shared/events";
 
@@ -10,11 +10,10 @@ function App() {
   const [socketConnected, setSocketConnected] = useState(false);
   const [gameState, setGameState] = useState({});
 
-
   // establish socket connection
   useEffect(() => {
     // TODO: this
-    const socket = io('http://localhost:3000')
+    const socket = io("http://localhost:3000");
     // @ts-ignore
     setSocket(socket);
   }, []);
@@ -24,7 +23,7 @@ function App() {
     if (socket === null) return;
 
     // @ts-ignore
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       // @ts-ignore
       setSocketConnected(socket.connected);
       // @ts-ignore
@@ -34,27 +33,27 @@ function App() {
     });
 
     // @ts-ignore
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       // @ts-ignore
       setSocketConnected(socket.connected);
     });
 
     // @ts-ignore
     socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
-      setGameState(data)
+      setGameState(data);
     });
   }, [socket]);
 
   // manage socket connection
   const handleSocketConnection = () => {
     if (socketConnected) {
-    // @ts-ignore
+      // @ts-ignore
       socket.disconnect();
     } else {
-    // @ts-ignore
+      // @ts-ignore
       socket.connect();
     }
-  }
+  };
 
   return (
     <div className="App">
@@ -71,14 +70,16 @@ function App() {
         >
           Learn React
         </a>
-      <div>
-        <b>Connection status:</b> {socketConnected ? 'Connected' : 'Disconnected'}
-      </div>
-      <input
-        type="button"
-        style={{ marginTop: 10 }}
-        value={socketConnected ? 'Disconnect' : 'Connect'}
-        onClick={handleSocketConnection} />
+        <div>
+          <b>Connection status:</b>{" "}
+          {socketConnected ? "Connected" : "Disconnected"}
+        </div>
+        <input
+          type="button"
+          style={{ marginTop: 10 }}
+          value={socketConnected ? "Disconnect" : "Connect"}
+          onClick={handleSocketConnection}
+        />
       </header>
     </div>
   );
