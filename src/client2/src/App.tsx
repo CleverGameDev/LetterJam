@@ -12,7 +12,7 @@ function App() {
 
   // establish socket connection
   useEffect(() => {
-    // TODO: this
+    // TODO: this needs to point to the correct server in prod, as well
     const socket = io("http://localhost:3000");
     // @ts-ignore
     setSocket(socket);
