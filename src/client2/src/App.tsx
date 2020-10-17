@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import io from "socket.io-client";
 import './App.css';
 import logo from './logo.svg';
+// TODO: For the moment, I've directly copied the files under shared/, since create-react-app has a (reasonable) restriction on importing anything outside of src/
+import { E, EType } from "./shared/events";
 
 function App() {
   const [socket, setSocket] = useState(null);
   const [socketConnected, setSocketConnected] = useState(false);
+  const [gameState, setGameState] = useState({});
+
 
   // establish socket connection
   useEffect(() => {
@@ -15,26 +19,30 @@ function App() {
     setSocket(socket);
   }, []);
 
- // subscribe to the socket event
+  // subscribe to the socket event
   useEffect(() => {
     if (socket === null) return;
 
     // @ts-ignore
     socket.on('connect', () => {
-    // @ts-ignore
+      // @ts-ignore
       setSocketConnected(socket.connected);
-    // @ts-ignore
+      // @ts-ignore
       console.log(socket.id);
-    // @ts-ignore
+      // @ts-ignore
       console.log(socket.handshake);
     });
-    // @ts-ignore
-    socket.on('disconnect', () => {
 
     // @ts-ignore
+    socket.on('disconnect', () => {
+      // @ts-ignore
       setSocketConnected(socket.connected);
     });
 
+    // @ts-ignore
+    socket.on(E.SyncGameState, (data: EType[E.SyncGameState]) => {
+      setGameState(data)
+    });
   }, [socket]);
 
   // manage socket connection
