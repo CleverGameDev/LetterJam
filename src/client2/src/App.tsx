@@ -80,6 +80,10 @@ function App() {
           value={socketConnected ? "Disconnect" : "Connect"}
           onClick={handleSocketConnection}
         />
+        <div>
+          <b>Game State</b>
+          {JSON.stringify(gameState)}
+        </div>
       </header>
     </div>
   );
