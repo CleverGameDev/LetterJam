@@ -4,8 +4,7 @@ import NavBar from "./NavBar";
 export default function LobbyScene() {
   return (
     <div>
-      <NavBar />
-      Lobby Scene
+      <NavBar scene="Lobby" />
     </div>
   );
 }

@@ -1,7 +1,6 @@
-import { makeStyles } from "@material-ui/core/styles";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
-import LocalFloristIcon from "@material-ui/icons/LocalFlorist";
 import React from "react";
+import ActiveClues from "./ActiveClues";
+import Flower from "./Flower";
 import NavBar from "./NavBar";
 import * as m from "./shared/models";
 
@@ -10,8 +9,6 @@ type GameSceneProps = {
 };
 
 function GuessingSheet() {}
-
-function ActiveClues() {}
 
 function Buttons() {
   // buttons: [
@@ -60,54 +57,14 @@ function GiveClueModal() {}
 
 function Stands() {}
 
-type FlowerProps = {
-  data: m.Flower;
-};
-
-function iconStyles() {
-  return {
-    redFlower: {
-      color: "red",
-    },
-    greenFlower: {
-      color: "green",
-    },
-    greenLockedFlower: {
-      color: "gray",
-    },
-  };
-}
-
-function Flower(props: FlowerProps) {
-  const classes = makeStyles(iconStyles)();
-  const { red, green, greenLocked } = props.data;
-  const out = [];
-  for (let i = 0; i < red; i++) {
-    out.push(<FiberManualRecordIcon className={classes.redFlower} />);
-  }
-  for (let i = 0; i < green; i++) {
-    out.push(<FiberManualRecordIcon className={classes.greenFlower} />);
-  }
-  for (let i = 0; i < greenLocked; i++) {
-    out.push(<FiberManualRecordIcon className={classes.greenLockedFlower} />);
-  }
-
-  return (
-    <div>
-      <LocalFloristIcon />
-      {out}
-    </div>
-  );
-}
-
 export default function GameScene(props: GameSceneProps) {
   const { gameState } = props;
   console.log({ gameState });
   return (
     <div>
-      <NavBar />
+      <NavBar scene={"Game"} />
       <Flower data={gameState.flower} />
-      Game Scene
+      <ActiveClues data={gameState} />
     </div>
   );
 }

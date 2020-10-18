@@ -21,7 +21,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const NavBar = () => {
+type NavBarProps = {
+  scene?: string;
+};
+const NavBar = (props: NavBarProps) => {
+  const { scene } = props;
+
   const classes = useStyles();
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -52,7 +57,7 @@ const NavBar = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            LetterJam
+            {scene ? `LetterJam: ${scene} Scene` : "Letter Jam"}
           </Typography>
           {auth && (
             <div>
