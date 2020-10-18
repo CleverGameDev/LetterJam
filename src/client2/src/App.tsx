@@ -43,7 +43,7 @@ function App() {
     case SceneEnum.SetupScene:
       return <SetupScene />;
     case SceneEnum.GameScene:
-      return <GameScene />;
+      return <GameScene gameState={gs} />;
     case SceneEnum.EndScene:
       return <EndScene />;
   }
