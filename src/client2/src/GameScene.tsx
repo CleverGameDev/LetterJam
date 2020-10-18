@@ -1,10 +1,12 @@
 import React from "react";
+import { Socket } from "socket.io";
 import ActiveClues from "./ActiveClues";
 import Flower from "./Flower";
 import NavBar from "./NavBar";
 import * as m from "./shared/models";
 
 type GameSceneProps = {
+  socket: Socket;
   gameState: m.ClientGameState;
 };
 
@@ -58,13 +60,13 @@ function GiveClueModal() {}
 function Stands() {}
 
 export default function GameScene(props: GameSceneProps) {
-  const { gameState } = props;
+  const { socket, gameState } = props;
   console.log({ gameState });
   return (
     <div>
       <NavBar scene={"Game"} />
       <Flower data={gameState.flower} />
-      <ActiveClues data={gameState} />
+      <ActiveClues socket={socket} gameState={gameState} />
     </div>
   );
 }

@@ -32,7 +32,7 @@ function App() {
     });
   }, [socket]);
 
-  if (gameState === {}) {
+  if (gameState === {} || socket === null) {
     return <div>Loading...</div>;
   }
 
@@ -43,7 +43,9 @@ function App() {
     case SceneEnum.SetupScene:
       return <SetupScene />;
     case SceneEnum.GameScene:
-      return <GameScene gameState={gs} />;
+      // TODO: socket is always defined at this point
+      // @ts-ignore
+      return <GameScene socket={socket} gameState={gs} />;
     case SceneEnum.EndScene:
       return <EndScene />;
   }

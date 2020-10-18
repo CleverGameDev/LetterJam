@@ -44,6 +44,7 @@ const NavBar = (props: NavBarProps) => {
     setAnchorEl(null);
   };
 
+  // TODO: Show your player name in top right
   return (
     <div>
       <AppBar position="static">

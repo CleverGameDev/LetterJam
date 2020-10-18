@@ -27,13 +27,25 @@ export default function Flower(props: FlowerProps) {
   const { red, green, greenLocked } = props.data;
   const out = [];
   for (let i = 0; i < red; i++) {
-    out.push(<FiberManualRecordIcon className={classes.redFlower} />);
+    out.push(
+      <FiberManualRecordIcon key={`red-${i}`} className={classes.redFlower} />
+    );
   }
   for (let i = 0; i < green; i++) {
-    out.push(<FiberManualRecordIcon className={classes.greenFlower} />);
+    out.push(
+      <FiberManualRecordIcon
+        key={`green-${i}`}
+        className={classes.greenFlower}
+      />
+    );
   }
   for (let i = 0; i < greenLocked; i++) {
-    out.push(<FiberManualRecordIcon className={classes.greenLockedFlower} />);
+    out.push(
+      <FiberManualRecordIcon
+        key={`greenlocked-${i}`}
+        className={classes.greenLockedFlower}
+      />
+    );
   }
 
   return (
