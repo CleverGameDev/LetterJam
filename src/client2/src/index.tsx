@@ -1,25 +1,28 @@
+import { purple, teal } from "@material-ui/core/colors";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
-// const theme = () => {
-//   return createMuiTheme({
-//     palette: {
-//       primary: {
-//         ...blue,
-//         "500": "#01579B",
-//       },
-//     },
-//   });
-// };
+// Color picking: https://material-ui.com/customization/color/#picking-colors
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: purple[500],
+    },
+    secondary: {
+      main: teal[200],
+    },
+  },
+});
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <MuiThemeProvider theme={theme}> */}
-    <App />
-    {/* </MuiThemeProvider> */}
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
