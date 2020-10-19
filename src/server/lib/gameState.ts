@@ -79,9 +79,13 @@ export class ServerGameState {
   clueTokens: { [playerID: string]: number }; // tracks how many clue tokens each player has taken
 
   constructor() {
+    this.players = {};
+    this.resetGame();
+  }
+
+  resetGame() {
     this.sceneIndex = 0;
     this.room = "someRoom";
-    this.players = {};
     this.numNPCs = 0;
     this.letters = {};
     this.visibleLetterIdx = {};
@@ -350,7 +354,9 @@ export class ServerGameState {
   advanceScene(): void {
     this.sceneIndex++;
     this.sceneIndex %= Scenes.length;
-    this.resetVotesAndClues();
+    if (this.getScene() == SceneEnum.LobbyScene) {
+      this.resetGame();
+    }
   }
 
   getWinningClue() {
