@@ -36,7 +36,7 @@ export default function Stands(props: StandsProps) {
           }
           return (
             <Stand
-              visibleLetter={stand.letter}
+              visibleLetter={stand.letter.toUpperCase()}
               playerName={getStandName(gameState, stand)}
               deckPosition={`${stand.currentCardIdx + 1}/${stand.totalCards}`}
               readyText={readyText}
