@@ -2,6 +2,7 @@ import React from "react";
 import { Socket } from "socket.io";
 import ActiveClues from "./ActiveClues";
 import Flower from "./Flower";
+import GuessingSheet from "./GuessingSheet";
 import NavBar from "./NavBar";
 import * as m from "./shared/models";
 import Stands from "./Stands";
@@ -10,8 +11,6 @@ type GameSceneProps = {
   socket: Socket;
   gameState: m.ClientGameState;
 };
-
-function GuessingSheet() {}
 
 function Buttons() {
   // buttons: [
@@ -67,6 +66,7 @@ export default function GameScene(props: GameSceneProps) {
       <Flower data={gameState.flower} />
       <Stands gameState={gameState} />
       <ActiveClues socket={socket} gameState={gameState} />
+      <GuessingSheet gameState={gameState} />
     </div>
   );
 }

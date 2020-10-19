@@ -154,7 +154,7 @@ export default function ActiveClues(props: ActiveCluesProps) {
                 <TableCell align="right">
                   <Checkbox
                     checked={
-                      gameState.players[gameState.myVote].Name ===
+                      gameState.players[gameState.myVote]?.Name ===
                       row.player_name
                     }
                     onClick={() => {
