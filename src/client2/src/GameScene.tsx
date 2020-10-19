@@ -4,6 +4,7 @@ import ActiveClues from "./ActiveClues";
 import Flower from "./Flower";
 import NavBar from "./NavBar";
 import * as m from "./shared/models";
+import Stands from "./Stands";
 
 type GameSceneProps = {
   socket: Socket;
@@ -57,8 +58,6 @@ function Buttons() {
 
 function GiveClueModal() {}
 
-function Stands() {}
-
 export default function GameScene(props: GameSceneProps) {
   const { socket, gameState } = props;
   console.log({ gameState });
@@ -66,6 +65,7 @@ export default function GameScene(props: GameSceneProps) {
     <div>
       <NavBar scene={"Game"} />
       <Flower data={gameState.flower} />
+      <Stands gameState={gameState} />
       <ActiveClues socket={socket} gameState={gameState} />
     </div>
   );
