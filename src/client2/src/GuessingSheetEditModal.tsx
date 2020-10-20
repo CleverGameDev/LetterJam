@@ -21,14 +21,24 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
-export default function FormDialog() {
+type GuessingSheetEditModalProps = {
+  initialText: string;
+  onClose(text: string): void;
+};
+
+export default function GuessingSheetEditModal(
+  props: GuessingSheetEditModalProps
+) {
+  const { initialText, onClose } = props;
   const [open, setOpen] = React.useState(false);
+  const [text, setText] = React.useState(initialText);
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
+    onClose(text);
     setOpen(false);
   };
 
@@ -41,27 +51,25 @@ export default function FormDialog() {
         PaperComponent={PaperComponent}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+        <DialogTitle id="form-dialog-title">Guess</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To subscribe to this website, please enter your email address here.
-            We will send updates occasionally.
+            Keep notes about possible words here.
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
             id="name"
-            label="Email Address"
-            type="email"
+            label="your notes"
             fullWidth
+            value={text}
+            // @ts-ignore
+            onInput={(e) => setText(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleClose} color="primary">
-            Subscribe
+            Save
           </Button>
         </DialogActions>
       </Dialog>

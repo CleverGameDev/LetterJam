@@ -66,7 +66,7 @@ export default function GameScene(props: GameSceneProps) {
       <Flower data={gameState.flower} />
       <Stands gameState={gameState} />
       <ActiveClues socket={socket} gameState={gameState} />
-      <GuessingSheet gameState={gameState} />
+      <GuessingSheet socket={socket} gameState={gameState} />
     </div>
   );
 }
