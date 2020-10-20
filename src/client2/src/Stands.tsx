@@ -3,8 +3,26 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import {
+  Filter1,
+  Filter2,
+  Filter3,
+  Filter4,
+  Filter5,
+  Filter6,
+  Filter7,
+  Filter8,
+  Filter9,
+  Filter9Plus,
+  FilterNone,
+} from "@material-ui/icons";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import ComputerIcon from "@material-ui/icons/Computer";
+import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
+import PermIdentityIcon from "@material-ui/icons/PermIdentity";
 import React from "react";
 import * as m from "./shared/models";
+import "./Stands.css";
 
 function getStandName(gameState: m.ClientGameState, stand: m.Stand) {
   // get name for player or NPC
@@ -27,19 +45,14 @@ export default function Stands(props: StandsProps) {
       <h1>Stands</h1>
       <Box display="flex" justifyContent="space-evenly">
         {gameState.visibleLetters.map((stand, idx) => {
-          const isPlayer = gameState.players[stand.playerID];
-          let readyText = gameState.playersReady[stand.playerID]
-            ? "ready!"
-            : "not ready";
-          if (!isPlayer) {
-            readyText = "";
-          }
+          const isHumanPlayer = !!gameState.players[stand.playerID];
           return (
             <Stand
               visibleLetter={stand.letter.toUpperCase()}
               playerName={getStandName(gameState, stand)}
-              deckPosition={`${stand.currentCardIdx + 1}/${stand.totalCards}`}
-              readyText={readyText}
+              playerType={isHumanPlayer ? "human" : "computer"}
+              cardsBelow={stand.totalCards - (stand.currentCardIdx + 1)}
+              isReady={gameState.playersReady[stand.playerID] || false}
             />
           );
         })}
@@ -66,30 +79,62 @@ const useStyles = makeStyles({
 
 type StandProps = {
   visibleLetter: string;
-  deckPosition: string; // e.g. "1/5"
   playerName: string;
-  readyText: string;
+  playerType: string;
+  isReady: boolean;
+  cardsBelow: number;
 };
 
 function Stand(props: StandProps) {
   const classes = useStyles();
 
   return (
-    <Card className={classes.root}>
-      <CardContent>
-        <Typography variant="h2" component="h2">
-          {props.visibleLetter}
-        </Typography>
-        <Typography className={classes.pos} color="textSecondary">
-          {props.deckPosition}
-        </Typography>
-        <Typography variant="body2" component="p">
-          {props.playerName}
-        </Typography>
-        <Typography variant="body2" component="p">
-          {props.readyText}
-        </Typography>
-      </CardContent>
-    </Card>
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-evenly"
+      alignItems="center"
+    >
+      <Typography variant="h5">
+        {props.playerName}
+        {props.playerType === "human" && <PermIdentityIcon />}
+        {props.playerType === "computer" && <ComputerIcon />}
+      </Typography>
+      {props.playerType === "human" && props.isReady && (
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <CheckCircleIcon />
+          Ready
+        </Box>
+      )}
+      {props.playerType === "human" && !props.isReady && (
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <div className="thinking">
+            <HourglassEmptyIcon />
+          </div>
+          Thinking...
+        </Box>
+      )}
+
+      <Card className={classes.root}>
+        <CardContent>
+          <Typography variant="h2" component="h2">
+            {props.visibleLetter}
+          </Typography>
+        </CardContent>
+      </Card>
+      <Typography className={classes.pos} color="textSecondary">
+        {props.cardsBelow === 0 && <FilterNone />}
+        {props.cardsBelow === 1 && <Filter1 />}
+        {props.cardsBelow === 2 && <Filter2 />}
+        {props.cardsBelow === 3 && <Filter3 />}
+        {props.cardsBelow === 4 && <Filter4 />}
+        {props.cardsBelow === 5 && <Filter5 />}
+        {props.cardsBelow === 6 && <Filter6 />}
+        {props.cardsBelow === 7 && <Filter7 />}
+        {props.cardsBelow === 8 && <Filter8 />}
+        {props.cardsBelow === 9 && <Filter9 />}
+        {props.cardsBelow > 9 && <Filter9Plus />}
+      </Typography>
+    </Box>
   );
 }
