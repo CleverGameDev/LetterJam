@@ -1,3 +1,11 @@
+.stands {
+  padding: 20px 0;
+}
+
+.readystate {
+  height: 30px;
+}
+
 .thinking {
   animation: rotation 6s infinite linear;
   margin-right: 5px;
@@ -22,4 +30,30 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.standstatus {
+  height: 20px;
+  width: 20px;
+  border: 1px solid gray;
+  margin: 0 2px;
+  text-align: center;
+  padding-top: 8px;
+  padding-bottom: 10px;
+  padding-left: 2px;
+  padding-right: 4px;
+}
+
+.standstatus--done {
+  /* lightGreen[300] */
+  background-color: #aed581;
+}
+.standstatus--current {
+  /* blue[300] */
+  background-color: #64b5f6;
+}
+.standstatus--future {
+  /* deepPurple[300] */
+  background-color: #9575cd;
+  font-weight: bold;
 }

@@ -4,6 +4,8 @@ import CardContent from "@material-ui/core/CardContent";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import {
+  ArrowUpward as ArrowUpwardIcon,
+  Done as DoneIcon,
   Filter1,
   Filter2,
   Filter3,
@@ -41,8 +43,7 @@ type StandsProps = {
 export default function Stands(props: StandsProps) {
   const { gameState } = props;
   return (
-    <div>
-      <h1>Stands</h1>
+    <div className="stands">
       <Box display="flex" justifyContent="space-evenly">
         {gameState.visibleLetters.map((stand, idx) => {
           const isHumanPlayer = !!gameState.players[stand.playerID];
@@ -50,7 +51,7 @@ export default function Stands(props: StandsProps) {
             <Stand
               visibleLetter={stand.letter.toUpperCase()}
               playerName={getStandName(gameState, stand)}
-              playerType={isHumanPlayer ? "human" : "computer"}
+              playerType={isHumanPlayer ? "human" : "npc"}
               cardsBelow={stand.totalCards - (stand.currentCardIdx + 1)}
               isReady={gameState.playersReady[stand.playerID] || false}
             />
@@ -63,7 +64,10 @@ export default function Stands(props: StandsProps) {
 }
 
 const useStyles = makeStyles({
-  root: {},
+  root: {
+    padding: "30px",
+    margin: "10px 0",
+  },
   bullet: {
     display: "inline-block",
     margin: "0 2px",
@@ -73,7 +77,7 @@ const useStyles = makeStyles({
     fontSize: 14,
   },
   pos: {
-    marginBottom: 12,
+    // marginBottom: 12,
   },
 });
 
@@ -98,22 +102,24 @@ function Stand(props: StandProps) {
       <Typography variant="h5">
         {props.playerName}
         {props.playerType === "human" && <PermIdentityIcon />}
-        {props.playerType === "computer" && <ComputerIcon />}
+        {props.playerType === "npc" && <ComputerIcon />}
       </Typography>
-      {props.playerType === "human" && props.isReady && (
-        <Box display="flex" flexDirection="row" alignItems="center">
-          <CheckCircleIcon />
-          Ready
-        </Box>
-      )}
-      {props.playerType === "human" && !props.isReady && (
-        <Box display="flex" flexDirection="row" alignItems="center">
-          <div className="thinking">
-            <HourglassEmptyIcon />
-          </div>
-          Thinking...
-        </Box>
-      )}
+      <div className="readystate">
+        {props.playerType === "human" && props.isReady && (
+          <Box display="flex" flexDirection="row" alignItems="center">
+            <CheckCircleIcon />
+            Ready
+          </Box>
+        )}
+        {props.playerType === "human" && !props.isReady && (
+          <Box display="flex" flexDirection="row" alignItems="center">
+            <div className="thinking">
+              <HourglassEmptyIcon />
+            </div>
+            Thinking...
+          </Box>
+        )}
+      </div>
 
       <Card className={classes.root}>
         <CardContent>
@@ -122,19 +128,52 @@ function Stand(props: StandProps) {
           </Typography>
         </CardContent>
       </Card>
-      <Typography className={classes.pos} color="textSecondary">
-        {props.cardsBelow === 0 && <FilterNone />}
-        {props.cardsBelow === 1 && <Filter1 />}
-        {props.cardsBelow === 2 && <Filter2 />}
-        {props.cardsBelow === 3 && <Filter3 />}
-        {props.cardsBelow === 4 && <Filter4 />}
-        {props.cardsBelow === 5 && <Filter5 />}
-        {props.cardsBelow === 6 && <Filter6 />}
-        {props.cardsBelow === 7 && <Filter7 />}
-        {props.cardsBelow === 8 && <Filter8 />}
-        {props.cardsBelow === 9 && <Filter9 />}
-        {props.cardsBelow > 9 && <Filter9Plus />}
-      </Typography>
+      {props.playerType === "human" && (
+        <PlayerStandStatus currentCardIdx={2} totalCards={5} />
+      )}
+      {props.playerType === "npc" && (
+        <>
+          {props.cardsBelow === 0 && <FilterNone />}
+          {props.cardsBelow === 1 && <Filter1 />}
+          {props.cardsBelow === 2 && <Filter2 />}
+          {props.cardsBelow === 3 && <Filter3 />}
+          {props.cardsBelow === 4 && <Filter4 />}
+          {props.cardsBelow === 5 && <Filter5 />}
+          {props.cardsBelow === 6 && <Filter6 />}
+          {props.cardsBelow === 7 && <Filter7 />}
+          {props.cardsBelow === 8 && <Filter8 />}
+          {props.cardsBelow === 9 && <Filter9 />}
+          {props.cardsBelow > 9 && <Filter9Plus />}
+        </>
+      )}
     </Box>
   );
+}
+
+type PlayerStandStatusProps = {
+  currentCardIdx: number;
+  totalCards: number;
+};
+
+function PlayerStandStatus(props: PlayerStandStatusProps) {
+  const out = [];
+  for (let i = 0; i < props.totalCards; i++) {
+    if (i < props.currentCardIdx) {
+      out.push(
+        <div className="standstatus standstatus--done">
+          <DoneIcon />
+        </div>
+      );
+    } else if (i == props.currentCardIdx) {
+      out.push(
+        <div className="standstatus standstatus--current">
+          <ArrowUpwardIcon />
+        </div>
+      );
+    } else {
+      out.push(<div className="standstatus standstatus--future">?</div>);
+    }
+  }
+
+  return <Box display="flex">{out}</Box>;
 }

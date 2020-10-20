@@ -39,19 +39,19 @@ const useStyles = makeStyles({
     backgroundColor: yellow[intensity],
   },
   lightGreenBg: {
-    backgroundColor: lightGreen[intensity],
+    backgroundColor: lightGreen[intensity], // '#aed581'
   },
   greenBg: {
     backgroundColor: green[intensity],
   },
   blueBg: {
-    backgroundColor: blue[intensity],
+    backgroundColor: blue[intensity], //'#64b5f6';
   },
   indigoBg: {
     backgroundColor: indigo[intensity],
   },
   violetBg: {
-    backgroundColor: deepPurple[intensity],
+    backgroundColor: deepPurple[intensity], //'#9575cd'
   },
   grayBg: {
     backgroundColor: "#e0e0e0",
