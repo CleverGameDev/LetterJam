@@ -18,6 +18,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import React from "react";
+import GuessingSheetEditModal from "./GuessingSheetEditModal";
 import * as m from "./shared/models";
 
 const intensity = 300;
@@ -111,7 +112,10 @@ export default function GuessingSheet(props: GuessingSheetProps) {
                     {letter.toUpperCase()}
                   </TableCell>
                 ))}
-                <TableCell>{gameState.guessingSheet.notes[idx]}</TableCell>
+                <TableCell>
+                  {gameState.guessingSheet.notes[idx]}{" "}
+                  <GuessingSheetEditModal />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
