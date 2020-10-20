@@ -19,7 +19,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import React from "react";
 import { Socket } from "socket.io";
-import GuessingSheetEditModal from "./GuessingSheetEditModal";
+import GuessingSheetNote from "./GuessingSheetNote";
 import { E } from "./shared/events";
 import * as m from "./shared/models";
 
@@ -62,10 +62,6 @@ type GuessingSheetProps = {
   socket: Socket;
   gameState: m.ClientGameState;
 };
-
-//   const saveNote =  (clueIdx: number, note) => {
-
-//         }
 
 export default function GuessingSheet(props: GuessingSheetProps) {
   const classes = useStyles();
@@ -120,7 +116,7 @@ export default function GuessingSheet(props: GuessingSheetProps) {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <GuessingSheetEditModal
+                  <GuessingSheetNote
                     initialText={gameState.guessingSheet.notes[clueIdx]}
                     onClose={(note) => {
                       // TODO: add back <EType[E.UpdateClueNote]> if possible
