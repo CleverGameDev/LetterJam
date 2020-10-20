@@ -18,6 +18,9 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import React from "react";
+import { Socket } from "socket.io";
+import GuessingSheetNote from "./GuessingSheetNote";
+import { E } from "./shared/events";
 import * as m from "./shared/models";
 
 const intensity = 300;
@@ -36,19 +39,19 @@ const useStyles = makeStyles({
     backgroundColor: yellow[intensity],
   },
   lightGreenBg: {
-    backgroundColor: lightGreen[intensity],
+    backgroundColor: lightGreen[intensity], // '#aed581'
   },
   greenBg: {
     backgroundColor: green[intensity],
   },
   blueBg: {
-    backgroundColor: blue[intensity],
+    backgroundColor: blue[intensity], //'#64b5f6';
   },
   indigoBg: {
     backgroundColor: indigo[intensity],
   },
   violetBg: {
-    backgroundColor: deepPurple[intensity],
+    backgroundColor: deepPurple[intensity], //'#9575cd'
   },
   grayBg: {
     backgroundColor: "#e0e0e0",
@@ -56,12 +59,13 @@ const useStyles = makeStyles({
 });
 
 type GuessingSheetProps = {
+  socket: Socket;
   gameState: m.ClientGameState;
 };
 
 export default function GuessingSheet(props: GuessingSheetProps) {
   const classes = useStyles();
-  const { gameState } = props;
+  const { socket, gameState } = props;
   const colToColor = [
     classes.redBg,
     classes.orangeBg,
@@ -104,14 +108,25 @@ export default function GuessingSheet(props: GuessingSheetProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((clue, idx) => (
-              <TableRow key={idx}>
+            {rows.map((clue, clueIdx) => (
+              <TableRow key={clueIdx}>
                 {clue.map((letter, n) => (
                   <TableCell className={colToColor[n]}>
                     {letter.toUpperCase()}
                   </TableCell>
                 ))}
-                <TableCell>{gameState.guessingSheet.notes[idx]}</TableCell>
+                <TableCell>
+                  <GuessingSheetNote
+                    initialText={gameState.guessingSheet.notes[clueIdx]}
+                    onClose={(note) => {
+                      // TODO: add back <EType[E.UpdateClueNote]> if possible
+                      socket.emit(E.UpdateClueNote, {
+                        clueIdx,
+                        note,
+                      });
+                    }}
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
