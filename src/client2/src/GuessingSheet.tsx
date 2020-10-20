@@ -120,8 +120,6 @@ export default function GuessingSheet(props: GuessingSheetProps) {
                   </TableCell>
                 ))}
                 <TableCell>
-                  {gameState.guessingSheet.notes[clueIdx]}{" "}
-                  {/* TODO: Add onSave handler */}
                   <GuessingSheetEditModal
                     initialText={gameState.guessingSheet.notes[clueIdx]}
                     onClose={(note) => {
