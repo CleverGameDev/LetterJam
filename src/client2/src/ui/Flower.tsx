@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import LocalFloristIcon from "@material-ui/icons/LocalFlorist";
 import React from "react";
-import * as m from "./shared/models";
+import * as m from "../shared/models";
 
 type FlowerProps = {
   data: m.Flower;

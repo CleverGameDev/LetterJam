@@ -19,9 +19,9 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import React from "react";
 import { Socket } from "socket.io";
+import { E } from "../shared/events";
+import * as m from "../shared/models";
 import GuessingSheetNote from "./GuessingSheetNote";
-import { E } from "./shared/events";
-import * as m from "./shared/models";
 
 const intensity = 300;
 const useStyles = makeStyles({

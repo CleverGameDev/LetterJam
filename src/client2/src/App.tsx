@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import "./App.css";
-import EndScene from "./EndScene";
-import GameScene from "./GameScene";
-import LobbyScene from "./LobbyScene";
-import SetupScene from "./SetupScene";
-import { SceneEnum } from "./shared/constants";
 // TODO: For the moment, I've directly copied the files under shared/, since create-react-app has a (reasonable) restriction on importing anything outside of src/
+import { SceneEnum } from "./shared/constants";
 import { E, EType } from "./shared/events";
 import { ClientGameState } from "./shared/models";
+import EndScene from "./ui/EndScene";
+import GameScene from "./ui/GameScene";
+import LobbyScene from "./ui/LobbyScene";
+import SetupScene from "./ui/SetupScene";
 
 function App() {
   const [socket, setSocket] = useState(null);
