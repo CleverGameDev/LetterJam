@@ -15,8 +15,7 @@ function App() {
 
   // establish socket connection
   useEffect(() => {
-    // TODO: this needs to point to the correct server in prod, as well
-    const socket = io("http://localhost:3000");
+    const socket = io();
     // @ts-ignore
     setSocket(socket);
   }, []);
