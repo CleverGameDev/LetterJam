@@ -49,6 +49,7 @@ export default function Stands(props: StandsProps) {
           const isHumanPlayer = !!gameState.players[stand.playerID];
           return (
             <Stand
+              key={`stand-${idx}`}
               visibleLetter={stand.letter.toUpperCase()}
               playerName={getStandName(gameState, stand)}
               playerType={isHumanPlayer ? "human" : "npc"}
@@ -144,20 +145,25 @@ type PlayerStandStatusProps = {
 function PlayerStandStatus(props: PlayerStandStatusProps) {
   const out = [];
   for (let i = 0; i < props.totalCards; i++) {
+    const key = `playerstandstatus-${i}`;
     if (i < props.currentCardIdx) {
       out.push(
-        <div className="standstatus standstatus--done">
+        <div key={key} className="standstatus standstatus--done">
           <DoneIcon />
         </div>
       );
     } else if (i === props.currentCardIdx) {
       out.push(
-        <div className="standstatus standstatus--current">
+        <div key={key} className="standstatus standstatus--current">
           <ArrowUpwardIcon />
         </div>
       );
     } else {
-      out.push(<div className="standstatus standstatus--future">?</div>);
+      out.push(
+        <div key={key} className="standstatus standstatus--future">
+          ?
+        </div>
+      );
     }
   }
 

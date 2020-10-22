@@ -48,7 +48,7 @@ function App() {
       // @ts-ignore
       return <GameScene socket={socket} gameState={gs} />;
     case SceneEnum.EndScene:
-      return <EndScene />;
+      return <EndScene socket={socket} gameState={gs} />;
   }
 
   return <div>Error: Unable to game scene.</div>;

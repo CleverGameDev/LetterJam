@@ -1,5 +1,5 @@
-import { Button } from "@material-ui/core";
-import { lightGreen } from "@material-ui/core/colors";
+import Button from "@material-ui/core/Button";
+import lightGreen from "@material-ui/core/colors/lightGreen";
 import Paper from "@material-ui/core/Paper";
 import {
   createStyles,
@@ -99,6 +99,18 @@ const useStyles = makeStyles({
   winningVote: {
     backgroundColor: lightGreen[300], // '#aed581'
   },
+  inputWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    width: "25rem",
+  },
+  input: {
+    marginBottom: "1rem",
+    marginTop: "1rem",
+  },
+  giveClue: {
+    marginBottom: "1rem",
+  },
 });
 
 const StyledTableCell = withStyles((theme: Theme) =>
@@ -153,61 +165,66 @@ export default function ActiveClues(props: ActiveCluesProps) {
   return (
     <div>
       <h1>Clues</h1>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Player</StyledTableCell>
-              <StyledTableCell align="right">Word Length</StyledTableCell>
-              <StyledTableCell align="right">Players used</StyledTableCell>
-              <StyledTableCell align="right">NPCs used</StyledTableCell>
-              <StyledTableCell align="right">Bonuses used</StyledTableCell>
-              <StyledTableCell align="right">Wildcard used</StyledTableCell>
-              <StyledTableCell align="right">Votes</StyledTableCell>
-              <StyledTableCell align="right"></StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow
-                key={row.player_name}
-                className={
-                  row.isWinningPlayer ? classes.winningVote : undefined
-                }
-              >
-                <StyledTableCell>{row.player_name}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.word_length}
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.players_used}
-                </StyledTableCell>
-                <StyledTableCell align="right">{row.npcs_used}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.bonuses_used}
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.wildcard_used ? "Y" : "N"}
-                </StyledTableCell>
-                <StyledTableCell align="right">{row.votes}</StyledTableCell>
-                <StyledTableCell align="right">
-                  <Button
-                    onClick={() => {
-                      // TODO: Vote by playerID
-                      vote(socket, gameState.playerID, row.player_name);
-                    }}
-                    variant="contained"
-                    color="primary"
-                    disabled={row.isMyVote}
-                  >
-                    Vote
-                  </Button>
-                </StyledTableCell>
+      {rows.length === 0 && <div>No clues yet. Give a clue!</div>}
+      {rows.length > 0 && (
+        <TableContainer component={Paper}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Player</StyledTableCell>
+                <StyledTableCell align="right">Word Length</StyledTableCell>
+                <StyledTableCell align="right">Players used</StyledTableCell>
+                <StyledTableCell align="right">NPCs used</StyledTableCell>
+                <StyledTableCell align="right">Bonuses used</StyledTableCell>
+                <StyledTableCell align="right">Wildcard used</StyledTableCell>
+                <StyledTableCell align="right">Votes</StyledTableCell>
+                <StyledTableCell align="right"></StyledTableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow
+                  key={row.player_name}
+                  className={
+                    row.isWinningPlayer ? classes.winningVote : undefined
+                  }
+                >
+                  <StyledTableCell>{row.player_name}</StyledTableCell>
+                  <StyledTableCell align="right">
+                    {row.word_length}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    {row.players_used}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    {row.npcs_used}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    {row.bonuses_used}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    {row.wildcard_used ? "Y" : "N"}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">{row.votes}</StyledTableCell>
+                  <StyledTableCell align="right">
+                    <Button
+                      onClick={() => {
+                        // TODO: Vote by playerID
+                        vote(socket, gameState.playerID, row.player_name);
+                      }}
+                      variant="contained"
+                      color="primary"
+                      disabled={row.isMyVote}
+                    >
+                      Vote
+                    </Button>
+                  </StyledTableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </div>
   );
 }
