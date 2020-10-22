@@ -20,8 +20,6 @@ export default function EndScene(props: EndSceneProps) {
   const { gameState, socket } = props;
 
   const playerIDs = Object.keys(gameState?.players || {}).sort();
-  console.log({ playerIDs });
-  console.log({ gameState });
   return (
     <div>
       <NavBar gameState={gameState} socket={socket} />
