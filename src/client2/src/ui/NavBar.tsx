@@ -48,7 +48,7 @@ const NavBar = (props: NavBarProps) => {
       <AppBar position="static">
         <Toolbar variant="dense">
           <Typography variant="h6" className={classes.title}>
-            {scene ? `LetterJam: ${scene} Scene` : "Letter Jam"}
+            {scene ? `LetterJam: ${scene}` : "Letter Jam"}
           </Typography>
           <div>
             <IconButton
