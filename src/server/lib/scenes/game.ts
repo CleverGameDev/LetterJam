@@ -66,7 +66,6 @@ export const setup = (
   socket: SocketIO.Socket,
   gameState: ServerGameState
 ): void => {
-  gameState.playStateIndex = 0;
   registerListeners(io, socket, gameState);
 };
 

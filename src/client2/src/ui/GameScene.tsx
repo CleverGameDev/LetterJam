@@ -4,6 +4,7 @@ import { Socket } from "socket.io";
 import ActiveClues from "../ActiveClues";
 import { PlayStateEnum } from "../shared/constants";
 import * as m from "../shared/models";
+import ActionBar from "./ActionBar";
 import Flower from "./Flower";
 import GuessingSheet from "./GuessingSheet";
 import NavBar from "./NavBar";
@@ -70,13 +71,13 @@ const useStyles = makeStyles({
 export default function GameScene(props: GameSceneProps) {
   const styles = useStyles();
   const { socket, gameState } = props;
-  console.log({ gameState });
   return (
     <div>
-      <NavBar scene={"Game"} />
+      <NavBar socket={socket} gameState={gameState} />
       <div className={styles.body}>
         <Flower data={gameState.flower} />
         <Stands gameState={gameState} />
+        <ActionBar socket={socket} gameState={gameState} />
         {gameState.playState === PlayStateEnum.DISCUSS && (
           <ActiveClues socket={socket} gameState={gameState} />
         )}

@@ -1,12 +1,8 @@
+import { makeStyles } from "@material-ui/core";
 import React from "react";
-import NavBar from "./NavBar";
-import {
-  makeStyles,
-  Button,
-} from "@material-ui/core";
 import { Socket } from "socket.io";
-import { E } from "../shared/events";
 import * as m from "../shared/models";
+import NavBar from "./NavBar";
 
 type SetupSceneProps = {
   socket: Socket;
@@ -28,18 +24,7 @@ export default function SetupScene(props: SetupSceneProps) {
 
   return (
     <div>
-      <NavBar scene="Setup" />
-      <div className={styles.body}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            socket.emit(E.NextScene);
-          }}
-        >
-          Next scene
-        </Button>
-      </div>
+      <NavBar socket={socket} gameState={gameState} />
     </div>
   );
 }

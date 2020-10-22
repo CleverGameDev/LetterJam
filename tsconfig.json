@@ -8,12 +8,17 @@
     "allowUnreachableCode": false,
     "sourceMap": true,
     "strictPropertyInitialization": false,
-    "lib": ["dom", "es6", "esnext"],
-    "types": ["@types/jest"]
+    "lib": ["dom", "dom.iterable", "es6", "esnext"],
+    "types": ["@types/jest"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noEmit": false,
+    "isolatedModules": true,
+    "jsx": "react"
   },
-  "include": [
-    "src/client/",
-    "src/server/",
-    "src/shared/"
-  ]
+  "include": ["src/"]
 }

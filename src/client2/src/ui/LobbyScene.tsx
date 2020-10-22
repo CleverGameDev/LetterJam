@@ -1,21 +1,19 @@
-import React from "react";
-import NavBar from "./NavBar";
 import {
-  makeStyles,
   Button,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
+  makeStyles,
   TextField,
 } from "@material-ui/core";
-import {
-  Star,
-} from "@material-ui/icons";
+import { Star } from "@material-ui/icons";
+import React from "react";
 import { Socket } from "socket.io";
 import { E } from "../shared/events";
 import * as m from "../shared/models";
+import NavBar from "./NavBar";
 
 type LobbySceneProps = {
   socket: Socket;
@@ -45,7 +43,7 @@ const useStyles = makeStyles({
   footer: {
     display: "flex",
     justifyContent: "center",
-  }
+  },
 });
 
 export default function LobbyScene(props: LobbySceneProps) {
@@ -60,7 +58,7 @@ export default function LobbyScene(props: LobbySceneProps) {
 
   return (
     <div>
-      <NavBar scene="Lobby" />
+      <NavBar socket={socket} gameState={gameState} />
       <div className={styles.body}>
         <div className={styles.inputWrapper}>
           <TextField
@@ -102,9 +100,7 @@ export default function LobbyScene(props: LobbySceneProps) {
                     <ListItemIcon>
                       <Star />
                     </ListItemIcon>
-                    <ListItemText
-                      primary={gameState.players[playerID].Name}
-                    />
+                    <ListItemText primary={gameState.players[playerID].Name} />
                   </ListItem>
                 );
               } else {

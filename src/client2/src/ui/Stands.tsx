@@ -49,11 +49,13 @@ export default function Stands(props: StandsProps) {
           const isHumanPlayer = !!gameState.players[stand.playerID];
           return (
             <Stand
+              key={`stand-${idx}`}
               visibleLetter={stand.letter.toUpperCase()}
               playerName={getStandName(gameState, stand)}
               playerType={isHumanPlayer ? "human" : "npc"}
               cardsBelow={stand.totalCards - (stand.currentCardIdx + 1)}
               isReady={gameState.playersReady[stand.playerID] || false}
+              stand={stand}
             />
           );
         })}
@@ -76,6 +78,8 @@ type StandProps = {
   playerType: string;
   isReady: boolean;
   cardsBelow: number;
+  // TODO: Later compute the above ^
+  stand: m.Stand;
 };
 
 function Stand(props: StandProps) {
@@ -115,7 +119,10 @@ function Stand(props: StandProps) {
         </CardContent>
       </Card>
       {props.playerType === "human" && (
-        <PlayerStandStatus currentCardIdx={2} totalCards={5} />
+        <PlayerStandStatus
+          currentCardIdx={props.stand.currentCardIdx}
+          totalCards={props.stand.totalCards}
+        />
       )}
       {props.playerType === "npc" && (
         <>
@@ -144,20 +151,25 @@ type PlayerStandStatusProps = {
 function PlayerStandStatus(props: PlayerStandStatusProps) {
   const out = [];
   for (let i = 0; i < props.totalCards; i++) {
+    const key = `playerstandstatus-${i}`;
     if (i < props.currentCardIdx) {
       out.push(
-        <div className="standstatus standstatus--done">
+        <div key={key} className="standstatus standstatus--done">
           <DoneIcon />
         </div>
       );
     } else if (i === props.currentCardIdx) {
       out.push(
-        <div className="standstatus standstatus--current">
+        <div key={key} className="standstatus standstatus--current">
           <ArrowUpwardIcon />
         </div>
       );
     } else {
-      out.push(<div className="standstatus standstatus--future">?</div>);
+      out.push(
+        <div key={key} className="standstatus standstatus--future">
+          ?
+        </div>
+      );
     }
   }
 
