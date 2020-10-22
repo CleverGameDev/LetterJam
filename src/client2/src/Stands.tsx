@@ -107,7 +107,9 @@ function Stand(props: StandProps) {
       <div className="readystate">
         {props.playerType === "human" && props.isReady && (
           <Box display="flex" flexDirection="row" alignItems="center">
-            <CheckCircleIcon />
+            <div className="ready">
+              <CheckCircleIcon />
+            </div>
             Ready
           </Box>
         )}
@@ -164,7 +166,7 @@ function PlayerStandStatus(props: PlayerStandStatusProps) {
           <DoneIcon />
         </div>
       );
-    } else if (i == props.currentCardIdx) {
+    } else if (i === props.currentCardIdx) {
       out.push(
         <div className="standstatus standstatus--current">
           <ArrowUpwardIcon />

@@ -6,6 +6,10 @@
   height: 30px;
 }
 
+.ready {
+  margin-right: 5px;
+}
+
 .thinking {
   animation: rotation 6s infinite linear;
   margin-right: 5px;

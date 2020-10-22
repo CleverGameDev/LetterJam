@@ -1,4 +1,4 @@
-import { Checkbox } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
@@ -32,12 +32,16 @@ type ClueRow = {
   bonuses_used: number;
   wildcard_used: boolean;
   votes: number;
+  isMyVote: boolean;
+  isWinningPlayer: boolean;
 };
 
 const clueToRow = (
   playerID: string,
   clue: m.ClueV2,
-  gameState: m.ClientGameState
+  gameState: m.ClientGameState,
+  myVote: string, // playerID
+  winningPlayer: string //playerID
 ): ClueRow => {
   const wordLength = clue.word.length;
   const counts = _.countBy(
@@ -54,14 +58,16 @@ const clueToRow = (
     bonuses_used: counts[m.PlayerType.Bonus] || 0,
     wildcard_used: counts[m.PlayerType.Wildcard] > 0,
     votes: gameState.votes[playerID] || 0,
-    // TODO: Vote button
+    isMyVote: myVote === playerID,
+    isWinningPlayer: winningPlayer === playerID,
   };
 
   return out;
 };
 
-const _getWinningPlayer = (gameState: m.ClientGameState): string | null => {
-  const { votes, players } = gameState;
+// TODO: this logic also lives or server. Unify / standardize.
+const _getWinningPlayerID = (gameState: m.ClientGameState): string => {
+  const { votes } = gameState;
 
   const sortedPlayers = _.sortBy(Object.keys(votes), (key) => votes[key]);
 
@@ -69,20 +75,23 @@ const _getWinningPlayer = (gameState: m.ClientGameState): string | null => {
 
   // if 0 votes, no one has won yet
   if (votes[first] === 0) {
-    return null;
+    return "";
   }
 
   // if it's a tie, no one won
   if (votes[first] === votes[second]) {
-    return null;
+    return "";
   }
 
-  return players[first].Name;
+  return first;
 };
 
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
+  },
+  winningVote: {
+    "font-weight": "bold",
   },
 });
 
@@ -108,17 +117,18 @@ export default function ActiveClues(props: ActiveCluesProps) {
   const classes = useStyles();
   const { socket, gameState } = props;
 
-  const { clues, myVote, players } = props.gameState;
-  const winningPlayer = _getWinningPlayer(props.gameState);
+  const { clues, myVote } = props.gameState;
+  const winningPlayer = _getWinningPlayerID(props.gameState);
   const rows = [];
   for (const player of Object.keys(clues)) {
-    const row = clueToRow(player, clues[player], props.gameState);
-    // if (clueArray[0].text === winningPlayer) {
-    //   clueArray[6].text += "*";
-    // }
-    // if (players[myVote] && clueArray[0].text === players[myVote].Name) {
-    //   clueArray[7].text += " ✓";
-    // }
+    const row = clueToRow(
+      player,
+      clues[player],
+      props.gameState,
+      myVote,
+      winningPlayer
+    );
+
     rows.push(row);
   }
 
@@ -150,17 +160,26 @@ export default function ActiveClues(props: ActiveCluesProps) {
                 <TableCell align="right">
                   {row.wildcard_used ? "Y" : "N"}
                 </TableCell>
-                <TableCell align="right">{row.votes}</TableCell>
+                <TableCell
+                  align="right"
+                  className={
+                    row.isWinningPlayer ? classes.winningVote : undefined
+                  }
+                >
+                  {row.votes}
+                </TableCell>
                 <TableCell align="right">
-                  <Checkbox
-                    checked={
-                      gameState.players[gameState.myVote]?.Name ===
-                      row.player_name
-                    }
+                  <Button
                     onClick={() => {
+                      // TODO: Vote by playerID
                       vote(socket, gameState.playerID, row.player_name);
                     }}
-                  />
+                    variant="contained"
+                    color="primary"
+                    disabled={row.isMyVote}
+                  >
+                    Vote
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
