@@ -3,7 +3,11 @@
 }
 
 .readystate {
-  height: 30px;
+  height: 26px;
+}
+
+.ready {
+  margin-right: 5px;
 }
 
 .thinking {

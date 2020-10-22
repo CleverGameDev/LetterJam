@@ -1,6 +1,12 @@
-import { Checkbox } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import { lightGreen } from "@material-ui/core/colors";
 import Paper from "@material-ui/core/Paper";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  withStyles,
+} from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -32,12 +38,16 @@ type ClueRow = {
   bonuses_used: number;
   wildcard_used: boolean;
   votes: number;
+  isMyVote: boolean;
+  isWinningPlayer: boolean;
 };
 
 const clueToRow = (
   playerID: string,
   clue: m.ClueV2,
-  gameState: m.ClientGameState
+  gameState: m.ClientGameState,
+  myVote: string, // playerID
+  winningPlayer: string //playerID
 ): ClueRow => {
   const wordLength = clue.word.length;
   const counts = _.countBy(
@@ -54,14 +64,16 @@ const clueToRow = (
     bonuses_used: counts[m.PlayerType.Bonus] || 0,
     wildcard_used: counts[m.PlayerType.Wildcard] > 0,
     votes: gameState.votes[playerID] || 0,
-    // TODO: Vote button
+    isMyVote: myVote === playerID,
+    isWinningPlayer: winningPlayer === playerID,
   };
 
   return out;
 };
 
-const _getWinningPlayer = (gameState: m.ClientGameState): string | null => {
-  const { votes, players } = gameState;
+// TODO: this logic also lives or server. Unify / standardize.
+const _getWinningPlayerID = (gameState: m.ClientGameState): string => {
+  const { votes } = gameState;
 
   const sortedPlayers = _.sortBy(Object.keys(votes), (key) => votes[key]);
 
@@ -69,22 +81,37 @@ const _getWinningPlayer = (gameState: m.ClientGameState): string | null => {
 
   // if 0 votes, no one has won yet
   if (votes[first] === 0) {
-    return null;
+    return "";
   }
 
   // if it's a tie, no one won
   if (votes[first] === votes[second]) {
-    return null;
+    return "";
   }
 
-  return players[first].Name;
+  return first;
 };
 
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
   },
+  winningVote: {
+    backgroundColor: lightGreen[300], // '#aed581'
+  },
 });
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  })
+)(TableCell);
 
 // Send vote to server. PlayerID can be accessed from clue
 export const vote = (
@@ -108,60 +135,74 @@ export default function ActiveClues(props: ActiveCluesProps) {
   const classes = useStyles();
   const { socket, gameState } = props;
 
-  const { clues, myVote, players } = props.gameState;
-  const winningPlayer = _getWinningPlayer(props.gameState);
+  const { clues, myVote } = props.gameState;
+  const winningPlayer = _getWinningPlayerID(props.gameState);
   const rows = [];
   for (const player of Object.keys(clues)) {
-    const row = clueToRow(player, clues[player], props.gameState);
-    // if (clueArray[0].text === winningPlayer) {
-    //   clueArray[6].text += "*";
-    // }
-    // if (players[myVote] && clueArray[0].text === players[myVote].Name) {
-    //   clueArray[7].text += " ✓";
-    // }
+    const row = clueToRow(
+      player,
+      clues[player],
+      props.gameState,
+      myVote,
+      winningPlayer
+    );
+
     rows.push(row);
   }
 
   return (
     <div>
-      <h1>Active Clues</h1>
+      <h1>Clues</h1>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Player</TableCell>
-              <TableCell align="right">Word Length</TableCell>
-              <TableCell align="right">Players used</TableCell>
-              <TableCell align="right">NPCs used</TableCell>
-              <TableCell align="right">Bonuses used</TableCell>
-              <TableCell align="right">Wildcard used</TableCell>
-              <TableCell align="right">Votes</TableCell>
-              <TableCell align="right"></TableCell>
+              <StyledTableCell>Player</StyledTableCell>
+              <StyledTableCell align="right">Word Length</StyledTableCell>
+              <StyledTableCell align="right">Players used</StyledTableCell>
+              <StyledTableCell align="right">NPCs used</StyledTableCell>
+              <StyledTableCell align="right">Bonuses used</StyledTableCell>
+              <StyledTableCell align="right">Wildcard used</StyledTableCell>
+              <StyledTableCell align="right">Votes</StyledTableCell>
+              <StyledTableCell align="right"></StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={row.player_name}>
-                <TableCell>{row.player_name}</TableCell>
-                <TableCell align="right">{row.word_length}</TableCell>
-                <TableCell align="right">{row.players_used}</TableCell>
-                <TableCell align="right">{row.npcs_used}</TableCell>
-                <TableCell align="right">{row.bonuses_used}</TableCell>
-                <TableCell align="right">
+              <TableRow
+                key={row.player_name}
+                className={
+                  row.isWinningPlayer ? classes.winningVote : undefined
+                }
+              >
+                <StyledTableCell>{row.player_name}</StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.word_length}
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.players_used}
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.npcs_used}</StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.bonuses_used}
+                </StyledTableCell>
+                <StyledTableCell align="right">
                   {row.wildcard_used ? "Y" : "N"}
-                </TableCell>
-                <TableCell align="right">{row.votes}</TableCell>
-                <TableCell align="right">
-                  <Checkbox
-                    checked={
-                      gameState.players[gameState.myVote]?.Name ===
-                      row.player_name
-                    }
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.votes}</StyledTableCell>
+                <StyledTableCell align="right">
+                  <Button
                     onClick={() => {
+                      // TODO: Vote by playerID
                       vote(socket, gameState.playerID, row.player_name);
                     }}
-                  />
-                </TableCell>
+                    variant="contained"
+                    color="primary"
+                    disabled={row.isMyVote}
+                  >
+                    Vote
+                  </Button>
+                </StyledTableCell>
               </TableRow>
             ))}
           </TableBody>
