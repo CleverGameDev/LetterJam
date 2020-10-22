@@ -1,6 +1,12 @@
 import { Button } from "@material-ui/core";
+import { lightGreen } from "@material-ui/core/colors";
 import Paper from "@material-ui/core/Paper";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  withStyles,
+} from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -91,9 +97,21 @@ const useStyles = makeStyles({
     minWidth: 650,
   },
   winningVote: {
-    "font-weight": "bold",
+    backgroundColor: lightGreen[300], // '#aed581'
   },
 });
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  })
+)(TableCell);
 
 // Send vote to server. PlayerID can be accessed from clue
 export const vote = (
@@ -139,36 +157,40 @@ export default function ActiveClues(props: ActiveCluesProps) {
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Player</TableCell>
-              <TableCell align="right">Word Length</TableCell>
-              <TableCell align="right">Players used</TableCell>
-              <TableCell align="right">NPCs used</TableCell>
-              <TableCell align="right">Bonuses used</TableCell>
-              <TableCell align="right">Wildcard used</TableCell>
-              <TableCell align="right">Votes</TableCell>
-              <TableCell align="right"></TableCell>
+              <StyledTableCell>Player</StyledTableCell>
+              <StyledTableCell align="right">Word Length</StyledTableCell>
+              <StyledTableCell align="right">Players used</StyledTableCell>
+              <StyledTableCell align="right">NPCs used</StyledTableCell>
+              <StyledTableCell align="right">Bonuses used</StyledTableCell>
+              <StyledTableCell align="right">Wildcard used</StyledTableCell>
+              <StyledTableCell align="right">Votes</StyledTableCell>
+              <StyledTableCell align="right"></StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={row.player_name}>
-                <TableCell>{row.player_name}</TableCell>
-                <TableCell align="right">{row.word_length}</TableCell>
-                <TableCell align="right">{row.players_used}</TableCell>
-                <TableCell align="right">{row.npcs_used}</TableCell>
-                <TableCell align="right">{row.bonuses_used}</TableCell>
-                <TableCell align="right">
+              <TableRow
+                key={row.player_name}
+                className={
+                  row.isWinningPlayer ? classes.winningVote : undefined
+                }
+              >
+                <StyledTableCell>{row.player_name}</StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.word_length}
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.players_used}
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.npcs_used}</StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.bonuses_used}
+                </StyledTableCell>
+                <StyledTableCell align="right">
                   {row.wildcard_used ? "Y" : "N"}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  className={
-                    row.isWinningPlayer ? classes.winningVote : undefined
-                  }
-                >
-                  {row.votes}
-                </TableCell>
-                <TableCell align="right">
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.votes}</StyledTableCell>
+                <StyledTableCell align="right">
                   <Button
                     onClick={() => {
                       // TODO: Vote by playerID
@@ -180,7 +202,7 @@ export default function ActiveClues(props: ActiveCluesProps) {
                   >
                     Vote
                   </Button>
-                </TableCell>
+                </StyledTableCell>
               </TableRow>
             ))}
           </TableBody>
