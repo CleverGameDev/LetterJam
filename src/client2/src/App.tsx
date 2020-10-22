@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import "./App.css";
 // TODO: For the moment, I've directly copied the files under shared/, since create-react-app has a (reasonable) restriction on importing anything outside of src/
 import { SceneEnum } from "./shared/constants";
 import { E, EType } from "./shared/events";

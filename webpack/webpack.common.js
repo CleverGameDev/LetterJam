@@ -4,7 +4,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
 
 module.exports = {
-  entry: ["./src/client/scripts/game.ts", "./webpack/credits.js"],
+  // entry: ["./src/client/scripts/game.ts", "./webpack/credits.js"],
+  // entry: ["./src/client2/src/index.tsx", "./webpack/credits.js"],
+  entry: {
+    app: "src/client2/src/index.tsx",
+  },
   output: {
     path: path.resolve(__dirname, "../dist"),
     filename: "[name].bundle.js",
@@ -22,6 +26,10 @@ module.exports = {
         test: /\.tsx?$/,
         include: path.join(__dirname, "../src"),
         loader: "ts-loader",
+      },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
       },
     ],
   },
