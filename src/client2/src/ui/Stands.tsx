@@ -55,6 +55,7 @@ export default function Stands(props: StandsProps) {
               playerType={isHumanPlayer ? "human" : "npc"}
               cardsBelow={stand.totalCards - (stand.currentCardIdx + 1)}
               isReady={gameState.playersReady[stand.playerID] || false}
+              stand={stand}
             />
           );
         })}
@@ -77,6 +78,8 @@ type StandProps = {
   playerType: string;
   isReady: boolean;
   cardsBelow: number;
+  // TODO: Later compute the above ^
+  stand: m.Stand;
 };
 
 function Stand(props: StandProps) {
@@ -116,7 +119,10 @@ function Stand(props: StandProps) {
         </CardContent>
       </Card>
       {props.playerType === "human" && (
-        <PlayerStandStatus currentCardIdx={2} totalCards={5} />
+        <PlayerStandStatus
+          currentCardIdx={props.stand.currentCardIdx}
+          totalCards={props.stand.totalCards}
+        />
       )}
       {props.playerType === "npc" && (
         <>
