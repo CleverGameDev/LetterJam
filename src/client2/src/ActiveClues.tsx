@@ -152,7 +152,7 @@ export default function ActiveClues(props: ActiveCluesProps) {
 
   return (
     <div>
-      <h1>Active Clues</h1>
+      <h1>Clues</h1>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>

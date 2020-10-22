@@ -68,17 +68,6 @@ const useStyles = makeStyles({
     padding: "30px",
     margin: "10px 0",
   },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)",
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    // marginBottom: 12,
-  },
 });
 
 type StandProps = {
@@ -93,17 +82,12 @@ function Stand(props: StandProps) {
   const classes = useStyles();
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      justifyContent="space-evenly"
-      alignItems="center"
-    >
-      <Typography variant="h5">
-        {props.playerName}
+    <Box display="flex" flexDirection="column" alignItems="center">
+      <Box display="flex" flexDirection="row" alignItems="center">
+        <Typography variant="h5">{props.playerName}</Typography>
         {props.playerType === "human" && <PermIdentityIcon />}
         {props.playerType === "npc" && <ComputerIcon />}
-      </Typography>
+      </Box>
       <div className="readystate">
         {props.playerType === "human" && props.isReady && (
           <Box display="flex" flexDirection="row" alignItems="center">

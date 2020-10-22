@@ -1,9 +1,11 @@
+import { makeStyles } from "@material-ui/core";
 import React from "react";
 import { Socket } from "socket.io";
 import ActiveClues from "./ActiveClues";
 import Flower from "./Flower";
 import GuessingSheet from "./GuessingSheet";
 import NavBar from "./NavBar";
+import { PlayStateEnum } from "./shared/constants";
 import * as m from "./shared/models";
 import Stands from "./Stands";
 
@@ -11,6 +13,15 @@ type GameSceneProps = {
   socket: Socket;
   gameState: m.ClientGameState;
 };
+
+const useStyles = makeStyles({
+  body: {
+    minWidth: 650,
+    paddingTop: "20px",
+    paddingLeft: "20px",
+    paddingRight: "20px",
+  },
+});
 
 // TODO
 // function Buttons() {
@@ -57,15 +68,22 @@ type GameSceneProps = {
 // }
 
 export default function GameScene(props: GameSceneProps) {
+  const styles = useStyles();
   const { socket, gameState } = props;
   console.log({ gameState });
   return (
     <div>
       <NavBar scene={"Game"} />
-      <Flower data={gameState.flower} />
-      <Stands gameState={gameState} />
-      <ActiveClues socket={socket} gameState={gameState} />
-      <GuessingSheet socket={socket} gameState={gameState} />
+      <div className={styles.body}>
+        <Flower data={gameState.flower} />
+        <Stands gameState={gameState} />
+        {gameState.playState === PlayStateEnum.DISCUSS && (
+          <ActiveClues socket={socket} gameState={gameState} />
+        )}
+        {gameState.playState === PlayStateEnum.INTERPRET_HINT && (
+          <GuessingSheet socket={socket} gameState={gameState} />
+        )}
+      </div>
     </div>
   );
 }
