@@ -39,9 +39,11 @@ function App() {
   const gs = gameState as ClientGameState;
   switch (gs.scene) {
     case SceneEnum.LobbyScene:
-      return <LobbyScene />;
+      // @ts-ignore
+      return <LobbyScene socket={socket} gameState={gs} />;
     case SceneEnum.SetupScene:
-      return <SetupScene />;
+      // @ts-ignore
+      return <SetupScene socket={socket} gameState={gs} />;
     case SceneEnum.GameScene:
       // TODO: socket is always defined at this point
       // @ts-ignore
