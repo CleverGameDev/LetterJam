@@ -1,5 +1,7 @@
 import {
   Button,
+  Divider,
+  Grid,
   List,
   ListItem,
   ListItemIcon,
@@ -23,9 +25,13 @@ type LobbySceneProps = {
 const useStyles = makeStyles({
   body: {
     display: "flex",
-    justifyContent: "space-between",
     minWidth: 650,
-    padding: "1.5rem",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  logo: {
+    margin: "0.5rem",
+    height: "5rem",
   },
   inputWrapper: {
     display: "flex",
@@ -36,9 +42,19 @@ const useStyles = makeStyles({
     marginBottom: "1rem",
     marginTop: "1rem",
   },
-  listWrapper: {
-    minWidth: 200,
-    borderLeft: "1px solid black",
+  divider: {
+    marginTop: "1rem",
+    marginBottom: "1rem",
+    width: "100%",
+  },
+  otherPlayers: {
+  },
+  playerName: {
+    border: "1px solid black",
+    borderRadius: "0.5rem",
+    fontSize: "1.5rem",
+    margin: "0.5rem",
+    padding: "0.5rem",
   },
   footer: {
     display: "flex",
@@ -60,6 +76,11 @@ export default function LobbyScene(props: LobbySceneProps) {
     <div>
       <NavBar socket={socket} gameState={gameState} />
       <div className={styles.body}>
+        <img className={styles.logo} src="https://pawnsperspective.com/wp-content/uploads/2019/11/pic4853794.png" />
+        You are joining as:
+        <div className={styles.playerName}>
+          {gameState.players[gameState.playerID].Name}
+        </div>
         <div className={styles.inputWrapper}>
           <TextField
             autoFocus
@@ -80,41 +101,28 @@ export default function LobbyScene(props: LobbySceneProps) {
             color="secondary"
             onClick={submitPlayerName}
           >
-            Set Name
+            Update Name
           </Button>
         </div>
-        <div className={styles.listWrapper}>
-          <List
-            component="nav"
-            dense
-            subheader={
-              <ListSubheader component="div">
-                Players ({numPlayers})
-              </ListSubheader>
-            }
+        <Divider className={styles.divider} variant="middle" />
+        <div>
+          In the lobby:
+          <Grid
+            className={styles.otherPlayers}
+            container
+            direction="row"
+            justify="center"
+            alignItems="center"
           >
             {playerIDs.map((playerID) => {
-              if (playerID === gameState.playerID) {
-                return (
-                  <ListItem>
-                    <ListItemIcon>
-                      <Star />
-                    </ListItemIcon>
-                    <ListItemText primary={gameState.players[playerID].Name} />
-                  </ListItem>
-                );
-              } else {
-                return (
-                  <ListItem>
-                    <ListItemText
-                      inset
-                      primary={gameState.players[playerID].Name}
-                    />
-                  </ListItem>
-                );
-              }
+              if (playerID === gameState.playerID) return;
+              return (
+                <div className={styles.playerName}>
+                  {gameState.players[playerID].Name}
+                </div>
+              );
             })}
-          </List>
+          </Grid>
         </div>
       </div>
       <div className={styles.footer}>
