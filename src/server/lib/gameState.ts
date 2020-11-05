@@ -204,27 +204,6 @@ export class ServerGameState {
     this.guessingSheet[playerID].finalWord = word;
   }
 
-  getPlayerWhoWonVote() {
-    const votes = this.getVotes();
-    const sortedPlayers = _.reverse(
-      _.sortBy(Object.keys(votes), (key) => votes[key])
-    );
-
-    const [first, second] = [sortedPlayers[0], sortedPlayers[1]];
-
-    // if 0 votes, no one has won yet
-    if (votes[first] == 0) {
-      return null;
-    }
-
-    // if it's a tie, no one won
-    if (votes[first] == votes[second]) {
-      return null;
-    }
-
-    return first;
-  }
-
   provideHint() {
     const { playerID, clue } = this.getWinningClue();
     const [winningPlayerID, winningClue] = [playerID, clue];
@@ -320,9 +299,7 @@ export class ServerGameState {
     }
   }
 
-  // TODO: canGiveClue() -- add a check to ensure it's possible to give a clue
-  // Returns false if failed to take a clueToken
-  takeClueToken(playerID: string): boolean {
+  redTokensPerPlayer() {
     const playerIDs = this.getPlayerIDs();
     let redTokensPerPlayer = 1;
     if (playerIDs.length === 3) {
@@ -330,8 +307,22 @@ export class ServerGameState {
     } else if (playerIDs.length === 2) {
       redTokensPerPlayer = 3;
     }
+    return redTokensPerPlayer;
+  }
 
-    if (this.clueTokens[playerID] < redTokensPerPlayer) {
+  canTakeClueToken(playerID: string): boolean {
+    // When can't a player give a clue?
+    // 1. If one player has given most clues, the "red token" rule ensure that other players must give some clues
+    // 2. This could also happen if no clues remain in the game. Ideally, the UI should have already moved to the endGame state so there's no chance of doing a "give clue" interaction.
+    return (
+      this.clueTokens[playerID] < this.redTokensPerPlayer() ||
+      this.flower.green > 0
+    );
+  }
+
+  // Returns false if failed to take a clueToken
+  takeClueToken(playerID: string): boolean {
+    if (this.clueTokens[playerID] < this.redTokensPerPlayer()) {
       // Take a red token
       if (this.flower.red <= 0) {
         // no red tokens remain -- this shoudn't never happen based on logic above and
@@ -348,9 +339,6 @@ export class ServerGameState {
       }
     } else {
       if (this.flower.green <= 0) {
-        // This could happen if some no green tokens remain but some red tokens remain,
-        // i.e. some players have given few or no hints.
-        // It could also happen if no clues remain in the game.
         return false;
       }
       this.flower.green -= 1;
@@ -368,14 +356,36 @@ export class ServerGameState {
     }
   }
 
+  getPlayerWhoWonVote() {
+    const votes = this.getVotes();
+    const sortedPlayers = _.reverse(
+      _.sortBy(Object.keys(votes), (key) => votes[key])
+    );
+
+    const [first, second] = [sortedPlayers[0], sortedPlayers[1]];
+
+    // if 0 votes, no one has won yet
+    if (votes[first] == 0) {
+      return null;
+    }
+
+    // if it's a tie, no one won
+    if (votes[first] == votes[second]) {
+      return null;
+    }
+
+    return first;
+  }
+
   getWinningClue() {
     const playerID = this.getPlayerWhoWonVote();
     if (
       // If there wasn't a player who won the vote
       !playerID ||
       // The winning player didn't submit a clue
-      !this.clues[playerID]
-      // TODO: The winning player cannot take a clue token
+      !this.clues[playerID] ||
+      // The winning player cannot take a clue token
+      !this.canTakeClueToken(playerID)
     ) {
       return null;
     }
