@@ -73,9 +73,8 @@ const registerListeners = (
   // Global
   //
   socket.on("disconnect", () => {
-    // Update game state
-    // TODO: https://trello.com/c/8JwHD7nB/107-letterjam-given-persistent-ids-figure-out-how-a-player-leaves-lobby
-    // syncClientGameState(io, gameState);
+    gameState.tryRemovePlayer(getPlayerID(socket));
+    syncClientGameState(io, gameState);
   });
 
   socket.on(E.NextScene, () => {
