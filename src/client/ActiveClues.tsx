@@ -16,9 +16,9 @@ import TableRow from "@material-ui/core/TableRow";
 import * as _ from "lodash";
 import React from "react";
 import { Socket } from "socket.io";
-import { WildcardPlayerID } from "./shared/constants";
-import { E, EType } from "./shared/events";
-import * as m from "./shared/models";
+import { WildcardPlayerID } from "../shared/constants";
+import { E, EType } from "../shared/events";
+import * as m from "../shared/models";
 
 const getPlayerType = (gameState: m.ClientGameState, playerID: string) => {
   if (gameState.players[playerID]) {

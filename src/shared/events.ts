@@ -1,5 +1,5 @@
 import { PlayStateEnum } from "../shared/constants";
-import * as m from "../shared/models";
+import * as m from "./models";
 
 // E is an Enum of the Event names
 export enum E {

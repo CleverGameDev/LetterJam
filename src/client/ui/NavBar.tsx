@@ -6,8 +6,8 @@ import Typography from "@material-ui/core/Typography";
 import { AccountCircle } from "@material-ui/icons";
 import React from "react";
 import { Socket } from "socket.io";
-import { E } from "../shared/events";
-import * as m from "../shared/models";
+import { E } from "../../shared/events";
+import * as m from "../../shared/models";
 
 const useStyles = makeStyles((theme) => ({
   root: {

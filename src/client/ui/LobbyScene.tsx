@@ -7,8 +7,8 @@ import {
 } from "@material-ui/core";
 import React from "react";
 import { Socket } from "socket.io";
-import { E } from "../shared/events";
-import * as m from "../shared/models";
+import { E } from "../../shared/events";
+import * as m from "../../shared/models";
 import NavBar from "./NavBar";
 
 type LobbySceneProps = {

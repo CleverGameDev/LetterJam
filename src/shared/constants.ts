@@ -29,7 +29,7 @@ export const LetterDistribution = {
 };
 
 export const VictoryPoints = {
-  [2]: {
+  2: {
     "0-7": 0,
     "8-16": 1,
     "17-25": 2,
@@ -37,7 +37,7 @@ export const VictoryPoints = {
     "35-42": 4,
     "43-500": 5,
   },
-  [3]: {
+  3: {
     "0-12": 0,
     "13-24": 1,
     "25-36": 2,
@@ -45,7 +45,7 @@ export const VictoryPoints = {
     "49-60": 4,
     "61-500": 5,
   },
-  [4]: {
+  4: {
     "0-15": 0,
     "16-31": 1,
     "32-47": 2,
@@ -53,7 +53,7 @@ export const VictoryPoints = {
     "64-79": 4,
     "80-500": 5,
   },
-  [5]: {
+  5: {
     "0-19": 0,
     "20-39": 1,
     "40-59": 2,
@@ -61,7 +61,7 @@ export const VictoryPoints = {
     "80-99": 4,
     "100-500": 5,
   },
-  [6]: {
+  6: {
     "0-22": 0,
     "23-45": 1,
     "46-68": 2,
@@ -72,11 +72,11 @@ export const VictoryPoints = {
 };
 
 export const VictoryPhrase = {
-  [1]: "edible",
-  [2]: "tasty",
-  [3]: "yummy",
-  [4]: "delicious",
-  [5]: "supersweet",
+  1: "edible",
+  2: "tasty",
+  3: "yummy",
+  4: "delicious",
+  5: "supersweet",
 };
 
 export const BaseNPCCards = 7;

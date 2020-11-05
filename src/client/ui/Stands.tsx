@@ -23,7 +23,7 @@ import ComputerIcon from "@material-ui/icons/Computer";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import PermIdentityIcon from "@material-ui/icons/PermIdentity";
 import React from "react";
-import * as m from "../shared/models";
+import * as m from "../../shared/models";
 import "./Stands.css";
 
 function getStandName(gameState: m.ClientGameState, stand: m.Stand) {
