@@ -2,15 +2,9 @@ import {
   Button,
   Divider,
   Grid,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
   makeStyles,
   TextField,
 } from "@material-ui/core";
-import { Star } from "@material-ui/icons";
 import React from "react";
 import { Socket } from "socket.io";
 import { E } from "../shared/events";
@@ -47,8 +41,7 @@ const useStyles = makeStyles({
     marginBottom: "1rem",
     width: "100%",
   },
-  otherPlayers: {
-  },
+  otherPlayers: {},
   playerName: {
     border: "1px solid black",
     borderRadius: "0.5rem",
@@ -76,7 +69,10 @@ export default function LobbyScene(props: LobbySceneProps) {
     <div>
       <NavBar socket={socket} gameState={gameState} />
       <div className={styles.body}>
-        <img className={styles.logo} src="https://pawnsperspective.com/wp-content/uploads/2019/11/pic4853794.png" />
+        <img
+          className={styles.logo}
+          src="https://pawnsperspective.com/wp-content/uploads/2019/11/pic4853794.png"
+        />
         You are joining as:
         <div className={styles.playerName}>
           {gameState.players[gameState.playerID].Name}
@@ -105,25 +101,27 @@ export default function LobbyScene(props: LobbySceneProps) {
           </Button>
         </div>
         <Divider className={styles.divider} variant="middle" />
-        <div>
-          In the lobby:
-          <Grid
-            className={styles.otherPlayers}
-            container
-            direction="row"
-            justify="center"
-            alignItems="center"
-          >
-            {playerIDs.map((playerID) => {
-              if (playerID === gameState.playerID) return;
-              return (
-                <div className={styles.playerName}>
-                  {gameState.players[playerID].Name}
-                </div>
-              );
-            })}
-          </Grid>
-        </div>
+        {playerIDs.length > 1 && (
+          <div>
+            In the lobby:
+            <Grid
+              className={styles.otherPlayers}
+              container
+              direction="row"
+              justify="center"
+              alignItems="center"
+            >
+              {playerIDs.map((playerID) => {
+                if (playerID === gameState.playerID) return;
+                return (
+                  <div className={styles.playerName}>
+                    {gameState.players[playerID].Name}
+                  </div>
+                );
+              })}
+            </Grid>
+          </div>
+        )}
       </div>
       <div className={styles.footer}>
         <Button
@@ -132,6 +130,7 @@ export default function LobbyScene(props: LobbySceneProps) {
           onClick={() => {
             socket.emit(E.NextScene);
           }}
+          disabled={playerIDs.length < 2 || playerIDs.length > 6}
         >
           Start Game
         </Button>
