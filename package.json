@@ -1,16 +1,17 @@
 {
   "name": "letterjam",
   "version": "0.0.0",
-  "description": "Digital conversion of Letterjam board game",
+  "description": "Digital conversion of Letter Jam board game",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack/webpack.prod.js",
     "bundle": "npm run build",
-    "startDev": "./run_local.sh",
+    "startDev": "npm run start",
+    "start": "./run_local.sh",
     "startProd": "NODE_ENV=production ./node_modules/.bin/ts-node src/server/server.ts",
     "lint": "eslint . --ext .ts",
-    "test": "jest --testPathIgnorePatterns src/client2",
-    "testw": "jest --watch --testPathIgnorePatterns src/client2"
+    "test": "jest --testPathIgnorePatterns src/client",
+    "testw": "jest --watch --testPathIgnorePatterns src/client"
   },
   "engines": {
     "node": ">=8.0.0"
