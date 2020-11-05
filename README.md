@@ -1,12 +1,8 @@
 # Letter Jam
 
-An implementation of the [Letter Jam board game](https://boardgamegeek.com/boardgame/275467/letter-jam), made in Phaser.
+An implementation of the [Letter Jam board game](https://boardgamegeek.com/boardgame/275467/letter-jam).
 
 ## Development
-
-To learn more about this repo's structure, review the README of the template project it is based on: https://github.com/yandeu/phaser-project-template/
-
-### Running Locally
 
 Install dependencies
 
@@ -14,15 +10,15 @@ Install dependencies
 $ npm install
 ```
 
-#### Dev Server
+### Dev Server
 
 Start the local development server
 
 ```
-npm run start
+npm start
 ```
 
-#### Prod Server
+### Prod Server
 
 Ready for production? Build the production ready code to the /dist folder
 
