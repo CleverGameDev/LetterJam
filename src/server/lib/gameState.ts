@@ -285,6 +285,15 @@ export class ServerGameState {
     }
   }
 
+  tryRemovePlayer(playerID: string) {
+    // If it's lobby scene, then add that player to the players list
+    if (this.getScene() === SceneEnum.LobbyScene) {
+      if (this.players[playerID]) {
+        delete this.players[playerID];
+      }
+    }
+  }
+
   getRandomPlayerName() {
     const currentPlayers = this.getPlayerNames();
 

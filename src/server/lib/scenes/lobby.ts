@@ -9,6 +9,10 @@ const registerListeners = (
   gameState: ServerGameState
 ) => {
   socket.on(E.SetPlayerName, (playerName: EType[E.SetPlayerName]) => {
+    if (playerName === "") {
+      // name must be non-empty
+      return;
+    }
     // Update game state
     if (gameState.getPlayerNames().indexOf(playerName) > -1) {
       // Don't let players take another player's name
