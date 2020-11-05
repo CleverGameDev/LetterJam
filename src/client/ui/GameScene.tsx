@@ -1,9 +1,9 @@
 import { makeStyles } from "@material-ui/core";
 import React from "react";
 import { Socket } from "socket.io";
+import { PlayStateEnum } from "../../shared/constants";
+import * as m from "../../shared/models";
 import ActiveClues from "../ActiveClues";
-import { PlayStateEnum } from "../shared/constants";
-import * as m from "../shared/models";
 import ActionBar from "./ActionBar";
 import Flower from "./Flower";
 import GuessingSheet from "./GuessingSheet";

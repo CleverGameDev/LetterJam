@@ -1,6 +1,6 @@
-import { WildcardPlayerID, WildcardStand } from "../../../shared/constants";
-import { E, EType } from "../../../shared/events";
-import * as models from "../../../shared/models";
+import { WildcardPlayerID, WildcardStand } from "../../shared/constants";
+import { E, EType } from "../../shared/events";
+import * as models from "../../shared/models";
 
 // if false, clue is not valid
 export const giveClue = (

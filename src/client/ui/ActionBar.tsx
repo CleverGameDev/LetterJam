@@ -1,10 +1,10 @@
 import { Button, makeStyles, TextField } from "@material-ui/core";
 import React from "react";
 import { Socket } from "socket.io";
+import { PlayStateEnum } from "../../shared/constants";
+import { E } from "../../shared/events";
+import * as m from "../../shared/models";
 import { giveClue } from "../lib/discuss";
-import { PlayStateEnum } from "../shared/constants";
-import { E } from "../shared/events";
-import * as m from "../shared/models";
 
 const useStyles = makeStyles({
   inputWrapper: {

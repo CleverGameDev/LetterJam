@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import React from "react";
 import { Socket } from "socket.io";
-import * as m from "../shared/models";
+import * as m from "../../shared/models";
 import NavBar from "./NavBar";
 
 type EndSceneProps = {
