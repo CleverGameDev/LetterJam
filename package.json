@@ -90,7 +90,7 @@
     }
   },
   "lint-staged": {
-    "**/*.{js,ts}": [
+    "**/*.{js,ts,tsx}": [
       "organize-imports-cli",
       "eslint --fix",
       "prettier --write"

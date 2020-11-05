@@ -29,24 +29,22 @@ function App() {
     });
   }, [socket]);
 
-  if (gameState === {} || socket === null) {
+  if (Object.keys(gameState).length === 0 || socket === null) {
     return <div>Loading...</div>;
   }
 
+  // Ensure that Typescript knows these are well defined..
+  const s = socket as SocketIO.Socket;
   const gs = gameState as ClientGameState;
   switch (gs.scene) {
     case SceneEnum.LobbyScene:
-      // @ts-ignore
-      return <LobbyScene socket={socket} gameState={gs} />;
+      return <LobbyScene socket={s} gameState={gs} />;
     case SceneEnum.SetupScene:
-      // @ts-ignore
-      return <SetupScene socket={socket} gameState={gs} />;
+      return <SetupScene socket={s} gameState={gs} />;
     case SceneEnum.GameScene:
-      // TODO: socket is always defined at this point
-      // @ts-ignore
-      return <GameScene socket={socket} gameState={gs} />;
+      return <GameScene socket={s} gameState={gs} />;
     case SceneEnum.EndScene:
-      return <EndScene socket={socket} gameState={gs} />;
+      return <EndScene socket={s} gameState={gs} />;
   }
 
   return <div>Error: Unable to game scene.</div>;
