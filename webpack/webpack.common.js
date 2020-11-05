@@ -4,8 +4,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
 
 module.exports = {
-  // entry: ["./src/client/scripts/game.ts", "./webpack/credits.js"],
-  // entry: ["./src/client2/src/index.tsx", "./webpack/credits.js"],
   entry: {
     app: "src/client2/src/index.tsx",
   },
@@ -52,7 +50,6 @@ module.exports = {
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: "src/client/assets", to: "assets" },
         { from: "pwa", to: "" },
         { from: "src/favicon.ico", to: "" },
       ],
