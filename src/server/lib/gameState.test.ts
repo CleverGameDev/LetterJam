@@ -70,10 +70,12 @@ test("takeClueToken()", () => {
   // Player1 then takes 2 green tokens
   gs.takeClueToken("player1");
   expect(gs.flower.green).toBe(1);
+  expect(gs.canTakeClueToken("player1")).toBe(true);
   gs.takeClueToken("player1");
   expect(gs.flower.green).toBe(0);
 
   // At this point, Player1 not allowed to take more tokens
+  expect(gs.canTakeClueToken("player1")).toBe(false);
   const result = gs.takeClueToken("player1");
   expect(gs.flower.green).toBe(0);
   expect(result).toBe(false);
@@ -84,6 +86,7 @@ test("takeClueToken()", () => {
   expect(gs.flower.red).toBe(1);
 
   // Taking the last red token should unlock more green tokens
+  expect(gs.flower.greenLocked).toBe(3);
   gs.takeClueToken("player2");
   expect(gs.flower.red).toBe(0);
   expect(gs.flower.greenLocked).toBe(0);
@@ -93,10 +96,16 @@ test("takeClueToken()", () => {
   expect(gs.flower.green).toBe(2);
   gs.takeClueToken("player2");
   expect(gs.flower.green).toBe(1);
+
+  // 1 token left, it's anyone's
+  expect(gs.canTakeClueToken("player1")).toBe(true);
+  expect(gs.canTakeClueToken("player2")).toBe(true);
   gs.takeClueToken("player1");
   expect(gs.flower.green).toBe(0);
 
   // There are no tokens left!
+  expect(gs.canTakeClueToken("player1")).toBe(false);
+  expect(gs.canTakeClueToken("player2")).toBe(false);
   const result2 = gs.takeClueToken("player1");
   expect(result2).toBe(false); // not allowed!
   expect(gs.flower).toStrictEqual({
