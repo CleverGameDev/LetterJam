@@ -8,17 +8,30 @@ To learn more about this repo's structure, review the README of the template pro
 
 ### Running Locally
 
+Install dependencies
+
 ```
-# Install dependencies
 $ npm install
+```
 
-# Start the local development server
-$ npm run startDev
+#### Dev Server
 
-# Ready for production?
-# Build the production ready code to the /dist folder
+Start the local development server
+
+```
+npm run start
+```
+
+#### Prod Server
+
+Ready for production? Build the production ready code to the /dist folder
+
+```
 $ npm run build
+```
 
-# Play your production ready game in the browser
+then play your production ready game in the browser
+
+```
 $ npm run startProd
 ```
