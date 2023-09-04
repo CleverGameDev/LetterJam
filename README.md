@@ -2,6 +2,14 @@
 
 An implementation of the [Letter Jam board game](https://boardgamegeek.com/boardgame/275467/letter-jam).
 
+**Screenshots**
+
+![Giving Clues](docs/letterjam-giving-clues.png)
+_Giving Clues_
+
+![Guessing Sheet](docs/letterjam-guessing-sheet.png)
+_Guessing Sheet_
+
 ## Development
 
 Install dependencies
